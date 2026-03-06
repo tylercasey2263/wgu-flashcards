@@ -19,8 +19,17 @@ Open the live site above, or clone and open locally:
 1. Clone this repository
 2. Open the desired course folder
 3. Open `<code>_flashcards.html` in any modern browser
-4. Use the arrow keys or on-screen buttons to navigate cards
-5. Click a card to flip between question and answer
+
+**Flashcard mode controls:**
+
+| Key / Action | Effect |
+|---|---|
+| `Space` or click card | Flip card |
+| `→` (after flipping) | Mark as "Got It" |
+| `←` (after flipping) | Mark as "Review Again" |
+| `S` | Shuffle deck |
+
+**Modes:** switch between **Flashcard** (interactive study) and **Browse** (scrollable list of all cards).
 
 No internet connection required after the initial font load.
 
@@ -31,6 +40,7 @@ wgu-flashcards/
 ├── index.html                          ← course hub / landing page
 ├── README.md
 ├── LICENSE
+├── .gitignore
 └── <course-code>-<topic>/
     └── <course-code>_flashcards.html   ← e.g. d830_flashcards.html
 ```

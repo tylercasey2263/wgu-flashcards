@@ -2,19 +2,23 @@
 
 Interactive browser-based flashcard sets for Western Governors University (WGU) coursework. Each course gets its own folder with a self-contained HTML file — no build step, no dependencies, just open in a browser.
 
+**Live site:** https://tylercasey2263.github.io/wgu-flashcards/
+
 ## Courses
 
-| Folder | Course | Description |
-|--------|--------|-------------|
-| [`d830-cryptography/`](d830-cryptography/) | D830 – Cryptography | Key concepts, algorithms, protocols, and terminology |
+| Course | Description | Link |
+|--------|-------------|------|
+| D830 – Cryptography | Key concepts, algorithms, protocols, and terminology | [Open](https://tylercasey2263.github.io/wgu-flashcards/d830-cryptography/d830_flashcards.html) |
 
 More courses will be added as they are completed.
 
 ## Usage
 
-1. Clone or download this repository
+Open the live site above, or clone and open locally:
+
+1. Clone this repository
 2. Open the desired course folder
-3. Open `index.html` in any modern browser
+3. Open `<code>_flashcards.html` in any modern browser
 4. Use the arrow keys or on-screen buttons to navigate cards
 5. Click a card to flip between question and answer
 
@@ -24,13 +28,14 @@ No internet connection required after the initial font load.
 
 ```
 wgu-flashcards/
+├── index.html                          ← course hub / landing page
 ├── README.md
 ├── LICENSE
 └── <course-code>-<topic>/
-    └── index.html
+    └── <course-code>_flashcards.html   ← e.g. d830_flashcards.html
 ```
 
-Each `index.html` is fully self-contained with all styles and card data embedded.
+Each flashcard file is fully self-contained with all styles and card data embedded.
 
 ## License
 

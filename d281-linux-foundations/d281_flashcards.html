@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WGU D281 – Linux Foundations Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --card-front: #161b22;
+    --card-back: #141e1a;
+    --accent: #2dcc8f;
+    --accent2: #58a6ff;
+    --accent3: #f78166;
+    --warn: #e3b341;
+    --text: #f0f6fc;
+    --muted: #9aabb8;
+    --border: rgba(255,255,255,0.1);
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* BG grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(0,229,160,0.12);
+    border: 1px solid rgba(0,229,160,0.3);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: clamp(24px, 5vw, 40px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #e8f0f7, #00e5a0 60%, #4f9eff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Category tabs */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+    justify-content: center;
+  }
+
+  .tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .tab:hover { border-color: var(--accent2); color: var(--accent2); }
+  .tab.active { background: rgba(79,158,255,0.15); border-color: var(--accent2); color: var(--accent2); }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    flex: 1;
+    min-width: 120px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 3px;
+    font-weight: 500;
+  }
+
+  .stat.correct .stat-num { color: var(--accent); }
+  .stat.wrong .stat-num { color: var(--accent3); }
+  .stat.remaining .stat-num { color: var(--accent2); }
+  .stat.total .stat-num { color: var(--warn); }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    height: 4px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  /* Card area */
+  .card-area {
+    perspective: 1200px;
+    margin-bottom: 24px;
+    cursor: pointer;
+  }
+
+  .card-inner {
+    position: relative;
+    width: 100%;
+    min-height: 300px;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-inner.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 300px;
+  }
+
+  .card-front {
+    background: linear-gradient(135deg, #1a2336, #111e30);
+    border: 1px solid rgba(79,158,255,0.25);
+    box-shadow: 0 0 40px rgba(79,158,255,0.06), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+
+  .card-back {
+    background: linear-gradient(135deg, #162219, #0e1c14);
+    border: 1px solid rgba(0,229,160,0.2);
+    box-shadow: 0 0 40px rgba(0,229,160,0.05), inset 0 1px 0 rgba(255,255,255,0.05);
+    transform: rotateY(180deg);
+  }
+
+  .card-category {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .card-front .card-category { background: rgba(79,158,255,0.12); color: var(--accent2); border: 1px solid rgba(79,158,255,0.2); }
+  .card-back .card-category { background: rgba(0,229,160,0.12); color: var(--accent); border: 1px solid rgba(0,229,160,0.2); }
+
+  .card-question {
+    font-size: clamp(17px, 3vw, 23px);
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+    margin-bottom: 16px;
+    letter-spacing: -0.1px;
+  }
+
+  .card-hint {
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+
+  .card-answer {
+    font-size: clamp(15px, 2.5vw, 19px);
+    line-height: 1.75;
+    color: #e8f5f0;
+    font-weight: 400;
+  }
+
+  .card-answer strong {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .card-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  /* Num indicator */
+  .card-num {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: 1px solid;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-flip {
+    background: rgba(79,158,255,0.1);
+    border-color: rgba(79,158,255,0.4);
+    color: var(--accent2);
+  }
+  .btn-flip:hover { background: rgba(79,158,255,0.2); transform: translateY(-1px); }
+
+  .btn-correct {
+    background: rgba(0,229,160,0.1);
+    border-color: rgba(0,229,160,0.4);
+    color: var(--accent);
+  }
+  .btn-correct:hover { background: rgba(0,229,160,0.2); transform: translateY(-1px); }
+
+  .btn-wrong {
+    background: rgba(255,107,107,0.1);
+    border-color: rgba(255,107,107,0.4);
+    color: var(--accent3);
+  }
+  .btn-wrong:hover { background: rgba(255,107,107,0.2); transform: translateY(-1px); }
+
+  .btn-shuffle {
+    background: rgba(245,197,66,0.1);
+    border-color: rgba(245,197,66,0.4);
+    color: var(--warn);
+  }
+  .btn-shuffle:hover { background: rgba(245,197,66,0.2); transform: translateY(-1px); }
+
+  .btn-reset {
+    background: rgba(255,255,255,0.04);
+    border-color: var(--border);
+    color: var(--muted);
+  }
+  .btn-reset:hover { border-color: var(--muted); color: var(--text); }
+
+  /* Judgment buttons only shown after flip */
+  .judge-btns { display: none; gap: 10px; justify-content: center; }
+  .judge-btns.visible { display: flex; }
+
+  /* Algorithm table */
+  .algo-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
+  .algo-table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 6px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .algo-table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+
+  .algo-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  /* Finished screen */
+  .finished {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .finished.show { display: block; }
+
+  .score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    box-shadow: 0 0 30px rgba(0,229,160,0.2);
+  }
+
+  .score-pct {
+    font-size: 32px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+  }
+
+  .score-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Card slide animation */
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .card-area.animating .card-inner { animation: slideIn 0.3s ease; }
+
+  /* ===== MODE TOGGLE ===== */
+  .mode-toggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 0 auto 28px;
+    width: fit-content;
+    background: var(--surface);
+  }
+
+  .mode-btn {
+    padding: 9px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .mode-btn svg { width: 14px; height: 14px; }
+  .mode-btn:hover { color: var(--text); }
+  .mode-btn.active { background: rgba(79,158,255,0.15); color: var(--accent2); }
+  .mode-btn + .mode-btn { border-left: 1px solid var(--border); }
+
+  /* ===== LIST / BROWSE MODE ===== */
+  .list-view { display: none; }
+  .list-view.visible { display: block; }
+
+  .list-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+  }
+
+  .list-search input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  .list-search input::placeholder { color: var(--muted); }
+
+  .list-search svg { color: var(--muted); flex-shrink: 0; }
+
+  .list-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .list-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .list-expand-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.08);
+    border: 1px solid rgba(79,158,255,0.2);
+    border-radius: 5px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .list-expand-btn:hover { background: rgba(79,158,255,0.16); }
+
+  .list-items { display: flex; flex-direction: column; gap: 8px; }
+
+  .list-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .list-item:hover { border-color: rgba(79,158,255,0.25); }
+  .list-item.open { border-color: rgba(0,229,160,0.25); }
+
+  .list-item-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .list-item-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 28px;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .list-item-q {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+  }
+
+  .list-item-cat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.1);
+    border: 1px solid rgba(79,158,255,0.15);
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+
+  .list-item-chevron {
+    color: var(--muted);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .list-item.open .list-item-chevron { transform: rotate(180deg); color: var(--accent); }
+
+  .list-item-answer {
+    display: none;
+    padding: 0 18px 16px 60px;
+    font-size: 15px;
+    line-height: 1.78;
+    color: #e8f5f0;
+    border-top: 1px solid rgba(0,229,160,0.1);
+    background: rgba(0,229,160,0.03);
+    padding-top: 14px;
+  }
+
+  .list-item.open .list-item-answer { display: block; }
+
+  .list-item-answer strong { color: var(--accent); }
+  .list-item-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  .list-item-answer table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+  .list-item-answer table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 5px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .list-item-answer table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+  .list-item-answer table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  .no-results {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  /* ===== HIDE FLASHCARD-ONLY ELEMENTS IN LIST MODE ===== */
+  .flashcard-only { transition: opacity 0.2s; }
+  .flashcard-only.hidden { display: none; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .card-face { padding: 24px 20px; }
+    .btn { padding: 10px 16px; font-size: 11px; }
+    .list-item-answer { padding-left: 18px; }
+    .list-item-cat { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="badge">WGU D281</div>
+    <h1>Linux Foundations</h1>
+    <p class="subtitle">// flashcard study system · 2025–2026</p>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs" id="tabs"></div>
+
+  <!-- Mode Toggle -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modeFlashcard" onclick="setMode('flashcard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="12" y1="4" x2="12" y2="20"/></svg>Flashcards
+    </button>
+    <button class="mode-btn" id="modeBrowse" onclick="setMode('browse')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>Browse All
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat remaining"><div class="stat-num" id="stat-remaining">0</div><div class="stat-label">Remaining</div></div>
+    <div class="stat correct"><div class="stat-num" id="stat-correct">0</div><div class="stat-label">Correct</div></div>
+    <div class="stat wrong"><div class="stat-num" id="stat-wrong">0</div><div class="stat-label">Review</div></div>
+    <div class="stat total"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total</div></div>
+  </div>
+
+  <div class="progress-wrap"><div class="progress-fill" id="progress"></div></div>
+
+  <!-- Card -->
+  <div class="card-area" id="cardArea" onclick="flipCard()">
+    <div class="card-inner" id="cardInner">
+      <div class="card-face card-front">
+        <div class="card-num" id="cardNum">1 / 0</div>
+        <span class="card-category" id="frontCategory">Loading...</span>
+        <div class="card-question" id="questionText">Loading flashcards...</div>
+        <div class="card-hint">[ tap to reveal answer ]</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="card-num" id="cardNumBack">1 / 0</div>
+        <span class="card-category" id="backCategory">Answer</span>
+        <div class="card-answer" id="answerText"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn btn-flip" onclick="flipCard()">⟳ Flip</button>
+    <button class="btn btn-shuffle" onclick="shuffleDeck()">⇄ Shuffle</button>
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Reset</button>
+  </div>
+
+  <div class="judge-btns" id="judgeBtns">
+    <button class="btn btn-correct" onclick="markCard(true)">✓ Got It</button>
+    <button class="btn btn-wrong" onclick="markCard(false)">✗ Review Again</button>
+  </div>
+
+  <!-- List / Browse View -->
+  <div class="list-view" id="listView">
+    <div class="list-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="listSearch" placeholder="Search questions or answers..." oninput="renderList()">
+    </div>
+    <div class="list-controls-row">
+      <span class="list-count" id="listCount">0 terms</span>
+      <button class="list-expand-btn" id="expandAllBtn" onclick="toggleExpandAll()">Expand All</button>
+    </div>
+    <div class="list-items" id="listItems"></div>
+  </div>
+
+  <!-- Finished Screen -->
+  <div class="finished" id="finishedScreen">
+    <div class="score-circle">
+      <div class="score-pct" id="scorePct">0%</div>
+      <div class="score-label">Score</div>
+    </div>
+    <h2 style="font-size:24px;margin-bottom:8px;">Deck Complete!</h2>
+    <p style="color:var(--muted);margin-bottom:24px;font-family:'JetBrains Mono',monospace;font-size:13px;">Cards marked for review will be cycled back.</p>
+    <button class="btn btn-shuffle" onclick="restartWithWrong()" id="reviewBtn">↺ Review Missed</button>
+    &nbsp;
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Full Restart</button>
+  </div>
+</div>
+
+<script>
+const ALL_CARDS = [
+  // ===== LINUX BASICS =====
+  { cat: "Linux Basics", q: "What is a Linux distribution?", a: "A <strong>Linux distribution (distro)</strong> is a complete operating system built around the <strong>Linux kernel</strong> bundled with system libraries, package managers, desktop environments, and applications. Popular distros include <strong>Ubuntu</strong> (Debian-based), <strong>CentOS/RHEL</strong> (enterprise), <strong>Fedora</strong> (cutting-edge), and <strong>Debian</strong> (stability-focused)." },
+  { cat: "Linux Basics", q: "What is the relationship between the kernel, shell, and GUI?", a: "The <strong>kernel</strong> is the core of the OS — it manages hardware, memory, and processes. The <strong>shell</strong> (e.g., Bash) is a command-line interpreter that translates user commands into kernel instructions. The <strong>GUI</strong> (e.g., GNOME, KDE) provides a graphical interface. Users interact with the shell or GUI, which communicate with the kernel." },
+  { cat: "Linux Basics", q: "What is Bash?", a: "<strong>Bash (Bourne Again Shell)</strong> is the default command-line shell on most Linux distributions. It interprets user commands, supports <strong>scripting</strong> (loops, conditionals, variables), <strong>command history</strong>, <strong>tab completion</strong>, <strong>aliases</strong>, and <strong>piping/redirection</strong>. It is a superset of the original Bourne shell (sh)." },
+  { cat: "Linux Basics", q: "What is the difference between the root user and a regular user?", a: "The <strong>root user</strong> (UID 0) has unrestricted access to every file, command, and process on the system — sometimes called the <strong>superuser</strong>. Regular users have limited permissions. Best practice is to use <strong>sudo</strong> for administrative tasks rather than logging in as root, following the principle of least privilege." },
+  { cat: "Linux Basics", q: "What is open source software and the GPL?", a: "<strong>Open source software</strong> provides freely available source code that anyone can view, modify, and distribute. The <strong>GPL (GNU General Public License)</strong> is the most common open source license — it requires that derivative works also be released under the GPL, ensuring the code remains <strong>free and open</strong> (copyleft)." },
+  { cat: "Linux Basics", q: "How does Linux differ from Windows in architecture?", a: "Linux treats <strong>everything as a file</strong> (devices, processes, sockets). It uses a <strong>single directory tree</strong> starting at / (no drive letters). Linux is <strong>case-sensitive</strong> for file names. It relies on <strong>file permissions</strong> (rwx) rather than ACLs by default. Most configuration is done through <strong>text files</strong> rather than a registry." },
+
+  // ===== FILE SYSTEM =====
+  { cat: "File System", q: "What is the Filesystem Hierarchy Standard (FHS)?", a: "The <strong>FHS</strong> defines the standard directory structure for Linux systems. Key directories:<br><span class='tag'>/</span> root of filesystem<br><span class='tag'>/home</span> user home directories<br><span class='tag'>/etc</span> configuration files<br><span class='tag'>/var</span> variable data (logs)<br><span class='tag'>/usr</span> user programs<br><span class='tag'>/bin</span> essential binaries<br><span class='tag'>/dev</span> device files" },
+  { cat: "File System", q: "What is the difference between absolute and relative paths?", a: "An <strong>absolute path</strong> starts from the root directory (/) and specifies the complete location, e.g., <span class='tag'>/home/user/docs/file.txt</span>. A <strong>relative path</strong> is relative to the current working directory, e.g., <span class='tag'>docs/file.txt</span>. Use <span class='tag'>.</span> for current directory and <span class='tag'>..</span> for parent directory." },
+  { cat: "File System", q: "What are the purposes of /etc, /var, and /tmp?", a: "<span class='tag'>/etc</span> — stores system-wide <strong>configuration files</strong> (e.g., /etc/passwd, /etc/fstab, /etc/hosts).<br><span class='tag'>/var</span> — holds <strong>variable data</strong> that changes during operation (logs in /var/log, mail, spool files).<br><span class='tag'>/tmp</span> — stores <strong>temporary files</strong> that are often cleared on reboot." },
+  { cat: "File System", q: "What does /dev contain and what are device files?", a: "<span class='tag'>/dev</span> contains <strong>device files</strong> that represent hardware devices. <span class='tag'>/dev/sda</span> is the first SATA disk, <span class='tag'>/dev/sda1</span> is its first partition. <span class='tag'>/dev/null</span> discards all data written to it. <span class='tag'>/dev/zero</span> provides an endless stream of zeros. These are not regular files — they are interfaces to the kernel." },
+  { cat: "File System", q: "What are hard links and symbolic links?", a: "A <strong>hard link</strong> is an additional directory entry pointing to the same <strong>inode</strong> (same data on disk) — deleting the original file does not affect the hard link. A <strong>symbolic (soft) link</strong> is a pointer to a file path — if the original file is deleted, the symlink becomes <strong>broken</strong>. Create with <span class='tag'>ln</span> (hard) or <span class='tag'>ln -s</span> (symbolic)." },
+
+  // ===== FILE PERMISSIONS =====
+  { cat: "File Permissions", q: "How do Linux file permissions work (rwx)?", a: "Each file has three permission sets: <strong>Owner (u)</strong>, <strong>Group (g)</strong>, <strong>Others (o)</strong>. Each set has three permissions: <strong>r</strong> (read), <strong>w</strong> (write), <strong>x</strong> (execute). For directories, r=list contents, w=add/delete files, x=enter directory. Displayed as: <span class='tag'>-rwxr-xr--</span> (owner: rwx, group: r-x, others: r--)." },
+  { cat: "File Permissions", q: "How do numeric (octal) permissions work?", a: "Each permission has a value: <strong>r=4</strong>, <strong>w=2</strong>, <strong>x=1</strong>. Add values for each set.<br><span class='tag'>755</span> = owner rwx (7), group r-x (5), others r-x (5) — typical for executables.<br><span class='tag'>644</span> = owner rw- (6), group r-- (4), others r-- (4) — typical for regular files.<br><span class='tag'>700</span> = owner rwx, no access for group or others." },
+  { cat: "File Permissions", q: "How do chmod, chown, and chgrp work?", a: "<span class='tag'>chmod</span> changes permissions: <span class='tag'>chmod 755 file</span> (numeric) or <span class='tag'>chmod u+x file</span> (symbolic).<br><span class='tag'>chown</span> changes file owner: <span class='tag'>chown user:group file</span>.<br><span class='tag'>chgrp</span> changes group ownership: <span class='tag'>chgrp groupname file</span>.<br>Use <span class='tag'>-R</span> flag for recursive changes on directories." },
+  { cat: "File Permissions", q: "What are the sticky bit, setuid, and setgid?", a: "<strong>Sticky bit</strong> (1xxx or +t) on a directory means only the file owner can delete their files — used on <span class='tag'>/tmp</span>.<br><strong>Setuid</strong> (4xxx or u+s) executes a file with the owner's permissions — used by <span class='tag'>passwd</span>.<br><strong>Setgid</strong> (2xxx or g+s) on a directory makes new files inherit the group." },
+  { cat: "File Permissions", q: "What is the umask and how does it work?", a: "The <strong>umask</strong> sets default permissions for newly created files and directories by <strong>masking out</strong> (removing) specified permissions. A umask of <span class='tag'>022</span> removes write from group and others, resulting in files at 644 and directories at 755. View with <span class='tag'>umask</span> command; set in shell profile files." },
+
+  // ===== COMMANDS =====
+  { cat: "Commands", q: "What are the essential file navigation commands?", a: "<span class='tag'>pwd</span> — print working directory (shows current location).<br><span class='tag'>ls</span> — list directory contents (<span class='tag'>-l</span> long format, <span class='tag'>-a</span> show hidden, <span class='tag'>-h</span> human-readable sizes).<br><span class='tag'>cd</span> — change directory (<span class='tag'>cd ~</span> home, <span class='tag'>cd ..</span> parent, <span class='tag'>cd -</span> previous directory)." },
+  { cat: "Commands", q: "What are the essential file manipulation commands?", a: "<span class='tag'>cp src dest</span> — copy files (<span class='tag'>-r</span> for directories).<br><span class='tag'>mv src dest</span> — move or rename files.<br><span class='tag'>rm file</span> — delete files (<span class='tag'>-r</span> for directories, <span class='tag'>-f</span> force).<br><span class='tag'>mkdir dir</span> — create directory (<span class='tag'>-p</span> create parents).<br><span class='tag'>touch file</span> — create empty file or update timestamp." },
+  { cat: "Commands", q: "How do cat, less, head, and tail differ?", a: "<span class='tag'>cat</span> — displays entire file content at once.<br><span class='tag'>less</span> — displays file one page at a time with scrolling (preferred for large files).<br><span class='tag'>head -n 20 file</span> — shows the first 20 lines.<br><span class='tag'>tail -n 20 file</span> — shows the last 20 lines.<br><span class='tag'>tail -f file</span> — follows a file in real-time (great for logs)." },
+  { cat: "Commands", q: "How do grep and find work?", a: "<span class='tag'>grep pattern file</span> — searches for text patterns in files (<span class='tag'>-i</span> case-insensitive, <span class='tag'>-r</span> recursive, <span class='tag'>-n</span> show line numbers).<br><span class='tag'>find /path -name \"*.log\"</span> — searches for files by name, type, size, or modification time. Example: <span class='tag'>find / -type f -size +100M</span> finds files larger than 100 MB." },
+  { cat: "Commands", q: "What are pipes and redirection in Linux?", a: "<span class='tag'>|</span> (pipe) sends output of one command as input to another: <span class='tag'>ls -l | grep .txt</span>.<br><span class='tag'>></span> redirects output to a file (overwrites).<br><span class='tag'>>></span> appends output to a file.<br><span class='tag'><</span> takes input from a file.<br><span class='tag'>2></span> redirects error output. Example: <span class='tag'>command > out.txt 2>&1</span> captures both stdout and stderr." },
+
+  // ===== USERS & GROUPS =====
+  { cat: "Users & Groups", q: "How do you manage user accounts in Linux?", a: "<span class='tag'>useradd username</span> — creates a new user account.<br><span class='tag'>usermod -aG groupname username</span> — adds user to a group.<br><span class='tag'>userdel -r username</span> — deletes user and their home directory.<br><span class='tag'>passwd username</span> — sets or changes a user's password.<br>The <span class='tag'>-aG</span> flag appends the group without removing existing group memberships." },
+  { cat: "Users & Groups", q: "What do /etc/passwd, /etc/shadow, and /etc/group contain?", a: "<span class='tag'>/etc/passwd</span> — user account info: username, UID, GID, home directory, shell (readable by all).<br><span class='tag'>/etc/shadow</span> — hashed passwords and password policies (root-only access).<br><span class='tag'>/etc/group</span> — group definitions: group name, GID, and member list." },
+  { cat: "Users & Groups", q: "What is the difference between su and sudo?", a: "<span class='tag'>su</span> (switch user) changes to another user's account entirely, requiring that user's password. <span class='tag'>su -</span> switches to root with root's environment.<br><span class='tag'>sudo</span> executes a single command as root using <strong>your own password</strong>. Sudo access is configured in <span class='tag'>/etc/sudoers</span> and provides better audit logging." },
+  { cat: "Users & Groups", q: "What is the purpose of groups in Linux?", a: "<strong>Groups</strong> allow multiple users to share access to files and resources. Each user has a <strong>primary group</strong> (assigned at creation) and can belong to multiple <strong>secondary groups</strong>. File permissions use groups to grant read, write, or execute access to a set of users without giving access to everyone." },
+
+  // ===== PROCESSES & JOBS =====
+  { cat: "Processes & Jobs", q: "How do ps and top work?", a: "<span class='tag'>ps</span> displays a snapshot of current processes. <span class='tag'>ps aux</span> shows all processes with details (user, PID, CPU%, memory, command).<br><span class='tag'>top</span> displays a real-time, continuously updating view of processes sorted by CPU usage. Press <strong>q</strong> to quit, <strong>M</strong> to sort by memory, <strong>k</strong> to kill a process." },
+  { cat: "Processes & Jobs", q: "How do you manage background and foreground jobs?", a: "Append <span class='tag'>&</span> to run a command in the background: <span class='tag'>command &</span>.<br><span class='tag'>Ctrl+Z</span> suspends the current foreground process.<br><span class='tag'>bg</span> resumes a suspended job in the background.<br><span class='tag'>fg</span> brings a background job to the foreground.<br><span class='tag'>jobs</span> lists all current jobs with their job numbers." },
+  { cat: "Processes & Jobs", q: "How do you send signals to processes with kill?", a: "<span class='tag'>kill PID</span> sends SIGTERM (15) — politely asks a process to terminate.<br><span class='tag'>kill -9 PID</span> sends SIGKILL — forces immediate termination (cannot be caught).<br><span class='tag'>kill -HUP PID</span> sends SIGHUP — often used to reload configuration.<br><span class='tag'>killall name</span> kills all processes by name." },
+  { cat: "Processes & Jobs", q: "What is cron and how does crontab work?", a: "<strong>Cron</strong> is the Linux task scheduler that runs commands at specified times. Edit your schedule with <span class='tag'>crontab -e</span>. Format: <span class='tag'>min hour day month weekday command</span>. Example: <span class='tag'>0 2 * * * /backup.sh</span> runs backup.sh at 2:00 AM daily. Use <span class='tag'>crontab -l</span> to list scheduled jobs." },
+  { cat: "Processes & Jobs", q: "What is a daemon in Linux?", a: "A <strong>daemon</strong> is a background process that runs continuously without user interaction, typically started at boot. Daemon names usually end in <strong>d</strong> (e.g., sshd, httpd, crond). They are managed by the init system — <span class='tag'>systemctl start sshd</span> (systemd) or <span class='tag'>service sshd start</span> (SysVinit)." },
+
+  // ===== NETWORKING =====
+  { cat: "Networking", q: "How do you view network configuration in Linux?", a: "<span class='tag'>ip addr</span> (modern) or <span class='tag'>ifconfig</span> (legacy) — displays IP addresses and interface information.<br><span class='tag'>ip route</span> — shows the routing table and default gateway.<br><span class='tag'>hostname</span> — displays the system hostname.<br><span class='tag'>cat /etc/resolv.conf</span> — shows configured DNS servers." },
+  { cat: "Networking", q: "How does SSH work and how do you use it?", a: "<strong>SSH (Secure Shell)</strong> provides encrypted remote access to Linux systems. Basic usage: <span class='tag'>ssh user@hostname</span>. SSH uses <strong>port 22</strong> by default. For key-based authentication, generate keys with <span class='tag'>ssh-keygen</span> and copy the public key to the server with <span class='tag'>ssh-copy-id</span>. This is more secure than password authentication." },
+  { cat: "Networking", q: "What is netstat and what does it show?", a: "<span class='tag'>netstat</span> displays network connections, routing tables, and interface statistics. Common usage: <span class='tag'>netstat -tulnp</span> shows all listening TCP/UDP ports with process names. The modern replacement is <span class='tag'>ss -tulnp</span>. These tools help diagnose connectivity issues and verify which services are running." },
+  { cat: "Networking", q: "How do Linux firewalls work (ufw and firewalld)?", a: "<strong>ufw (Uncomplicated Firewall)</strong> — Ubuntu's front-end for iptables. <span class='tag'>ufw allow 22/tcp</span> opens SSH, <span class='tag'>ufw enable</span> activates it.<br><strong>firewalld</strong> — RHEL/CentOS firewall with zones. <span class='tag'>firewall-cmd --add-service=http --permanent</span> allows HTTP. Both manage <strong>iptables/nftables</strong> rules underneath." },
+
+  // ===== PACKAGE MANAGEMENT =====
+  { cat: "Package Management", q: "What are the main Linux package managers?", a: "<table class='algo-table'><tr><th>Family</th><th>Low-level</th><th>High-level</th><th>Distros</th></tr><tr><td>Debian</td><td>dpkg</td><td>apt / apt-get</td><td>Ubuntu, Debian</td></tr><tr><td>Red Hat</td><td>rpm</td><td>yum / dnf</td><td>RHEL, CentOS, Fedora</td></tr></table>" },
+  { cat: "Package Management", q: "What are common apt commands?", a: "<span class='tag'>apt update</span> — refreshes package index from repositories.<br><span class='tag'>apt upgrade</span> — upgrades all installed packages.<br><span class='tag'>apt install package</span> — installs a package and its dependencies.<br><span class='tag'>apt remove package</span> — removes a package.<br><span class='tag'>apt search keyword</span> — searches for packages by name or description." },
+  { cat: "Package Management", q: "What are common yum/dnf commands?", a: "<span class='tag'>dnf install package</span> — installs a package and dependencies.<br><span class='tag'>dnf update</span> — updates all packages.<br><span class='tag'>dnf remove package</span> — removes a package.<br><span class='tag'>dnf search keyword</span> — searches for packages.<br><span class='tag'>dnf info package</span> — displays package details.<br><strong>dnf</strong> is the modern replacement for <strong>yum</strong> on RHEL 8+ and Fedora." },
+  { cat: "Package Management", q: "What is the difference between a package manager and compiling from source?", a: "A <strong>package manager</strong> installs pre-compiled binaries, automatically resolves <strong>dependencies</strong>, and handles updates and removal cleanly. <strong>Compiling from source</strong> (<span class='tag'>./configure && make && make install</span>) gives maximum control and customization but requires manual dependency management and does not integrate with the package manager." },
+  { cat: "Package Management", q: "What are environment variables and how do you set them?", a: "<strong>Environment variables</strong> store system-wide or user-specific configuration. <span class='tag'>echo $PATH</span> — shows the executable search path.<br><span class='tag'>export VAR=value</span> — sets a variable for the current session.<br>For persistence, add to <span class='tag'>~/.bashrc</span> or <span class='tag'>/etc/environment</span>. Common variables: <span class='tag'>PATH</span>, <span class='tag'>HOME</span>, <span class='tag'>USER</span>, <span class='tag'>SHELL</span>." },
+  { cat: "Package Management", q: "What are the basics of vi/nano text editors?", a: "<strong>nano</strong> — beginner-friendly, commands shown at bottom. <span class='tag'>Ctrl+O</span> save, <span class='tag'>Ctrl+X</span> exit.<br><strong>vi/vim</strong> — powerful modal editor. <strong>Normal mode</strong>: navigate and command. <strong>Insert mode</strong>: press <span class='tag'>i</span> to type. <strong>Command mode</strong>: press <span class='tag'>:</span> then <span class='tag'>wq</span> (save+quit) or <span class='tag'>q!</span> (quit without saving)." },
+];
+
+
+let deck = [];
+let current = 0;
+let correctCount = 0;
+let wrongCards = [];
+let isFlipped = false;
+let activeCategory = "All";
+
+function getCategories() {
+  const cats = ["All", ...new Set(ALL_CARDS.map(c => c.cat))];
+  return cats;
+}
+
+function buildTabs() {
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = '';
+  getCategories().forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (cat === activeCategory ? ' active' : '');
+    const count = cat === 'All' ? ALL_CARDS.length : ALL_CARDS.filter(c => c.cat === cat).length;
+    btn.textContent = `${cat} (${count})`;
+    btn.onclick = () => {
+      activeCategory = cat;
+      buildTabs();
+      if (currentMode === 'browse') {
+        renderList();
+      } else {
+        resetDeck();
+      }
+    };
+    tabsEl.appendChild(btn);
+  });
+}
+
+function resetDeck() {
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  deck = [...source];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+function shuffleDeck() {
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  current = 0;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('cardInner').classList.toggle('flipped', isFlipped);
+  if (isFlipped) {
+    document.getElementById('judgeBtns').classList.add('visible');
+  } else {
+    document.getElementById('judgeBtns').classList.remove('visible');
+  }
+}
+
+function markCard(correct) {
+  if (correct) {
+    correctCount++;
+  } else {
+    wrongCards.push(deck[current]);
+  }
+  current++;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+
+  if (current >= deck.length) {
+    showFinished();
+  } else {
+    // animate
+    const area = document.getElementById('cardArea');
+    area.classList.add('animating');
+    setTimeout(() => area.classList.remove('animating'), 300);
+    updateCard();
+    updateStats();
+  }
+}
+
+function updateCard() {
+  if (current >= deck.length) return;
+  const card = deck[current];
+  document.getElementById('questionText').textContent = card.q;
+  document.getElementById('answerText').innerHTML = card.a;
+  document.getElementById('frontCategory').textContent = card.cat;
+  document.getElementById('backCategory').textContent = card.cat + ' — Answer';
+  const num = `${current + 1} / ${deck.length}`;
+  document.getElementById('cardNum').textContent = num;
+  document.getElementById('cardNumBack').textContent = num;
+  updateStats();
+}
+
+function updateStats() {
+  const remaining = deck.length - current;
+  document.getElementById('stat-remaining').textContent = remaining;
+  document.getElementById('stat-correct').textContent = correctCount;
+  document.getElementById('stat-wrong').textContent = wrongCards.length;
+  document.getElementById('stat-total').textContent = deck.length;
+  const pct = deck.length > 0 ? ((current / deck.length) * 100).toFixed(0) : 0;
+  document.getElementById('progress').style.width = pct + '%';
+}
+
+function showFinished() {
+  document.getElementById('cardArea').style.display = 'none';
+  const finished = document.getElementById('finishedScreen');
+  finished.classList.add('show');
+  const total = correctCount + wrongCards.length;
+  const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+  document.getElementById('scorePct').textContent = pct + '%';
+  document.getElementById('reviewBtn').style.display = wrongCards.length > 0 ? '' : 'none';
+  updateStats();
+}
+
+function restartWithWrong() {
+  if (wrongCards.length === 0) { resetDeck(); return; }
+  deck = [...wrongCards];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+// Keyboard support
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); flipCard(); }
+  if (e.code === 'ArrowRight' && isFlipped) markCard(true);
+  if (e.code === 'ArrowLeft' && isFlipped) markCard(false);
+  if (e.code === 'KeyS') shuffleDeck();
+});
+
+// ===== MODE MANAGEMENT =====
+let currentMode = 'flashcard';
+let allExpanded = false;
+
+function setMode(mode) {
+  currentMode = mode;
+  const flashcardEls = [
+    document.getElementById('cardArea'),
+    document.querySelector('.stats-bar'),
+    document.querySelector('.progress-wrap'),
+    document.querySelector('.controls'),
+    document.getElementById('judgeBtns'),
+    document.getElementById('finishedScreen'),
+  ];
+  const listView = document.getElementById('listView');
+  const btnFlash = document.getElementById('modeFlashcard');
+  const btnBrowse = document.getElementById('modeBrowse');
+
+  if (mode === 'flashcard') {
+    flashcardEls.forEach(el => { if (el) el.style.display = ''; });
+    listView.classList.remove('visible');
+    btnFlash.classList.add('active');
+    btnBrowse.classList.remove('active');
+    // Re-hide finished if it wasn't showing
+    if (current < deck.length) document.getElementById('finishedScreen').classList.remove('show');
+  } else {
+    // Browse mode
+    flashcardEls.forEach(el => { if (el) el.style.display = 'none'; });
+    listView.classList.add('visible');
+    btnFlash.classList.remove('active');
+    btnBrowse.classList.add('active');
+    renderList();
+  }
+}
+
+function renderList() {
+  const query = (document.getElementById('listSearch').value || '').toLowerCase().trim();
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  const filtered = query
+    ? source.filter(c => c.q.toLowerCase().includes(query) || c.a.toLowerCase().replace(/<[^>]+>/g, '').includes(query))
+    : source;
+
+  document.getElementById('listCount').textContent = `${filtered.length} term${filtered.length !== 1 ? 's' : ''}`;
+
+  const container = document.getElementById('listItems');
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="no-results">No matching cards found.</div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map((card, i) => {
+    const globalIdx = ALL_CARDS.indexOf(card) + 1;
+    return `
+    <div class="list-item" id="li-${i}">
+      <div class="list-item-header" onclick="toggleListItem(${i})">
+        <span class="list-item-num">${globalIdx}</span>
+        <span class="list-item-q">${escapeHtml(card.q)}</span>
+        <span class="list-item-cat">${card.cat}</span>
+        <svg class="list-item-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="list-item-answer">${card.a}</div>
+    </div>`;
+  }).join('');
+
+  // Restore expanded state if allExpanded
+  if (allExpanded) {
+    container.querySelectorAll('.list-item').forEach(el => el.classList.add('open'));
+  }
+}
+
+function toggleListItem(idx) {
+  const el = document.getElementById(`li-${idx}`);
+  if (el) el.classList.toggle('open');
+}
+
+function toggleExpandAll() {
+  allExpanded = !allExpanded;
+  const btn = document.getElementById('expandAllBtn');
+  btn.textContent = allExpanded ? 'Collapse All' : 'Expand All';
+  document.querySelectorAll('.list-item').forEach(el => {
+    if (allExpanded) el.classList.add('open');
+    else el.classList.remove('open');
+  });
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Init
+buildTabs();
+resetDeck();
+</script>
+</body>
+</html>

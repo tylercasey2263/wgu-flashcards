@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WGU D431 – Digital Forensics in Cybersecurity Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --card-front: #161b22;
+    --card-back: #141e1a;
+    --accent: #2dcc8f;
+    --accent2: #58a6ff;
+    --accent3: #f78166;
+    --warn: #e3b341;
+    --text: #f0f6fc;
+    --muted: #9aabb8;
+    --border: rgba(255,255,255,0.1);
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* BG grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(0,229,160,0.12);
+    border: 1px solid rgba(0,229,160,0.3);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: clamp(24px, 5vw, 40px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #e8f0f7, #00e5a0 60%, #4f9eff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Category tabs */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+    justify-content: center;
+  }
+
+  .tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .tab:hover { border-color: var(--accent2); color: var(--accent2); }
+  .tab.active { background: rgba(79,158,255,0.15); border-color: var(--accent2); color: var(--accent2); }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    flex: 1;
+    min-width: 120px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 3px;
+    font-weight: 500;
+  }
+
+  .stat.correct .stat-num { color: var(--accent); }
+  .stat.wrong .stat-num { color: var(--accent3); }
+  .stat.remaining .stat-num { color: var(--accent2); }
+  .stat.total .stat-num { color: var(--warn); }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    height: 4px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  /* Card area */
+  .card-area {
+    perspective: 1200px;
+    margin-bottom: 24px;
+    cursor: pointer;
+  }
+
+  .card-inner {
+    position: relative;
+    width: 100%;
+    min-height: 300px;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-inner.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 300px;
+  }
+
+  .card-front {
+    background: linear-gradient(135deg, #1a2336, #111e30);
+    border: 1px solid rgba(79,158,255,0.25);
+    box-shadow: 0 0 40px rgba(79,158,255,0.06), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+
+  .card-back {
+    background: linear-gradient(135deg, #162219, #0e1c14);
+    border: 1px solid rgba(0,229,160,0.2);
+    box-shadow: 0 0 40px rgba(0,229,160,0.05), inset 0 1px 0 rgba(255,255,255,0.05);
+    transform: rotateY(180deg);
+  }
+
+  .card-category {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .card-front .card-category { background: rgba(79,158,255,0.12); color: var(--accent2); border: 1px solid rgba(79,158,255,0.2); }
+  .card-back .card-category { background: rgba(0,229,160,0.12); color: var(--accent); border: 1px solid rgba(0,229,160,0.2); }
+
+  .card-question {
+    font-size: clamp(17px, 3vw, 23px);
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+    margin-bottom: 16px;
+    letter-spacing: -0.1px;
+  }
+
+  .card-hint {
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+
+  .card-answer {
+    font-size: clamp(15px, 2.5vw, 19px);
+    line-height: 1.75;
+    color: #e8f5f0;
+    font-weight: 400;
+  }
+
+  .card-answer strong {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .card-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  /* Num indicator */
+  .card-num {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: 1px solid;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-flip {
+    background: rgba(79,158,255,0.1);
+    border-color: rgba(79,158,255,0.4);
+    color: var(--accent2);
+  }
+  .btn-flip:hover { background: rgba(79,158,255,0.2); transform: translateY(-1px); }
+
+  .btn-correct {
+    background: rgba(0,229,160,0.1);
+    border-color: rgba(0,229,160,0.4);
+    color: var(--accent);
+  }
+  .btn-correct:hover { background: rgba(0,229,160,0.2); transform: translateY(-1px); }
+
+  .btn-wrong {
+    background: rgba(255,107,107,0.1);
+    border-color: rgba(255,107,107,0.4);
+    color: var(--accent3);
+  }
+  .btn-wrong:hover { background: rgba(255,107,107,0.2); transform: translateY(-1px); }
+
+  .btn-shuffle {
+    background: rgba(245,197,66,0.1);
+    border-color: rgba(245,197,66,0.4);
+    color: var(--warn);
+  }
+  .btn-shuffle:hover { background: rgba(245,197,66,0.2); transform: translateY(-1px); }
+
+  .btn-reset {
+    background: rgba(255,255,255,0.04);
+    border-color: var(--border);
+    color: var(--muted);
+  }
+  .btn-reset:hover { border-color: var(--muted); color: var(--text); }
+
+  /* Judgment buttons only shown after flip */
+  .judge-btns { display: none; gap: 10px; justify-content: center; }
+  .judge-btns.visible { display: flex; }
+
+  /* Algorithm table */
+  .algo-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
+  .algo-table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 6px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .algo-table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+
+  .algo-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  /* Finished screen */
+  .finished {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .finished.show { display: block; }
+
+  .score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    box-shadow: 0 0 30px rgba(0,229,160,0.2);
+  }
+
+  .score-pct {
+    font-size: 32px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+  }
+
+  .score-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Card slide animation */
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .card-area.animating .card-inner { animation: slideIn 0.3s ease; }
+
+  /* ===== MODE TOGGLE ===== */
+  .mode-toggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 0 auto 28px;
+    width: fit-content;
+    background: var(--surface);
+  }
+
+  .mode-btn {
+    padding: 9px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .mode-btn svg { width: 14px; height: 14px; }
+  .mode-btn:hover { color: var(--text); }
+  .mode-btn.active { background: rgba(79,158,255,0.15); color: var(--accent2); }
+  .mode-btn + .mode-btn { border-left: 1px solid var(--border); }
+
+  /* ===== LIST / BROWSE MODE ===== */
+  .list-view { display: none; }
+  .list-view.visible { display: block; }
+
+  .list-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+  }
+
+  .list-search input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  .list-search input::placeholder { color: var(--muted); }
+
+  .list-search svg { color: var(--muted); flex-shrink: 0; }
+
+  .list-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .list-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .list-expand-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.08);
+    border: 1px solid rgba(79,158,255,0.2);
+    border-radius: 5px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .list-expand-btn:hover { background: rgba(79,158,255,0.16); }
+
+  .list-items { display: flex; flex-direction: column; gap: 8px; }
+
+  .list-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .list-item:hover { border-color: rgba(79,158,255,0.25); }
+  .list-item.open { border-color: rgba(0,229,160,0.25); }
+
+  .list-item-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .list-item-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 28px;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .list-item-q {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+  }
+
+  .list-item-cat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.1);
+    border: 1px solid rgba(79,158,255,0.15);
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+
+  .list-item-chevron {
+    color: var(--muted);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .list-item.open .list-item-chevron { transform: rotate(180deg); color: var(--accent); }
+
+  .list-item-answer {
+    display: none;
+    padding: 0 18px 16px 60px;
+    font-size: 15px;
+    line-height: 1.78;
+    color: #e8f5f0;
+    border-top: 1px solid rgba(0,229,160,0.1);
+    background: rgba(0,229,160,0.03);
+    padding-top: 14px;
+  }
+
+  .list-item.open .list-item-answer { display: block; }
+
+  .list-item-answer strong { color: var(--accent); }
+  .list-item-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  .list-item-answer table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+  .list-item-answer table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 5px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .list-item-answer table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+  .list-item-answer table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  .no-results {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  /* ===== HIDE FLASHCARD-ONLY ELEMENTS IN LIST MODE ===== */
+  .flashcard-only { transition: opacity 0.2s; }
+  .flashcard-only.hidden { display: none; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .card-face { padding: 24px 20px; }
+    .btn { padding: 10px 16px; font-size: 11px; }
+    .list-item-answer { padding-left: 18px; }
+    .list-item-cat { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="badge">WGU D431</div>
+    <h1>Digital Forensics in Cybersecurity</h1>
+    <p class="subtitle">// flashcard study system · 2025–2026</p>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs" id="tabs"></div>
+
+  <!-- Mode Toggle -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modeFlashcard" onclick="setMode('flashcard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="12" y1="4" x2="12" y2="20"/></svg>Flashcards
+    </button>
+    <button class="mode-btn" id="modeBrowse" onclick="setMode('browse')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>Browse All
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat remaining"><div class="stat-num" id="stat-remaining">0</div><div class="stat-label">Remaining</div></div>
+    <div class="stat correct"><div class="stat-num" id="stat-correct">0</div><div class="stat-label">Correct</div></div>
+    <div class="stat wrong"><div class="stat-num" id="stat-wrong">0</div><div class="stat-label">Review</div></div>
+    <div class="stat total"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total</div></div>
+  </div>
+
+  <div class="progress-wrap"><div class="progress-fill" id="progress"></div></div>
+
+  <!-- Card -->
+  <div class="card-area" id="cardArea" onclick="flipCard()">
+    <div class="card-inner" id="cardInner">
+      <div class="card-face card-front">
+        <div class="card-num" id="cardNum">1 / 0</div>
+        <span class="card-category" id="frontCategory">Loading...</span>
+        <div class="card-question" id="questionText">Loading flashcards...</div>
+        <div class="card-hint">[ tap to reveal answer ]</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="card-num" id="cardNumBack">1 / 0</div>
+        <span class="card-category" id="backCategory">Answer</span>
+        <div class="card-answer" id="answerText"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn btn-flip" onclick="flipCard()">⟳ Flip</button>
+    <button class="btn btn-shuffle" onclick="shuffleDeck()">⇄ Shuffle</button>
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Reset</button>
+  </div>
+
+  <div class="judge-btns" id="judgeBtns">
+    <button class="btn btn-correct" onclick="markCard(true)">✓ Got It</button>
+    <button class="btn btn-wrong" onclick="markCard(false)">✗ Review Again</button>
+  </div>
+
+  <!-- List / Browse View -->
+  <div class="list-view" id="listView">
+    <div class="list-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="listSearch" placeholder="Search questions or answers..." oninput="renderList()">
+    </div>
+    <div class="list-controls-row">
+      <span class="list-count" id="listCount">0 terms</span>
+      <button class="list-expand-btn" id="expandAllBtn" onclick="toggleExpandAll()">Expand All</button>
+    </div>
+    <div class="list-items" id="listItems"></div>
+  </div>
+
+  <!-- Finished Screen -->
+  <div class="finished" id="finishedScreen">
+    <div class="score-circle">
+      <div class="score-pct" id="scorePct">0%</div>
+      <div class="score-label">Score</div>
+    </div>
+    <h2 style="font-size:24px;margin-bottom:8px;">Deck Complete!</h2>
+    <p style="color:var(--muted);margin-bottom:24px;font-family:'JetBrains Mono',monospace;font-size:13px;">Cards marked for review will be cycled back.</p>
+    <button class="btn btn-shuffle" onclick="restartWithWrong()" id="reviewBtn">↺ Review Missed</button>
+    &nbsp;
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Full Restart</button>
+  </div>
+</div>
+
+<script>
+const ALL_CARDS = [
+  // ===== FORENSICS FUNDAMENTALS =====
+  { cat: "Forensics Fundamentals", q: "What is digital forensics?", a: "<strong>Digital forensics</strong> is the application of scientific methods to <strong>identify, preserve, collect, examine, analyze, and present</strong> digital evidence from electronic devices. It is used in criminal investigations, civil litigation, internal corporate investigations, and incident response." },
+  { cat: "Forensics Fundamentals", q: "What are the six phases of the digital forensics process?", a: "<strong>1.</strong> Identification – recognize potential evidence sources<br><strong>2.</strong> Preservation – protect evidence from alteration<br><strong>3.</strong> Collection – acquire evidence using forensic methods<br><strong>4.</strong> Examination – extract relevant data from collected evidence<br><strong>5.</strong> Analysis – interpret findings and draw conclusions<br><strong>6.</strong> Presentation – report findings in a clear, admissible format" },
+  { cat: "Forensics Fundamentals", q: "What is the chain of custody?", a: "<strong>Chain of custody</strong> is a chronological record documenting <strong>who handled evidence, when, where, and what actions were taken</strong>. It proves evidence integrity from collection through court presentation. A broken chain can render evidence <strong>inadmissible</strong> because it cannot be proven untampered." },
+  { cat: "Forensics Fundamentals", q: "What is the order of volatility?", a: "Evidence should be collected from <strong>most volatile to least volatile</strong>:<br><strong>1.</strong> CPU registers and cache<br><strong>2.</strong> RAM (system memory)<br><strong>3.</strong> Swap/page files<br><strong>4.</strong> Hard disk/SSD<br><strong>5.</strong> Remote logging and monitoring data<br><strong>6.</strong> Optical/archival media<br>Volatile data is lost when power is removed." },
+  { cat: "Forensics Fundamentals", q: "What are the types of digital evidence?", a: "<strong>Physical evidence</strong> – tangible devices (hard drives, phones, USB drives)<br><strong>Logical evidence</strong> – data extracted from devices (files, logs, databases)<br><strong>Documentary evidence</strong> – printouts, screenshots, reports derived from digital sources<br>Each type has different <strong>handling, authentication, and admissibility</strong> requirements." },
+  { cat: "Forensics Fundamentals", q: "What is the difference between a forensic image and a backup?", a: "A <strong>forensic image</strong> is a <strong>bit-for-bit exact copy</strong> of a storage device including deleted files, slack space, and unallocated space. A <strong>backup</strong> copies only active files and folders. Forensic images preserve all evidence while backups do not capture deleted or hidden data." },
+  { cat: "Forensics Fundamentals", q: "What is Locard's Exchange Principle in digital forensics?", a: "<strong>Locard's Exchange Principle</strong> states that every contact leaves a trace. In digital forensics, this means that any interaction with a system <strong>leaves digital artifacts</strong> — log entries, timestamps, registry changes, metadata — that can be used to reconstruct events and attribute actions." },
+
+  // ===== EVIDENCE COLLECTION =====
+  { cat: "Evidence Collection", q: "What is a write blocker and why is it essential?", a: "A <strong>write blocker</strong> is a hardware or software tool that prevents any <strong>write operations to a storage device</strong> during forensic acquisition. It ensures evidence integrity by guaranteeing the original media is not modified during imaging. Using a write blocker is a <strong>legal and procedural requirement</strong>." },
+  { cat: "Evidence Collection", q: "What is forensic imaging and what tools are used?", a: "<strong>Forensic imaging</strong> creates an exact bit-for-bit copy of a storage device. Common tools include <span class='tag'>dd</span> (Linux command-line), <span class='tag'>FTK Imager</span> (free GUI tool), and <span class='tag'>EnCase</span> (commercial). The image is verified with <strong>hash values</strong> (MD5/SHA-1) to confirm it matches the original." },
+  { cat: "Evidence Collection", q: "How are hash values used for evidence integrity?", a: "<strong>Hash values</strong> (MD5, SHA-1, SHA-256) create a unique <strong>digital fingerprint</strong> of evidence. A hash is calculated at the time of collection and again before analysis. If both hashes match, the evidence has <strong>not been altered</strong>. Any change, even one bit, produces a completely different hash value." },
+  { cat: "Evidence Collection", q: "What is the difference between live and dead acquisition?", a: "<strong>Live acquisition</strong> collects evidence from a <strong>running system</strong> — capturing volatile data like RAM, network connections, and running processes. <strong>Dead acquisition</strong> collects evidence from a <strong>powered-off system</strong> by imaging the storage media. Live acquisition is essential when volatile evidence is needed." },
+  { cat: "Evidence Collection", q: "What are the legal considerations for evidence collection?", a: "Investigators must consider <strong>search warrants or consent</strong> before collecting evidence, comply with the <strong>Fourth Amendment</strong> (protection against unreasonable search), follow organizational policies, document the chain of custody, and ensure collection methods are <strong>forensically sound</strong> to maintain admissibility." },
+  { cat: "Evidence Collection", q: "What is RAM forensics and why is it important?", a: "<strong>RAM forensics</strong> captures and analyzes the contents of <strong>volatile system memory</strong>. It can reveal running processes, open network connections, encryption keys, clipboard contents, and malware that exists only in memory. RAM evidence is <strong>lost when the system is powered off</strong>." },
+
+  // ===== FILE SYSTEMS & ARTIFACTS =====
+  { cat: "File Systems & Artifacts", q: "What is the Master File Table (MFT) in NTFS?", a: "The <strong>MFT</strong> is the core data structure of the <strong>NTFS file system</strong> that contains a record for every file and directory. Each MFT entry stores <strong>file name, timestamps (created/modified/accessed), permissions, size, and data location</strong>. Forensic analysis of the MFT reveals file activity even after deletion." },
+  { cat: "File Systems & Artifacts", q: "What is the $LogFile in NTFS?", a: "The <strong>$LogFile</strong> is the NTFS <strong>transaction journal</strong> that records all changes to the file system for recovery purposes. Forensic examiners analyze it to reconstruct <strong>file operations</strong> (creation, modification, deletion, renaming) that occurred on the volume, providing a timeline of activity." },
+  { cat: "File Systems & Artifacts", q: "What are Windows registry hives and what forensic value do they have?", a: "<strong>Registry hives</strong> (SAM, SYSTEM, SOFTWARE, NTUSER.DAT, UsrClass.dat) store <strong>configuration data for Windows</strong>. Forensically, they reveal installed software, USB device history, user accounts, network connections, recently accessed files, and <strong>program execution history</strong> — critical for establishing user activity." },
+  { cat: "File Systems & Artifacts", q: "What are Prefetch files and what do they prove?", a: "<strong>Prefetch files</strong> (<span class='tag'>C:\Windows\Prefetch</span>) are created by Windows to <strong>speed up application loading</strong>. Each .pf file records the application name, run count, last execution timestamps, and files/directories referenced. Forensically, they prove a <strong>program was executed</strong> and how many times." },
+  { cat: "File Systems & Artifacts", q: "What are LNK (shortcut) files and their forensic significance?", a: "<strong>LNK files</strong> are Windows shortcut files that store metadata about their target, including <strong>original file path, MAC timestamps, file size, volume serial number</strong>, and sometimes the <strong>MAC address</strong> of the system. They persist even after the original file is deleted, proving the file once existed." },
+  { cat: "File Systems & Artifacts", q: "What forensic artifacts are found in the Windows Recycle Bin?", a: "The <strong>Recycle Bin</strong> stores deleted files in a hidden folder with two key artifacts: <strong>$I files</strong> (contain original file name, path, size, and deletion timestamp) and <strong>$R files</strong> (contain the actual file data). Analyzing these reveals <strong>what was deleted, when, and from where</strong>." },
+  { cat: "File Systems & Artifacts", q: "What are Volume Shadow Copies?", a: "<strong>Volume Shadow Copies (VSS)</strong> are point-in-time snapshots of a volume created by Windows for backup and restore purposes. Forensically, they are invaluable because they may contain <strong>previous versions of files</strong> that have since been modified or deleted, effectively providing a <strong>time machine</strong> for evidence." },
+  { cat: "File Systems & Artifacts", q: "What is file slack space and why is it forensically important?", a: "<strong>Slack space</strong> is the unused area between the end of a file and the end of the allocated disk cluster. It may contain <strong>remnants of previously stored data</strong> that was not overwritten. Forensic examiners analyze slack space to recover fragments of deleted files or hidden data." },
+
+  // ===== NETWORK FORENSICS =====
+  { cat: "Network Forensics", q: "What is network forensics?", a: "<strong>Network forensics</strong> involves capturing, recording, and analyzing <strong>network traffic</strong> to detect intrusions, reconstruct events, and gather evidence. It uses full packet capture, NetFlow data, IDS/IPS logs, firewall logs, and DNS logs to build a picture of network-based attacks and data exfiltration." },
+  { cat: "Network Forensics", q: "What is packet capture analysis and what tool is commonly used?", a: "<strong>Packet capture (PCAP) analysis</strong> examines raw network traffic recorded in <span class='tag'>.pcap</span> files. <strong>Wireshark</strong> is the most widely used tool for inspecting packets, following TCP streams, extracting transferred files, and identifying malicious communications. It can filter traffic by protocol, IP, port, and content." },
+  { cat: "Network Forensics", q: "What forensic value do browser artifacts provide?", a: "Browser forensics examines <strong>history</strong> (visited URLs and timestamps), <strong>cache</strong> (stored web content), <strong>cookies</strong> (session data and tracking), <strong>bookmarks, downloads, and form data</strong>. These artifacts reconstruct a user's online activity, prove access to specific sites, and establish timelines." },
+  { cat: "Network Forensics", q: "What is email forensics?", a: "<strong>Email forensics</strong> examines email headers, body content, attachments, and metadata to trace the <strong>origin, routing, and authenticity</strong> of messages. Key headers include <span class='tag'>Received</span>, <span class='tag'>Message-ID</span>, and <span class='tag'>X-Originating-IP</span>. It is critical in fraud, harassment, and data breach investigations." },
+  { cat: "Network Forensics", q: "What is log analysis in forensic investigations?", a: "<strong>Log analysis</strong> examines records from operating systems, applications, firewalls, IDS, web servers, and authentication systems to <strong>reconstruct a timeline of events</strong>. Logs reveal login attempts, file access, system changes, network connections, and error conditions that help identify attacker actions." },
+
+  // ===== MOBILE FORENSICS =====
+  { cat: "Mobile Forensics", q: "What are the three levels of mobile device data extraction?", a: "<strong>Logical extraction</strong> – copies files accessible through the OS (contacts, messages, call logs)<br><strong>Physical extraction</strong> – bit-for-bit copy of the entire flash memory including deleted data<br><strong>Chip-off</strong> – physically removing the memory chip and reading it directly, used when other methods fail" },
+  { cat: "Mobile Forensics", q: "What is JTAG extraction in mobile forensics?", a: "<strong>JTAG (Joint Test Action Group)</strong> is a hardware-level extraction method that connects to <strong>test access ports on a device's circuit board</strong> to read data directly from memory. It bypasses software locks and damaged screens, enabling <strong>physical-level acquisition</strong> of data from locked or damaged devices." },
+  { cat: "Mobile Forensics", q: "What unique challenges does mobile forensics present?", a: "Mobile forensics challenges include <strong>device encryption and passcodes</strong>, rapidly evolving hardware and software, cloud-synced data stored remotely, <strong>anti-forensic features</strong> (remote wipe), diverse operating systems (iOS, Android), proprietary connectors, and the need to <strong>prevent network connectivity</strong> during examination (Faraday bag)." },
+  { cat: "Mobile Forensics", q: "What types of evidence can be recovered from mobile devices?", a: "Mobile evidence includes <strong>call logs, SMS/MMS messages, contacts, photos/videos</strong> with GPS metadata, app data (social media, messaging), browser history, <strong>location data</strong> (GPS, cell tower, Wi-Fi), email, calendar entries, and <strong>deleted data</strong> recoverable through physical extraction." },
+
+  // ===== FORENSIC TOOLS =====
+  { cat: "Forensic Tools", q: "What is Autopsy in digital forensics?", a: "<strong>Autopsy</strong> is a free, open-source digital forensics platform that provides a <strong>GUI for The Sleuth Kit</strong>. It performs disk imaging analysis, keyword searching, timeline analysis, hash filtering, registry parsing, web artifact analysis, and <strong>file recovery</strong>. It is widely used in law enforcement and education." },
+  { cat: "Forensic Tools", q: "What is EnCase?", a: "<strong>EnCase</strong> is a commercial forensic tool widely used in <strong>law enforcement and corporate investigations</strong>. It performs forensic imaging, file system analysis, keyword searching, email analysis, and report generation. EnCase evidence files (<span class='tag'>.E01</span>) are a standard format accepted in court proceedings." },
+  { cat: "Forensic Tools", q: "What is FTK (Forensic Toolkit)?", a: "<strong>FTK</strong> is a commercial digital forensics platform that provides <strong>disk imaging, data carving, email analysis, decryption</strong>, and indexed searching for fast keyword lookups. <strong>FTK Imager</strong> is a free standalone tool commonly used for creating forensic images and previewing evidence." },
+  { cat: "Forensic Tools", q: "What is Volatility in memory forensics?", a: "<strong>Volatility</strong> is an open-source <strong>memory forensics framework</strong> for analyzing RAM dumps. It can identify running processes, open network connections, loaded DLLs, registry hives in memory, encryption keys, and <strong>malware hiding in memory</strong>. It supports Windows, Linux, and macOS memory images." },
+  { cat: "Forensic Tools", q: "What is steganography detection?", a: "<strong>Steganography</strong> is the practice of <strong>hiding data within other files</strong> such as images, audio, or video. Detection tools like <span class='tag'>StegDetect</span> and <span class='tag'>StegExpose</span> analyze files for statistical anomalies indicating hidden content. Forensic examiners look for <strong>unusual file sizes, metadata discrepancies</strong>, and modified least-significant bits." },
+
+  // ===== LEGAL & REPORTING =====
+  { cat: "Legal & Reporting", q: "What qualifies someone as an expert witness in digital forensics?", a: "An <strong>expert witness</strong> has specialized knowledge, training, education, or experience that qualifies them to offer <strong>opinions beyond what a layperson could provide</strong>. In digital forensics, they must demonstrate proficiency in forensic tools, methodologies, and the ability to <strong>explain technical findings</strong> to a non-technical audience." },
+  { cat: "Legal & Reporting", q: "What should a forensic report include?", a: "A forensic report should include: <strong>case information</strong> (who, what, when), <strong>tools and methods used</strong>, evidence handling and chain of custody documentation, <strong>detailed findings</strong> with supporting evidence, analysis and conclusions, and an <strong>executive summary</strong> written for non-technical stakeholders." },
+  { cat: "Legal & Reporting", q: "What is the Daubert standard for expert testimony?", a: "The <strong>Daubert standard</strong> is a legal test for admissibility of expert testimony. It evaluates whether the methodology is <strong>testable, peer-reviewed, has a known error rate</strong>, and is generally accepted in the field. Forensic examiners must demonstrate their methods meet this standard for evidence to be admitted." },
+  { cat: "Legal & Reporting", q: "What is the difference between criminal and civil digital forensics investigations?", a: "<strong>Criminal investigations</strong> require a higher burden of proof (<strong>beyond reasonable doubt</strong>), involve law enforcement, and require search warrants. <strong>Civil investigations</strong> use a lower standard (<strong>preponderance of evidence</strong>), are initiated by private parties, and follow rules of civil discovery. Both require forensically sound methods." },
+  { cat: "Legal & Reporting", q: "What anti-forensic techniques might an examiner encounter?", a: "<strong>Data wiping</strong> – overwriting data with tools like DBAN<br><strong>Encryption</strong> – rendering data unreadable without the key<br><strong>Steganography</strong> – hiding data in innocuous files<br><strong>Timestamp manipulation</strong> – altering MAC times to mislead investigators<br><strong>Log deletion</strong> – removing evidence of activity<br><strong>Trail obfuscation</strong> – using Tor, VPNs, or proxy chains" },
+];
+
+
+let deck = [];
+let current = 0;
+let correctCount = 0;
+let wrongCards = [];
+let isFlipped = false;
+let activeCategory = "All";
+
+function getCategories() {
+  const cats = ["All", ...new Set(ALL_CARDS.map(c => c.cat))];
+  return cats;
+}
+
+function buildTabs() {
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = '';
+  getCategories().forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (cat === activeCategory ? ' active' : '');
+    const count = cat === 'All' ? ALL_CARDS.length : ALL_CARDS.filter(c => c.cat === cat).length;
+    btn.textContent = `${cat} (${count})`;
+    btn.onclick = () => {
+      activeCategory = cat;
+      buildTabs();
+      if (currentMode === 'browse') {
+        renderList();
+      } else {
+        resetDeck();
+      }
+    };
+    tabsEl.appendChild(btn);
+  });
+}
+
+function resetDeck() {
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  deck = [...source];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+function shuffleDeck() {
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  current = 0;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('cardInner').classList.toggle('flipped', isFlipped);
+  if (isFlipped) {
+    document.getElementById('judgeBtns').classList.add('visible');
+  } else {
+    document.getElementById('judgeBtns').classList.remove('visible');
+  }
+}
+
+function markCard(correct) {
+  if (correct) {
+    correctCount++;
+  } else {
+    wrongCards.push(deck[current]);
+  }
+  current++;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+
+  if (current >= deck.length) {
+    showFinished();
+  } else {
+    // animate
+    const area = document.getElementById('cardArea');
+    area.classList.add('animating');
+    setTimeout(() => area.classList.remove('animating'), 300);
+    updateCard();
+    updateStats();
+  }
+}
+
+function updateCard() {
+  if (current >= deck.length) return;
+  const card = deck[current];
+  document.getElementById('questionText').textContent = card.q;
+  document.getElementById('answerText').innerHTML = card.a;
+  document.getElementById('frontCategory').textContent = card.cat;
+  document.getElementById('backCategory').textContent = card.cat + ' — Answer';
+  const num = `${current + 1} / ${deck.length}`;
+  document.getElementById('cardNum').textContent = num;
+  document.getElementById('cardNumBack').textContent = num;
+  updateStats();
+}
+
+function updateStats() {
+  const remaining = deck.length - current;
+  document.getElementById('stat-remaining').textContent = remaining;
+  document.getElementById('stat-correct').textContent = correctCount;
+  document.getElementById('stat-wrong').textContent = wrongCards.length;
+  document.getElementById('stat-total').textContent = deck.length;
+  const pct = deck.length > 0 ? ((current / deck.length) * 100).toFixed(0) : 0;
+  document.getElementById('progress').style.width = pct + '%';
+}
+
+function showFinished() {
+  document.getElementById('cardArea').style.display = 'none';
+  const finished = document.getElementById('finishedScreen');
+  finished.classList.add('show');
+  const total = correctCount + wrongCards.length;
+  const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+  document.getElementById('scorePct').textContent = pct + '%';
+  document.getElementById('reviewBtn').style.display = wrongCards.length > 0 ? '' : 'none';
+  updateStats();
+}
+
+function restartWithWrong() {
+  if (wrongCards.length === 0) { resetDeck(); return; }
+  deck = [...wrongCards];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+// Keyboard support
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); flipCard(); }
+  if (e.code === 'ArrowRight' && isFlipped) markCard(true);
+  if (e.code === 'ArrowLeft' && isFlipped) markCard(false);
+  if (e.code === 'KeyS') shuffleDeck();
+});
+
+// ===== MODE MANAGEMENT =====
+let currentMode = 'flashcard';
+let allExpanded = false;
+
+function setMode(mode) {
+  currentMode = mode;
+  const flashcardEls = [
+    document.getElementById('cardArea'),
+    document.querySelector('.stats-bar'),
+    document.querySelector('.progress-wrap'),
+    document.querySelector('.controls'),
+    document.getElementById('judgeBtns'),
+    document.getElementById('finishedScreen'),
+  ];
+  const listView = document.getElementById('listView');
+  const btnFlash = document.getElementById('modeFlashcard');
+  const btnBrowse = document.getElementById('modeBrowse');
+
+  if (mode === 'flashcard') {
+    flashcardEls.forEach(el => { if (el) el.style.display = ''; });
+    listView.classList.remove('visible');
+    btnFlash.classList.add('active');
+    btnBrowse.classList.remove('active');
+    // Re-hide finished if it wasn't showing
+    if (current < deck.length) document.getElementById('finishedScreen').classList.remove('show');
+  } else {
+    // Browse mode
+    flashcardEls.forEach(el => { if (el) el.style.display = 'none'; });
+    listView.classList.add('visible');
+    btnFlash.classList.remove('active');
+    btnBrowse.classList.add('active');
+    renderList();
+  }
+}
+
+function renderList() {
+  const query = (document.getElementById('listSearch').value || '').toLowerCase().trim();
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  const filtered = query
+    ? source.filter(c => c.q.toLowerCase().includes(query) || c.a.toLowerCase().replace(/<[^>]+>/g, '').includes(query))
+    : source;
+
+  document.getElementById('listCount').textContent = `${filtered.length} term${filtered.length !== 1 ? 's' : ''}`;
+
+  const container = document.getElementById('listItems');
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="no-results">No matching cards found.</div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map((card, i) => {
+    const globalIdx = ALL_CARDS.indexOf(card) + 1;
+    return `
+    <div class="list-item" id="li-${i}">
+      <div class="list-item-header" onclick="toggleListItem(${i})">
+        <span class="list-item-num">${globalIdx}</span>
+        <span class="list-item-q">${escapeHtml(card.q)}</span>
+        <span class="list-item-cat">${card.cat}</span>
+        <svg class="list-item-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="list-item-answer">${card.a}</div>
+    </div>`;
+  }).join('');
+
+  // Restore expanded state if allExpanded
+  if (allExpanded) {
+    container.querySelectorAll('.list-item').forEach(el => el.classList.add('open'));
+  }
+}
+
+function toggleListItem(idx) {
+  const el = document.getElementById(`li-${idx}`);
+  if (el) el.classList.toggle('open');
+}
+
+function toggleExpandAll() {
+  allExpanded = !allExpanded;
+  const btn = document.getElementById('expandAllBtn');
+  btn.textContent = allExpanded ? 'Collapse All' : 'Expand All';
+  document.querySelectorAll('.list-item').forEach(el => {
+    if (allExpanded) el.classList.add('open');
+    else el.classList.remove('open');
+  });
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Init
+buildTabs();
+resetDeck();
+</script>
+</body>
+</html>

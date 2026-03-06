@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WGU D316 – IT Foundations Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --card-front: #161b22;
+    --card-back: #141e1a;
+    --accent: #2dcc8f;
+    --accent2: #58a6ff;
+    --accent3: #f78166;
+    --warn: #e3b341;
+    --text: #f0f6fc;
+    --muted: #9aabb8;
+    --border: rgba(255,255,255,0.1);
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* BG grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(0,229,160,0.12);
+    border: 1px solid rgba(0,229,160,0.3);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: clamp(24px, 5vw, 40px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #e8f0f7, #00e5a0 60%, #4f9eff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Category tabs */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+    justify-content: center;
+  }
+
+  .tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .tab:hover { border-color: var(--accent2); color: var(--accent2); }
+  .tab.active { background: rgba(79,158,255,0.15); border-color: var(--accent2); color: var(--accent2); }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    flex: 1;
+    min-width: 120px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 3px;
+    font-weight: 500;
+  }
+
+  .stat.correct .stat-num { color: var(--accent); }
+  .stat.wrong .stat-num { color: var(--accent3); }
+  .stat.remaining .stat-num { color: var(--accent2); }
+  .stat.total .stat-num { color: var(--warn); }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    height: 4px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  /* Card area */
+  .card-area {
+    perspective: 1200px;
+    margin-bottom: 24px;
+    cursor: pointer;
+  }
+
+  .card-inner {
+    position: relative;
+    width: 100%;
+    min-height: 300px;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-inner.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 300px;
+  }
+
+  .card-front {
+    background: linear-gradient(135deg, #1a2336, #111e30);
+    border: 1px solid rgba(79,158,255,0.25);
+    box-shadow: 0 0 40px rgba(79,158,255,0.06), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+
+  .card-back {
+    background: linear-gradient(135deg, #162219, #0e1c14);
+    border: 1px solid rgba(0,229,160,0.2);
+    box-shadow: 0 0 40px rgba(0,229,160,0.05), inset 0 1px 0 rgba(255,255,255,0.05);
+    transform: rotateY(180deg);
+  }
+
+  .card-category {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .card-front .card-category { background: rgba(79,158,255,0.12); color: var(--accent2); border: 1px solid rgba(79,158,255,0.2); }
+  .card-back .card-category { background: rgba(0,229,160,0.12); color: var(--accent); border: 1px solid rgba(0,229,160,0.2); }
+
+  .card-question {
+    font-size: clamp(17px, 3vw, 23px);
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+    margin-bottom: 16px;
+    letter-spacing: -0.1px;
+  }
+
+  .card-hint {
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+
+  .card-answer {
+    font-size: clamp(15px, 2.5vw, 19px);
+    line-height: 1.75;
+    color: #e8f5f0;
+    font-weight: 400;
+  }
+
+  .card-answer strong {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .card-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  /* Num indicator */
+  .card-num {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: 1px solid;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-flip {
+    background: rgba(79,158,255,0.1);
+    border-color: rgba(79,158,255,0.4);
+    color: var(--accent2);
+  }
+  .btn-flip:hover { background: rgba(79,158,255,0.2); transform: translateY(-1px); }
+
+  .btn-correct {
+    background: rgba(0,229,160,0.1);
+    border-color: rgba(0,229,160,0.4);
+    color: var(--accent);
+  }
+  .btn-correct:hover { background: rgba(0,229,160,0.2); transform: translateY(-1px); }
+
+  .btn-wrong {
+    background: rgba(255,107,107,0.1);
+    border-color: rgba(255,107,107,0.4);
+    color: var(--accent3);
+  }
+  .btn-wrong:hover { background: rgba(255,107,107,0.2); transform: translateY(-1px); }
+
+  .btn-shuffle {
+    background: rgba(245,197,66,0.1);
+    border-color: rgba(245,197,66,0.4);
+    color: var(--warn);
+  }
+  .btn-shuffle:hover { background: rgba(245,197,66,0.2); transform: translateY(-1px); }
+
+  .btn-reset {
+    background: rgba(255,255,255,0.04);
+    border-color: var(--border);
+    color: var(--muted);
+  }
+  .btn-reset:hover { border-color: var(--muted); color: var(--text); }
+
+  /* Judgment buttons only shown after flip */
+  .judge-btns { display: none; gap: 10px; justify-content: center; }
+  .judge-btns.visible { display: flex; }
+
+  /* Algorithm table */
+  .algo-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
+  .algo-table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 6px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .algo-table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+
+  .algo-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  /* Finished screen */
+  .finished {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .finished.show { display: block; }
+
+  .score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    box-shadow: 0 0 30px rgba(0,229,160,0.2);
+  }
+
+  .score-pct {
+    font-size: 32px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+  }
+
+  .score-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Card slide animation */
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .card-area.animating .card-inner { animation: slideIn 0.3s ease; }
+
+  /* ===== MODE TOGGLE ===== */
+  .mode-toggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 0 auto 28px;
+    width: fit-content;
+    background: var(--surface);
+  }
+
+  .mode-btn {
+    padding: 9px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .mode-btn svg { width: 14px; height: 14px; }
+  .mode-btn:hover { color: var(--text); }
+  .mode-btn.active { background: rgba(79,158,255,0.15); color: var(--accent2); }
+  .mode-btn + .mode-btn { border-left: 1px solid var(--border); }
+
+  /* ===== LIST / BROWSE MODE ===== */
+  .list-view { display: none; }
+  .list-view.visible { display: block; }
+
+  .list-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+  }
+
+  .list-search input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  .list-search input::placeholder { color: var(--muted); }
+
+  .list-search svg { color: var(--muted); flex-shrink: 0; }
+
+  .list-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .list-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .list-expand-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.08);
+    border: 1px solid rgba(79,158,255,0.2);
+    border-radius: 5px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .list-expand-btn:hover { background: rgba(79,158,255,0.16); }
+
+  .list-items { display: flex; flex-direction: column; gap: 8px; }
+
+  .list-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .list-item:hover { border-color: rgba(79,158,255,0.25); }
+  .list-item.open { border-color: rgba(0,229,160,0.25); }
+
+  .list-item-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .list-item-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 28px;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .list-item-q {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+  }
+
+  .list-item-cat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.1);
+    border: 1px solid rgba(79,158,255,0.15);
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+
+  .list-item-chevron {
+    color: var(--muted);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .list-item.open .list-item-chevron { transform: rotate(180deg); color: var(--accent); }
+
+  .list-item-answer {
+    display: none;
+    padding: 0 18px 16px 60px;
+    font-size: 15px;
+    line-height: 1.78;
+    color: #e8f5f0;
+    border-top: 1px solid rgba(0,229,160,0.1);
+    background: rgba(0,229,160,0.03);
+    padding-top: 14px;
+  }
+
+  .list-item.open .list-item-answer { display: block; }
+
+  .list-item-answer strong { color: var(--accent); }
+  .list-item-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  .list-item-answer table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+  .list-item-answer table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 5px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .list-item-answer table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+  .list-item-answer table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  .no-results {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  /* ===== HIDE FLASHCARD-ONLY ELEMENTS IN LIST MODE ===== */
+  .flashcard-only { transition: opacity 0.2s; }
+  .flashcard-only.hidden { display: none; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .card-face { padding: 24px 20px; }
+    .btn { padding: 10px 16px; font-size: 11px; }
+    .list-item-answer { padding-left: 18px; }
+    .list-item-cat { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="badge">WGU D316</div>
+    <h1>IT Foundations</h1>
+    <p class="subtitle">// flashcard study system · 2025–2026</p>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs" id="tabs"></div>
+
+  <!-- Mode Toggle -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modeFlashcard" onclick="setMode('flashcard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="12" y1="4" x2="12" y2="20"/></svg>Flashcards
+    </button>
+    <button class="mode-btn" id="modeBrowse" onclick="setMode('browse')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>Browse All
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat remaining"><div class="stat-num" id="stat-remaining">0</div><div class="stat-label">Remaining</div></div>
+    <div class="stat correct"><div class="stat-num" id="stat-correct">0</div><div class="stat-label">Correct</div></div>
+    <div class="stat wrong"><div class="stat-num" id="stat-wrong">0</div><div class="stat-label">Review</div></div>
+    <div class="stat total"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total</div></div>
+  </div>
+
+  <div class="progress-wrap"><div class="progress-fill" id="progress"></div></div>
+
+  <!-- Card -->
+  <div class="card-area" id="cardArea" onclick="flipCard()">
+    <div class="card-inner" id="cardInner">
+      <div class="card-face card-front">
+        <div class="card-num" id="cardNum">1 / 0</div>
+        <span class="card-category" id="frontCategory">Loading...</span>
+        <div class="card-question" id="questionText">Loading flashcards...</div>
+        <div class="card-hint">[ tap to reveal answer ]</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="card-num" id="cardNumBack">1 / 0</div>
+        <span class="card-category" id="backCategory">Answer</span>
+        <div class="card-answer" id="answerText"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn btn-flip" onclick="flipCard()">⟳ Flip</button>
+    <button class="btn btn-shuffle" onclick="shuffleDeck()">⇄ Shuffle</button>
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Reset</button>
+  </div>
+
+  <div class="judge-btns" id="judgeBtns">
+    <button class="btn btn-correct" onclick="markCard(true)">✓ Got It</button>
+    <button class="btn btn-wrong" onclick="markCard(false)">✗ Review Again</button>
+  </div>
+
+  <!-- List / Browse View -->
+  <div class="list-view" id="listView">
+    <div class="list-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="listSearch" placeholder="Search questions or answers..." oninput="renderList()">
+    </div>
+    <div class="list-controls-row">
+      <span class="list-count" id="listCount">0 terms</span>
+      <button class="list-expand-btn" id="expandAllBtn" onclick="toggleExpandAll()">Expand All</button>
+    </div>
+    <div class="list-items" id="listItems"></div>
+  </div>
+
+  <!-- Finished Screen -->
+  <div class="finished" id="finishedScreen">
+    <div class="score-circle">
+      <div class="score-pct" id="scorePct">0%</div>
+      <div class="score-label">Score</div>
+    </div>
+    <h2 style="font-size:24px;margin-bottom:8px;">Deck Complete!</h2>
+    <p style="color:var(--muted);margin-bottom:24px;font-family:'JetBrains Mono',monospace;font-size:13px;">Cards marked for review will be cycled back.</p>
+    <button class="btn btn-shuffle" onclick="restartWithWrong()" id="reviewBtn">↺ Review Missed</button>
+    &nbsp;
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Full Restart</button>
+  </div>
+</div>
+
+<script>
+const ALL_CARDS = [
+  // ===== HARDWARE =====
+  { cat: "Hardware", q: "What happens during the POST process?", a: "<strong>POST (Power-On Self-Test)</strong> is a diagnostic process that runs when a computer is powered on. It checks that essential hardware — CPU, RAM, keyboard, and storage — is functioning properly before handing control to the <strong>boot loader</strong>. Failures are indicated by beep codes or on-screen error messages." },
+  { cat: "Hardware", q: "What is the difference between BIOS and UEFI?", a: "<strong>BIOS (Basic Input/Output System)</strong> is the legacy firmware with a text-based interface that supports drives up to 2 TB using MBR partitioning. <strong>UEFI (Unified Extensible Firmware Interface)</strong> is the modern replacement supporting GPT partitioning, drives larger than 2 TB, faster boot times, and <strong>Secure Boot</strong>." },
+  { cat: "Hardware", q: "Compare RAID levels 0, 1, 5, and 10.", a: "<table class='algo-table'><tr><th>RAID</th><th>Method</th><th>Min Disks</th><th>Fault Tolerance</th></tr><tr><td>0</td><td>Striping</td><td>2</td><td>None</td></tr><tr><td>1</td><td>Mirroring</td><td>2</td><td>1 disk</td></tr><tr><td>5</td><td>Striping + Parity</td><td>3</td><td>1 disk</td></tr><tr><td>10</td><td>Mirroring + Striping</td><td>4</td><td>1 per mirror</td></tr></table>" },
+  { cat: "Hardware", q: "What are the main types of storage devices?", a: "<strong>HDD</strong> — magnetic spinning platters, high capacity, lower cost, slower speeds.<br><strong>SSD (SATA)</strong> — flash memory via SATA interface, much faster than HDD.<br><strong>NVMe SSD</strong> — flash memory via PCIe, fastest consumer storage available.<br><strong>Optical</strong> — CD/DVD/Blu-ray for removable media.<br><strong>USB flash drives</strong> — portable solid-state storage." },
+  { cat: "Hardware", q: "What are common display types and their differences?", a: "<strong>LCD (Liquid Crystal Display)</strong> — uses liquid crystals with a backlight, common and affordable.<br><strong>LED</strong> — an LCD with LED backlighting, thinner and more energy-efficient.<br><strong>OLED</strong> — organic compounds emit their own light, providing deeper blacks, better contrast, and thinner form factors." },
+  { cat: "Hardware", q: "What are the main types of printers?", a: "<strong>Inkjet</strong> — sprays liquid ink, good for color/photo printing, lower upfront cost.<br><strong>Laser</strong> — uses toner and a heated fuser, faster and more cost-effective for high-volume printing.<br><strong>Thermal</strong> — uses heat on special paper, common for receipts and labels.<br><strong>3D Printer</strong> — builds physical objects layer by layer from digital models." },
+  { cat: "Hardware", q: "What are the primary PC components found on a motherboard?", a: "Key motherboard components include: <strong>CPU socket</strong>, <strong>RAM slots (DIMM)</strong>, <strong>chipset</strong> (manages data flow), <strong>PCIe slots</strong> (for GPUs and expansion cards), <strong>SATA/M.2 connectors</strong> (for storage), <strong>CMOS battery</strong> (maintains BIOS settings), and <strong>power connectors</strong> (24-pin ATX, 8-pin CPU)." },
+
+  // ===== OPERATING SYSTEMS =====
+  { cat: "Operating Systems", q: "What are common Windows command line commands?", a: "<span class='tag'>ipconfig</span> — displays network configuration.<br><span class='tag'>ping</span> — tests connectivity to a host.<br><span class='tag'>tracert</span> — shows the route packets take to a destination.<br><span class='tag'>nslookup</span> — queries DNS records.<br><span class='tag'>netstat</span> — displays active network connections." },
+  { cat: "Operating Systems", q: "What are the main types of user accounts in Windows?", a: "<strong>Administrator</strong> — full system control, can install software and change settings.<br><strong>Standard User</strong> — can use applications but cannot make system-wide changes.<br><strong>Guest</strong> — limited temporary access with minimal permissions. The principle of <strong>least privilege</strong> dictates users should have only the access they need." },
+  { cat: "Operating Systems", q: "Compare NTFS, FAT32, and ext4 file systems.", a: "<table class='algo-table'><tr><th>File System</th><th>OS</th><th>Max File Size</th><th>Features</th></tr><tr><td>NTFS</td><td>Windows</td><td>16 TB</td><td>Permissions, encryption, journaling</td></tr><tr><td>FAT32</td><td>Cross-platform</td><td>4 GB</td><td>Universal compatibility, no permissions</td></tr><tr><td>ext4</td><td>Linux</td><td>16 TB</td><td>Journaling, large volume support</td></tr></table>" },
+  { cat: "Operating Systems", q: "What are file permissions and why do they matter?", a: "<strong>File permissions</strong> control who can <strong>read</strong>, <strong>write</strong>, or <strong>execute</strong> a file or folder. In Windows, NTFS permissions are set per user or group. Permissions enforce the <strong>principle of least privilege</strong> and protect sensitive data from unauthorized access or accidental modification." },
+  { cat: "Operating Systems", q: "What is Active Directory?", a: "<strong>Active Directory (AD)</strong> is Microsoft's directory service for Windows domain networks. It centrally manages <strong>user accounts</strong>, <strong>computers</strong>, <strong>group policies</strong>, and <strong>permissions</strong>. AD uses a hierarchical structure of domains, organizational units (OUs), and objects to organize network resources." },
+  { cat: "Operating Systems", q: "What is a process vs. a service in an OS?", a: "A <strong>process</strong> is an instance of a running program with its own memory space — it can be started and stopped by the user. A <strong>service</strong> (daemon in Linux) is a background process that runs automatically, often starting at boot, providing system-level functions like networking, printing, or security." },
+
+  // ===== NETWORKING =====
+  { cat: "Networking", q: "What is the difference between IPv4 and IPv6?", a: "<strong>IPv4</strong> uses 32-bit addresses (about 4.3 billion addresses) written in dotted decimal (192.168.1.1). <strong>IPv6</strong> uses 128-bit addresses (virtually unlimited) written in hexadecimal groups (2001:0db8::1). IPv6 was created to solve IPv4 address exhaustion and includes built-in security features." },
+  { cat: "Networking", q: "What is a subnet mask and what does it do?", a: "A <strong>subnet mask</strong> divides an IP address into a <strong>network portion</strong> and a <strong>host portion</strong>. For example, 255.255.255.0 (/24) means the first three octets identify the network and the last octet identifies hosts. Subnetting allows administrators to segment networks for performance and security." },
+  { cat: "Networking", q: "What is a default gateway?", a: "The <strong>default gateway</strong> is the IP address of the router that forwards traffic from the local network to other networks or the internet. When a device needs to communicate outside its subnet, it sends the packet to the default gateway for routing." },
+  { cat: "Networking", q: "Compare the main wireless standards.", a: "<table class='algo-table'><tr><th>Standard</th><th>Name</th><th>Frequency</th><th>Max Speed</th></tr><tr><td>802.11a</td><td>—</td><td>5 GHz</td><td>54 Mbps</td></tr><tr><td>802.11b</td><td>—</td><td>2.4 GHz</td><td>11 Mbps</td></tr><tr><td>802.11g</td><td>—</td><td>2.4 GHz</td><td>54 Mbps</td></tr><tr><td>802.11n</td><td>Wi-Fi 4</td><td>2.4/5 GHz</td><td>600 Mbps</td></tr><tr><td>802.11ac</td><td>Wi-Fi 5</td><td>5 GHz</td><td>6.9 Gbps</td></tr><tr><td>802.11ax</td><td>Wi-Fi 6</td><td>2.4/5/6 GHz</td><td>9.6 Gbps</td></tr></table>" },
+  { cat: "Networking", q: "What is a VPN and why is it used?", a: "A <strong>VPN (Virtual Private Network)</strong> creates an encrypted tunnel between a device and a remote network over the internet. It protects data in transit, masks the user's IP address, and allows secure remote access to corporate resources as if the user were on the local network." },
+  { cat: "Networking", q: "What is the difference between TCP and UDP?", a: "<strong>TCP (Transmission Control Protocol)</strong> is connection-oriented, reliable, and ensures ordered delivery using acknowledgments — used for web, email, and file transfer. <strong>UDP (User Datagram Protocol)</strong> is connectionless, faster, but unreliable — used for streaming, gaming, and DNS queries where speed matters more than guaranteed delivery." },
+
+  // ===== SECURITY =====
+  { cat: "Security", q: "What are common types of malware?", a: "<strong>Virus</strong> — requires host file, spreads via user action.<br><strong>Worm</strong> — self-replicating, spreads over networks.<br><strong>Trojan</strong> — disguised as legitimate software.<br><strong>Ransomware</strong> — encrypts data, demands payment.<br><strong>Rootkit</strong> — hides deep in the OS to maintain persistent access.<br><strong>Keylogger</strong> — records keystrokes to steal credentials." },
+  { cat: "Security", q: "What are common social engineering attacks?", a: "<strong>Phishing</strong> — fraudulent emails impersonating trusted sources.<br><strong>Spear phishing</strong> — targeted phishing aimed at specific individuals.<br><strong>Vishing</strong> — voice phishing via phone calls.<br><strong>Tailgating</strong> — following authorized personnel into restricted areas.<br><strong>Shoulder surfing</strong> — observing someone entering sensitive information." },
+  { cat: "Security", q: "What makes a strong password policy?", a: "A strong password policy requires: <strong>minimum length</strong> (12+ characters recommended), <strong>complexity</strong> (mix of upper, lower, numbers, symbols), <strong>expiration</strong> (periodic changes), <strong>account lockout</strong> after failed attempts, prohibition of <strong>password reuse</strong>, and encouragement of <strong>passphrases</strong> or use of a password manager." },
+  { cat: "Security", q: "What is the principle of least privilege?", a: "The <strong>principle of least privilege</strong> states that users, programs, and processes should have only the minimum access rights necessary to perform their tasks. This limits the potential damage from accidents, errors, or security breaches by reducing the attack surface." },
+
+  // ===== TROUBLESHOOTING =====
+  { cat: "Troubleshooting", q: "What are the steps of the CompTIA troubleshooting methodology?", a: "1. <strong>Identify the problem</strong> — gather information, question users.<br>2. <strong>Establish a theory of probable cause</strong>.<br>3. <strong>Test the theory</strong> to determine cause.<br>4. <strong>Establish a plan of action</strong> to resolve.<br>5. <strong>Implement the solution</strong> or escalate.<br>6. <strong>Verify full system functionality</strong>.<br>7. <strong>Document findings</strong>, actions, and outcomes." },
+  { cat: "Troubleshooting", q: "What do common POST beep codes indicate?", a: "Beep codes vary by BIOS manufacturer. Common patterns: <strong>1 short beep</strong> — normal POST, system OK.<br><strong>Continuous beeping</strong> — RAM not detected or not seated properly.<br><strong>1 long + 2 short</strong> — video/graphics card error.<br>Always consult the motherboard or BIOS manufacturer's documentation for specific codes." },
+  { cat: "Troubleshooting", q: "What is the purpose of Event Viewer in Windows?", a: "<strong>Event Viewer</strong> is a Windows tool that logs system events including <strong>application errors</strong>, <strong>security audits</strong>, and <strong>system warnings</strong>. Technicians use it to diagnose issues by reviewing error codes, timestamps, and event sources to trace the root cause of problems." },
+  { cat: "Troubleshooting", q: "When should you escalate a support ticket?", a: "Escalate when: the issue exceeds your <strong>skill level or access permissions</strong>, it affects <strong>multiple users or critical systems</strong>, the <strong>SLA resolution time</strong> is at risk, or the problem requires <strong>vendor support</strong> or specialized expertise. Always document troubleshooting steps taken before escalating." },
+
+  // ===== MOBILE & VIRTUALIZATION =====
+  { cat: "Mobile & Virtualization", q: "What are the two main mobile operating systems?", a: "<strong>Android</strong> — developed by Google, open-source, used by many manufacturers (Samsung, Pixel, OnePlus). Offers more customization and sideloading. <strong>iOS</strong> — developed by Apple, closed-source, runs exclusively on iPhones. Known for tight security, consistent updates, and a curated App Store." },
+  { cat: "Mobile & Virtualization", q: "What are Type 1 and Type 2 hypervisors?", a: "<strong>Type 1 (bare-metal)</strong> — runs directly on hardware, more efficient and used in enterprise environments (e.g., VMware ESXi, Microsoft Hyper-V, Xen).<br><strong>Type 2 (hosted)</strong> — runs on top of an existing OS, used for development and testing (e.g., VirtualBox, VMware Workstation)." },
+  { cat: "Mobile & Virtualization", q: "What is the difference between a virtual machine and a container?", a: "A <strong>virtual machine</strong> includes a full OS and is managed by a hypervisor — it provides strong isolation but uses more resources. A <strong>container</strong> shares the host OS kernel and packages only the application and its dependencies — it is lighter, faster to start, and more efficient (e.g., Docker)." },
+  { cat: "Mobile & Virtualization", q: "What is MDM and why is it important?", a: "<strong>MDM (Mobile Device Management)</strong> allows organizations to remotely manage, configure, and secure mobile devices. Key features include <strong>remote wipe</strong>, <strong>enforcing encryption</strong>, <strong>app whitelisting/blacklisting</strong>, <strong>GPS tracking</strong>, and <strong>password policy enforcement</strong> — critical for BYOD environments." },
+
+  // ===== PROFESSIONALISM =====
+  { cat: "Professionalism", q: "What is a ticketing system and why is it used?", a: "A <strong>ticketing system</strong> (e.g., ServiceNow, Jira Service Management) tracks and manages IT support requests. It assigns unique IDs to issues, routes tickets to appropriate technicians, tracks <strong>SLA compliance</strong>, maintains a record of all communications, and provides <strong>metrics</strong> for performance reporting." },
+  { cat: "Professionalism", q: "What is change management and why is it important?", a: "<strong>Change management</strong> is a controlled process for implementing changes to IT systems. It includes a <strong>request</strong>, <strong>risk assessment</strong>, <strong>approval</strong> by a Change Advisory Board (CAB), <strong>implementation plan</strong> with rollback procedures, and <strong>post-implementation review</strong>. It prevents unplanned outages and reduces risk." },
+  { cat: "Professionalism", q: "What is an SLA and what does it typically define?", a: "A <strong>Service Level Agreement (SLA)</strong> is a contract defining expected performance metrics between a service provider and client. It typically specifies <strong>response time</strong>, <strong>resolution time</strong>, <strong>uptime guarantees</strong> (e.g., 99.9%), <strong>escalation procedures</strong>, and <strong>penalties</strong> for missed targets." },
+  { cat: "Professionalism", q: "What are key soft skills for IT professionals?", a: "Essential soft skills include: <strong>active listening</strong> — understanding user needs, <strong>clear communication</strong> — explaining technical concepts simply, <strong>patience</strong> — working with frustrated users, <strong>time management</strong> — prioritizing tickets effectively, <strong>teamwork</strong> — collaborating across departments, and <strong>adaptability</strong> — learning new technologies continuously." },
+];
+
+
+let deck = [];
+let current = 0;
+let correctCount = 0;
+let wrongCards = [];
+let isFlipped = false;
+let activeCategory = "All";
+
+function getCategories() {
+  const cats = ["All", ...new Set(ALL_CARDS.map(c => c.cat))];
+  return cats;
+}
+
+function buildTabs() {
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = '';
+  getCategories().forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (cat === activeCategory ? ' active' : '');
+    const count = cat === 'All' ? ALL_CARDS.length : ALL_CARDS.filter(c => c.cat === cat).length;
+    btn.textContent = `${cat} (${count})`;
+    btn.onclick = () => {
+      activeCategory = cat;
+      buildTabs();
+      if (currentMode === 'browse') {
+        renderList();
+      } else {
+        resetDeck();
+      }
+    };
+    tabsEl.appendChild(btn);
+  });
+}
+
+function resetDeck() {
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  deck = [...source];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+function shuffleDeck() {
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  current = 0;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('cardInner').classList.toggle('flipped', isFlipped);
+  if (isFlipped) {
+    document.getElementById('judgeBtns').classList.add('visible');
+  } else {
+    document.getElementById('judgeBtns').classList.remove('visible');
+  }
+}
+
+function markCard(correct) {
+  if (correct) {
+    correctCount++;
+  } else {
+    wrongCards.push(deck[current]);
+  }
+  current++;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+
+  if (current >= deck.length) {
+    showFinished();
+  } else {
+    // animate
+    const area = document.getElementById('cardArea');
+    area.classList.add('animating');
+    setTimeout(() => area.classList.remove('animating'), 300);
+    updateCard();
+    updateStats();
+  }
+}
+
+function updateCard() {
+  if (current >= deck.length) return;
+  const card = deck[current];
+  document.getElementById('questionText').textContent = card.q;
+  document.getElementById('answerText').innerHTML = card.a;
+  document.getElementById('frontCategory').textContent = card.cat;
+  document.getElementById('backCategory').textContent = card.cat + ' — Answer';
+  const num = `${current + 1} / ${deck.length}`;
+  document.getElementById('cardNum').textContent = num;
+  document.getElementById('cardNumBack').textContent = num;
+  updateStats();
+}
+
+function updateStats() {
+  const remaining = deck.length - current;
+  document.getElementById('stat-remaining').textContent = remaining;
+  document.getElementById('stat-correct').textContent = correctCount;
+  document.getElementById('stat-wrong').textContent = wrongCards.length;
+  document.getElementById('stat-total').textContent = deck.length;
+  const pct = deck.length > 0 ? ((current / deck.length) * 100).toFixed(0) : 0;
+  document.getElementById('progress').style.width = pct + '%';
+}
+
+function showFinished() {
+  document.getElementById('cardArea').style.display = 'none';
+  const finished = document.getElementById('finishedScreen');
+  finished.classList.add('show');
+  const total = correctCount + wrongCards.length;
+  const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+  document.getElementById('scorePct').textContent = pct + '%';
+  document.getElementById('reviewBtn').style.display = wrongCards.length > 0 ? '' : 'none';
+  updateStats();
+}
+
+function restartWithWrong() {
+  if (wrongCards.length === 0) { resetDeck(); return; }
+  deck = [...wrongCards];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+// Keyboard support
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); flipCard(); }
+  if (e.code === 'ArrowRight' && isFlipped) markCard(true);
+  if (e.code === 'ArrowLeft' && isFlipped) markCard(false);
+  if (e.code === 'KeyS') shuffleDeck();
+});
+
+// ===== MODE MANAGEMENT =====
+let currentMode = 'flashcard';
+let allExpanded = false;
+
+function setMode(mode) {
+  currentMode = mode;
+  const flashcardEls = [
+    document.getElementById('cardArea'),
+    document.querySelector('.stats-bar'),
+    document.querySelector('.progress-wrap'),
+    document.querySelector('.controls'),
+    document.getElementById('judgeBtns'),
+    document.getElementById('finishedScreen'),
+  ];
+  const listView = document.getElementById('listView');
+  const btnFlash = document.getElementById('modeFlashcard');
+  const btnBrowse = document.getElementById('modeBrowse');
+
+  if (mode === 'flashcard') {
+    flashcardEls.forEach(el => { if (el) el.style.display = ''; });
+    listView.classList.remove('visible');
+    btnFlash.classList.add('active');
+    btnBrowse.classList.remove('active');
+    // Re-hide finished if it wasn't showing
+    if (current < deck.length) document.getElementById('finishedScreen').classList.remove('show');
+  } else {
+    // Browse mode
+    flashcardEls.forEach(el => { if (el) el.style.display = 'none'; });
+    listView.classList.add('visible');
+    btnFlash.classList.remove('active');
+    btnBrowse.classList.add('active');
+    renderList();
+  }
+}
+
+function renderList() {
+  const query = (document.getElementById('listSearch').value || '').toLowerCase().trim();
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  const filtered = query
+    ? source.filter(c => c.q.toLowerCase().includes(query) || c.a.toLowerCase().replace(/<[^>]+>/g, '').includes(query))
+    : source;
+
+  document.getElementById('listCount').textContent = `${filtered.length} term${filtered.length !== 1 ? 's' : ''}`;
+
+  const container = document.getElementById('listItems');
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="no-results">No matching cards found.</div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map((card, i) => {
+    const globalIdx = ALL_CARDS.indexOf(card) + 1;
+    return `
+    <div class="list-item" id="li-${i}">
+      <div class="list-item-header" onclick="toggleListItem(${i})">
+        <span class="list-item-num">${globalIdx}</span>
+        <span class="list-item-q">${escapeHtml(card.q)}</span>
+        <span class="list-item-cat">${card.cat}</span>
+        <svg class="list-item-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="list-item-answer">${card.a}</div>
+    </div>`;
+  }).join('');
+
+  // Restore expanded state if allExpanded
+  if (allExpanded) {
+    container.querySelectorAll('.list-item').forEach(el => el.classList.add('open'));
+  }
+}
+
+function toggleListItem(idx) {
+  const el = document.getElementById(`li-${idx}`);
+  if (el) el.classList.toggle('open');
+}
+
+function toggleExpandAll() {
+  allExpanded = !allExpanded;
+  const btn = document.getElementById('expandAllBtn');
+  btn.textContent = allExpanded ? 'Collapse All' : 'Expand All';
+  document.querySelectorAll('.list-item').forEach(el => {
+    if (allExpanded) el.classList.add('open');
+    else el.classList.remove('open');
+  });
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Init
+buildTabs();
+resetDeck();
+</script>
+</body>
+</html>

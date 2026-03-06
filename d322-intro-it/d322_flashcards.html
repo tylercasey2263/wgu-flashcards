@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WGU D322 – Introduction to IT Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --card-front: #161b22;
+    --card-back: #141e1a;
+    --accent: #2dcc8f;
+    --accent2: #58a6ff;
+    --accent3: #f78166;
+    --warn: #e3b341;
+    --text: #f0f6fc;
+    --muted: #9aabb8;
+    --border: rgba(255,255,255,0.1);
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* BG grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(0,229,160,0.12);
+    border: 1px solid rgba(0,229,160,0.3);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: clamp(24px, 5vw, 40px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #e8f0f7, #00e5a0 60%, #4f9eff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Category tabs */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+    justify-content: center;
+  }
+
+  .tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .tab:hover { border-color: var(--accent2); color: var(--accent2); }
+  .tab.active { background: rgba(79,158,255,0.15); border-color: var(--accent2); color: var(--accent2); }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    flex: 1;
+    min-width: 120px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 3px;
+    font-weight: 500;
+  }
+
+  .stat.correct .stat-num { color: var(--accent); }
+  .stat.wrong .stat-num { color: var(--accent3); }
+  .stat.remaining .stat-num { color: var(--accent2); }
+  .stat.total .stat-num { color: var(--warn); }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    height: 4px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  /* Card area */
+  .card-area {
+    perspective: 1200px;
+    margin-bottom: 24px;
+    cursor: pointer;
+  }
+
+  .card-inner {
+    position: relative;
+    width: 100%;
+    min-height: 300px;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-inner.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 300px;
+  }
+
+  .card-front {
+    background: linear-gradient(135deg, #1a2336, #111e30);
+    border: 1px solid rgba(79,158,255,0.25);
+    box-shadow: 0 0 40px rgba(79,158,255,0.06), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+
+  .card-back {
+    background: linear-gradient(135deg, #162219, #0e1c14);
+    border: 1px solid rgba(0,229,160,0.2);
+    box-shadow: 0 0 40px rgba(0,229,160,0.05), inset 0 1px 0 rgba(255,255,255,0.05);
+    transform: rotateY(180deg);
+  }
+
+  .card-category {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .card-front .card-category { background: rgba(79,158,255,0.12); color: var(--accent2); border: 1px solid rgba(79,158,255,0.2); }
+  .card-back .card-category { background: rgba(0,229,160,0.12); color: var(--accent); border: 1px solid rgba(0,229,160,0.2); }
+
+  .card-question {
+    font-size: clamp(17px, 3vw, 23px);
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+    margin-bottom: 16px;
+    letter-spacing: -0.1px;
+  }
+
+  .card-hint {
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+
+  .card-answer {
+    font-size: clamp(15px, 2.5vw, 19px);
+    line-height: 1.75;
+    color: #e8f5f0;
+    font-weight: 400;
+  }
+
+  .card-answer strong {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .card-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  /* Num indicator */
+  .card-num {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: 1px solid;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-flip {
+    background: rgba(79,158,255,0.1);
+    border-color: rgba(79,158,255,0.4);
+    color: var(--accent2);
+  }
+  .btn-flip:hover { background: rgba(79,158,255,0.2); transform: translateY(-1px); }
+
+  .btn-correct {
+    background: rgba(0,229,160,0.1);
+    border-color: rgba(0,229,160,0.4);
+    color: var(--accent);
+  }
+  .btn-correct:hover { background: rgba(0,229,160,0.2); transform: translateY(-1px); }
+
+  .btn-wrong {
+    background: rgba(255,107,107,0.1);
+    border-color: rgba(255,107,107,0.4);
+    color: var(--accent3);
+  }
+  .btn-wrong:hover { background: rgba(255,107,107,0.2); transform: translateY(-1px); }
+
+  .btn-shuffle {
+    background: rgba(245,197,66,0.1);
+    border-color: rgba(245,197,66,0.4);
+    color: var(--warn);
+  }
+  .btn-shuffle:hover { background: rgba(245,197,66,0.2); transform: translateY(-1px); }
+
+  .btn-reset {
+    background: rgba(255,255,255,0.04);
+    border-color: var(--border);
+    color: var(--muted);
+  }
+  .btn-reset:hover { border-color: var(--muted); color: var(--text); }
+
+  /* Judgment buttons only shown after flip */
+  .judge-btns { display: none; gap: 10px; justify-content: center; }
+  .judge-btns.visible { display: flex; }
+
+  /* Algorithm table */
+  .algo-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
+  .algo-table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 6px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .algo-table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+
+  .algo-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  /* Finished screen */
+  .finished {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .finished.show { display: block; }
+
+  .score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    box-shadow: 0 0 30px rgba(0,229,160,0.2);
+  }
+
+  .score-pct {
+    font-size: 32px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+  }
+
+  .score-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Card slide animation */
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .card-area.animating .card-inner { animation: slideIn 0.3s ease; }
+
+  /* ===== MODE TOGGLE ===== */
+  .mode-toggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 0 auto 28px;
+    width: fit-content;
+    background: var(--surface);
+  }
+
+  .mode-btn {
+    padding: 9px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .mode-btn svg { width: 14px; height: 14px; }
+  .mode-btn:hover { color: var(--text); }
+  .mode-btn.active { background: rgba(79,158,255,0.15); color: var(--accent2); }
+  .mode-btn + .mode-btn { border-left: 1px solid var(--border); }
+
+  /* ===== LIST / BROWSE MODE ===== */
+  .list-view { display: none; }
+  .list-view.visible { display: block; }
+
+  .list-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+  }
+
+  .list-search input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  .list-search input::placeholder { color: var(--muted); }
+
+  .list-search svg { color: var(--muted); flex-shrink: 0; }
+
+  .list-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .list-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .list-expand-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.08);
+    border: 1px solid rgba(79,158,255,0.2);
+    border-radius: 5px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .list-expand-btn:hover { background: rgba(79,158,255,0.16); }
+
+  .list-items { display: flex; flex-direction: column; gap: 8px; }
+
+  .list-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .list-item:hover { border-color: rgba(79,158,255,0.25); }
+  .list-item.open { border-color: rgba(0,229,160,0.25); }
+
+  .list-item-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .list-item-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 28px;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .list-item-q {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+  }
+
+  .list-item-cat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.1);
+    border: 1px solid rgba(79,158,255,0.15);
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+
+  .list-item-chevron {
+    color: var(--muted);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .list-item.open .list-item-chevron { transform: rotate(180deg); color: var(--accent); }
+
+  .list-item-answer {
+    display: none;
+    padding: 0 18px 16px 60px;
+    font-size: 15px;
+    line-height: 1.78;
+    color: #e8f5f0;
+    border-top: 1px solid rgba(0,229,160,0.1);
+    background: rgba(0,229,160,0.03);
+    padding-top: 14px;
+  }
+
+  .list-item.open .list-item-answer { display: block; }
+
+  .list-item-answer strong { color: var(--accent); }
+  .list-item-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  .list-item-answer table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+  .list-item-answer table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 5px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .list-item-answer table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+  .list-item-answer table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  .no-results {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  /* ===== HIDE FLASHCARD-ONLY ELEMENTS IN LIST MODE ===== */
+  .flashcard-only { transition: opacity 0.2s; }
+  .flashcard-only.hidden { display: none; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .card-face { padding: 24px 20px; }
+    .btn { padding: 10px 16px; font-size: 11px; }
+    .list-item-answer { padding-left: 18px; }
+    .list-item-cat { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="badge">WGU D322</div>
+    <h1>Introduction to IT</h1>
+    <p class="subtitle">// flashcard study system · 2025–2026</p>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs" id="tabs"></div>
+
+  <!-- Mode Toggle -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modeFlashcard" onclick="setMode('flashcard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="12" y1="4" x2="12" y2="20"/></svg>Flashcards
+    </button>
+    <button class="mode-btn" id="modeBrowse" onclick="setMode('browse')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>Browse All
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat remaining"><div class="stat-num" id="stat-remaining">0</div><div class="stat-label">Remaining</div></div>
+    <div class="stat correct"><div class="stat-num" id="stat-correct">0</div><div class="stat-label">Correct</div></div>
+    <div class="stat wrong"><div class="stat-num" id="stat-wrong">0</div><div class="stat-label">Review</div></div>
+    <div class="stat total"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total</div></div>
+  </div>
+
+  <div class="progress-wrap"><div class="progress-fill" id="progress"></div></div>
+
+  <!-- Card -->
+  <div class="card-area" id="cardArea" onclick="flipCard()">
+    <div class="card-inner" id="cardInner">
+      <div class="card-face card-front">
+        <div class="card-num" id="cardNum">1 / 0</div>
+        <span class="card-category" id="frontCategory">Loading...</span>
+        <div class="card-question" id="questionText">Loading flashcards...</div>
+        <div class="card-hint">[ tap to reveal answer ]</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="card-num" id="cardNumBack">1 / 0</div>
+        <span class="card-category" id="backCategory">Answer</span>
+        <div class="card-answer" id="answerText"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn btn-flip" onclick="flipCard()">⟳ Flip</button>
+    <button class="btn btn-shuffle" onclick="shuffleDeck()">⇄ Shuffle</button>
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Reset</button>
+  </div>
+
+  <div class="judge-btns" id="judgeBtns">
+    <button class="btn btn-correct" onclick="markCard(true)">✓ Got It</button>
+    <button class="btn btn-wrong" onclick="markCard(false)">✗ Review Again</button>
+  </div>
+
+  <!-- List / Browse View -->
+  <div class="list-view" id="listView">
+    <div class="list-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="listSearch" placeholder="Search questions or answers..." oninput="renderList()">
+    </div>
+    <div class="list-controls-row">
+      <span class="list-count" id="listCount">0 terms</span>
+      <button class="list-expand-btn" id="expandAllBtn" onclick="toggleExpandAll()">Expand All</button>
+    </div>
+    <div class="list-items" id="listItems"></div>
+  </div>
+
+  <!-- Finished Screen -->
+  <div class="finished" id="finishedScreen">
+    <div class="score-circle">
+      <div class="score-pct" id="scorePct">0%</div>
+      <div class="score-label">Score</div>
+    </div>
+    <h2 style="font-size:24px;margin-bottom:8px;">Deck Complete!</h2>
+    <p style="color:var(--muted);margin-bottom:24px;font-family:'JetBrains Mono',monospace;font-size:13px;">Cards marked for review will be cycled back.</p>
+    <button class="btn btn-shuffle" onclick="restartWithWrong()" id="reviewBtn">↺ Review Missed</button>
+    &nbsp;
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Full Restart</button>
+  </div>
+</div>
+
+<script>
+const ALL_CARDS = [
+  // ===== HARDWARE =====
+  { cat: "Hardware", q: "What does the CPU do in a computer system?", a: "The <strong>CPU (Central Processing Unit)</strong> is the primary component that executes instructions from programs. It performs arithmetic, logic, and control operations, often called the <strong>brain</strong> of the computer." },
+  { cat: "Hardware", q: "What is the difference between RAM and ROM?", a: "<strong>RAM (Random Access Memory)</strong> is volatile memory used for temporary data while programs run — it loses contents when powered off. <strong>ROM (Read-Only Memory)</strong> is non-volatile and stores permanent firmware like the BIOS/UEFI boot instructions." },
+  { cat: "Hardware", q: "How do HDDs and SSDs differ?", a: "<strong>HDDs (Hard Disk Drives)</strong> use spinning magnetic platters and a read/write head, offering larger capacity at lower cost but slower speeds. <strong>SSDs (Solid State Drives)</strong> use flash memory with no moving parts, providing much faster read/write speeds, better durability, and lower power consumption." },
+  { cat: "Hardware", q: "What role does the motherboard play?", a: "The <strong>motherboard</strong> is the main circuit board that connects all components — CPU, RAM, storage, GPU, and peripherals. It houses the chipset that manages data flow between the processor, memory, and I/O devices." },
+  { cat: "Hardware", q: "What does a GPU do and when is it important?", a: "The <strong>GPU (Graphics Processing Unit)</strong> handles rendering images, video, and animations. It is critical for gaming, video editing, 3D modeling, and increasingly for <strong>machine learning</strong> workloads due to its parallel processing capability." },
+  { cat: "Hardware", q: "Give examples of input and output devices.", a: "<strong>Input devices</strong> send data to the computer: keyboard, mouse, scanner, microphone, webcam.<br><strong>Output devices</strong> receive data from the computer: monitor, printer, speakers, projector.<br>Some devices like touchscreens are both input and output." },
+  { cat: "Hardware", q: "How does binary relate to computing?", a: "Computers operate using <strong>binary (base-2)</strong>, representing all data as sequences of <strong>0s and 1s</strong>. Each digit is a <strong>bit</strong>, and 8 bits form a <strong>byte</strong>. Binary maps directly to electrical signals — on (1) and off (0)." },
+  { cat: "Hardware", q: "What is hexadecimal and why is it used in IT?", a: "<strong>Hexadecimal (base-16)</strong> uses digits 0-9 and letters A-F. It is used because it provides a compact, human-readable representation of binary data — one hex digit represents exactly <strong>4 bits</strong>. Common uses include MAC addresses, color codes, and memory addresses." },
+
+  // ===== SOFTWARE =====
+  { cat: "Software", q: "What is the difference between system software and application software?", a: "<strong>System software</strong> manages hardware and provides a platform for other programs (e.g., operating systems, device drivers, utilities). <strong>Application software</strong> performs specific user tasks like word processing, web browsing, or email." },
+  { cat: "Software", q: "What are the main types of software licenses?", a: "<strong>Proprietary</strong> — owned by a company, source code closed (e.g., Microsoft Office).<br><strong>Open Source</strong> — source code freely available to modify and distribute (e.g., Linux, Firefox).<br><strong>Freeware</strong> — free to use but source code is not available.<br><strong>Shareware</strong> — free trial with paid full version." },
+  { cat: "Software", q: "What is firmware?", a: "<strong>Firmware</strong> is specialized software permanently stored on a hardware device, typically in ROM or flash memory. It provides low-level control for the device's specific hardware. Examples include <strong>BIOS/UEFI</strong> on a motherboard and embedded code in printers or routers." },
+
+  // ===== OPERATING SYSTEMS =====
+  { cat: "Operating Systems", q: "What are the three major desktop operating systems?", a: "<strong>Windows</strong> — most widely used desktop OS, made by Microsoft, known for broad software compatibility.<br><strong>macOS</strong> — Apple's OS for Mac computers, known for design and multimedia.<br><strong>Linux</strong> — open-source OS with many distributions (Ubuntu, Fedora), popular for servers and development." },
+  { cat: "Operating Systems", q: "What are the core functions of an operating system?", a: "An <strong>operating system</strong> manages <strong>hardware resources</strong> (CPU, memory, storage), provides a <strong>user interface</strong> (GUI or CLI), handles <strong>file management</strong>, manages <strong>processes and multitasking</strong>, and enforces <strong>security</strong> through user accounts and permissions." },
+  { cat: "Operating Systems", q: "What is the difference between a GUI and a CLI?", a: "A <strong>GUI (Graphical User Interface)</strong> uses visual elements like windows, icons, and menus for interaction — user-friendly but resource-heavy. A <strong>CLI (Command Line Interface)</strong> uses text commands — more powerful and efficient for administrators but has a steeper learning curve." },
+  { cat: "Operating Systems", q: "What is multitasking in an operating system?", a: "<strong>Multitasking</strong> is the OS's ability to run multiple processes simultaneously by rapidly switching the CPU between tasks. The OS uses a <strong>scheduler</strong> to allocate CPU time to each process, giving the appearance of parallel execution even on a single-core processor." },
+  { cat: "Operating Systems", q: "What is a device driver?", a: "A <strong>device driver</strong> is software that allows the operating system to communicate with a specific hardware device. Without the correct driver, the OS cannot use the hardware properly. Drivers act as <strong>translators</strong> between the OS and devices like printers, GPUs, and network adapters." },
+
+  // ===== NETWORKING =====
+  { cat: "Networking", q: "What is the difference between a LAN, WAN, and MAN?", a: "<strong>LAN (Local Area Network)</strong> — covers a small area like a building or office.<br><strong>MAN (Metropolitan Area Network)</strong> — spans a city or campus.<br><strong>WAN (Wide Area Network)</strong> — covers large geographic areas; the <strong>internet</strong> is the largest WAN." },
+  { cat: "Networking", q: "What is an IP address?", a: "An <strong>IP (Internet Protocol) address</strong> is a unique numerical identifier assigned to each device on a network. <strong>IPv4</strong> uses 32-bit addresses (e.g., 192.168.1.1) while <strong>IPv6</strong> uses 128-bit addresses to support far more devices." },
+  { cat: "Networking", q: "What does DNS do?", a: "<strong>DNS (Domain Name System)</strong> translates human-readable domain names (like google.com) into IP addresses that computers use to communicate. It functions like a <strong>phone book</strong> for the internet, resolving names to addresses through a hierarchy of DNS servers." },
+  { cat: "Networking", q: "What does DHCP do?", a: "<strong>DHCP (Dynamic Host Configuration Protocol)</strong> automatically assigns IP addresses and other network configuration (subnet mask, default gateway, DNS server) to devices when they connect to a network, eliminating the need for manual configuration." },
+  { cat: "Networking", q: "What is the difference between HTTP and HTTPS?", a: "<strong>HTTP (Hypertext Transfer Protocol)</strong> transfers web data in plain text. <strong>HTTPS</strong> adds <strong>TLS/SSL encryption</strong> to secure the connection, protecting data from eavesdropping and tampering. HTTPS is indicated by a padlock icon in the browser." },
+  { cat: "Networking", q: "What are the four layers of the TCP/IP model?", a: "<table class='algo-table'><tr><th>Layer</th><th>Function</th><th>Example</th></tr><tr><td>Application</td><td>User-facing protocols</td><td>HTTP, DNS, SMTP</td></tr><tr><td>Transport</td><td>End-to-end delivery</td><td>TCP, UDP</td></tr><tr><td>Internet</td><td>Routing/addressing</td><td>IP, ICMP</td></tr><tr><td>Network Access</td><td>Physical transmission</td><td>Ethernet, Wi-Fi</td></tr></table>" },
+  { cat: "Networking", q: "What are the seven layers of the OSI model?", a: "From top to bottom: <strong>Application</strong> (Layer 7), <strong>Presentation</strong> (6), <strong>Session</strong> (5), <strong>Transport</strong> (4), <strong>Network</strong> (3), <strong>Data Link</strong> (2), <strong>Physical</strong> (1). A common mnemonic is <strong>All People Seem To Need Data Processing</strong>." },
+
+  // ===== SECURITY BASICS =====
+  { cat: "Security Basics", q: "What is the CIA triad?", a: "The <strong>CIA triad</strong> is the foundation of information security:<br><strong>Confidentiality</strong> — only authorized users can access data.<br><strong>Integrity</strong> — data is accurate and unaltered.<br><strong>Availability</strong> — data and systems are accessible when needed." },
+  { cat: "Security Basics", q: "What are the common types of malware?", a: "<strong>Virus</strong> — attaches to files, requires user action to spread.<br><strong>Worm</strong> — self-replicates across networks without user action.<br><strong>Trojan</strong> — disguises as legitimate software.<br><strong>Ransomware</strong> — encrypts files and demands payment.<br><strong>Spyware</strong> — secretly monitors user activity." },
+  { cat: "Security Basics", q: "What is a firewall?", a: "A <strong>firewall</strong> is a network security device or software that monitors and controls incoming and outgoing traffic based on predefined security rules. It acts as a barrier between a trusted internal network and untrusted external networks like the internet." },
+  { cat: "Security Basics", q: "What is multi-factor authentication (MFA)?", a: "<strong>MFA</strong> requires two or more verification factors to gain access:<br><strong>Something you know</strong> — password or PIN.<br><strong>Something you have</strong> — phone, smart card, or token.<br><strong>Something you are</strong> — biometrics like fingerprint or facial recognition." },
+  { cat: "Security Basics", q: "What is social engineering?", a: "<strong>Social engineering</strong> manipulates people into revealing confidential information or performing actions that compromise security. Common techniques include <strong>phishing</strong> (fake emails), <strong>pretexting</strong> (fabricated scenarios), <strong>tailgating</strong> (following authorized personnel), and <strong>baiting</strong> (infected USB drives)." },
+  { cat: "Security Basics", q: "What is encryption?", a: "<strong>Encryption</strong> converts readable data (plaintext) into an unreadable format (ciphertext) using an algorithm and a key. Only someone with the correct <strong>decryption key</strong> can convert it back. It protects data both <strong>in transit</strong> (HTTPS, VPN) and <strong>at rest</strong> (disk encryption)." },
+
+  // ===== CLOUD & EMERGING TECH =====
+  { cat: "Cloud & Emerging Tech", q: "What are IaaS, PaaS, and SaaS?", a: "<table class='algo-table'><tr><th>Model</th><th>You Manage</th><th>Example</th></tr><tr><td>IaaS</td><td>OS, apps, data</td><td>AWS EC2, Azure VMs</td></tr><tr><td>PaaS</td><td>Apps and data only</td><td>Heroku, Google App Engine</td></tr><tr><td>SaaS</td><td>Nothing (just use it)</td><td>Gmail, Salesforce, Dropbox</td></tr></table>" },
+  { cat: "Cloud & Emerging Tech", q: "What is virtualization?", a: "<strong>Virtualization</strong> creates virtual versions of hardware, operating systems, or network resources. A <strong>hypervisor</strong> runs on physical hardware and allows multiple <strong>virtual machines (VMs)</strong> to share the same resources while remaining isolated from each other." },
+  { cat: "Cloud & Emerging Tech", q: "What is the difference between public, private, and hybrid cloud?", a: "<strong>Public cloud</strong> — resources shared across organizations, managed by a provider (AWS, Azure).<br><strong>Private cloud</strong> — dedicated to a single organization, offering more control and security.<br><strong>Hybrid cloud</strong> — combines public and private clouds, allowing data and applications to move between them." },
+  { cat: "Cloud & Emerging Tech", q: "What is IoT (Internet of Things)?", a: "<strong>IoT</strong> refers to the network of physical devices embedded with sensors, software, and connectivity that collect and exchange data over the internet. Examples include smart thermostats, fitness trackers, industrial sensors, and connected vehicles." },
+  { cat: "Cloud & Emerging Tech", q: "What is artificial intelligence (AI) in the context of IT?", a: "<strong>Artificial intelligence</strong> enables machines to perform tasks that typically require human intelligence — pattern recognition, decision-making, and language processing. Key subfields include <strong>machine learning</strong>, <strong>natural language processing</strong>, and <strong>computer vision</strong>." },
+
+  // ===== CAREER & PROFESSIONALISM =====
+  { cat: "Career & Professionalism", q: "What are the typical help desk support tiers?", a: "<strong>Tier 1</strong> — first point of contact, handles basic issues (password resets, known fixes).<br><strong>Tier 2</strong> — experienced technicians handling escalated, more complex issues.<br><strong>Tier 3</strong> — subject matter experts or engineers solving advanced problems, often involving development or vendor support." },
+  { cat: "Career & Professionalism", q: "What is ITIL and why is it important?", a: "<strong>ITIL (Information Technology Infrastructure Library)</strong> is a framework of best practices for delivering IT services. It standardizes processes for <strong>incident management</strong>, <strong>change management</strong>, <strong>problem management</strong>, and <strong>service level management</strong> to improve efficiency and customer satisfaction." },
+  { cat: "Career & Professionalism", q: "What is change management in IT?", a: "<strong>Change management</strong> is a structured process for making modifications to IT systems while minimizing disruption. It includes submitting a <strong>change request</strong>, performing <strong>risk assessment</strong>, getting <strong>approval</strong> from a change advisory board (CAB), implementing the change, and <strong>documenting</strong> the results." },
+  { cat: "Career & Professionalism", q: "Why is documentation important in IT?", a: "<strong>Documentation</strong> creates a record of configurations, procedures, and troubleshooting steps. It enables <strong>knowledge sharing</strong> across teams, speeds up <strong>incident resolution</strong>, ensures <strong>consistency</strong> in processes, and is essential for <strong>compliance</strong> and auditing requirements." },
+  { cat: "Career & Professionalism", q: "What is a Service Level Agreement (SLA)?", a: "An <strong>SLA</strong> is a formal contract between a service provider and customer that defines expected service levels. It specifies metrics like <strong>uptime percentage</strong>, <strong>response time</strong>, <strong>resolution time</strong>, and consequences if targets are not met." },
+  { cat: "Career & Professionalism", q: "What are important professional communication practices in IT?", a: "Key practices include: <strong>active listening</strong> to understand user issues, using <strong>clear non-technical language</strong> with end users, maintaining <strong>professional tone</strong> in emails and tickets, <strong>documenting</strong> all interactions, and managing <strong>expectations</strong> about resolution timelines." },
+  { cat: "Career & Professionalism", q: "What is an incident vs. a problem in ITIL?", a: "An <strong>incident</strong> is an unplanned interruption to a service that needs immediate restoration (e.g., server down). A <strong>problem</strong> is the underlying root cause of one or more incidents. <strong>Incident management</strong> restores service quickly; <strong>problem management</strong> prevents recurrence." },
+];
+
+
+let deck = [];
+let current = 0;
+let correctCount = 0;
+let wrongCards = [];
+let isFlipped = false;
+let activeCategory = "All";
+
+function getCategories() {
+  const cats = ["All", ...new Set(ALL_CARDS.map(c => c.cat))];
+  return cats;
+}
+
+function buildTabs() {
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = '';
+  getCategories().forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (cat === activeCategory ? ' active' : '');
+    const count = cat === 'All' ? ALL_CARDS.length : ALL_CARDS.filter(c => c.cat === cat).length;
+    btn.textContent = `${cat} (${count})`;
+    btn.onclick = () => {
+      activeCategory = cat;
+      buildTabs();
+      if (currentMode === 'browse') {
+        renderList();
+      } else {
+        resetDeck();
+      }
+    };
+    tabsEl.appendChild(btn);
+  });
+}
+
+function resetDeck() {
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  deck = [...source];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+function shuffleDeck() {
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  current = 0;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('cardInner').classList.toggle('flipped', isFlipped);
+  if (isFlipped) {
+    document.getElementById('judgeBtns').classList.add('visible');
+  } else {
+    document.getElementById('judgeBtns').classList.remove('visible');
+  }
+}
+
+function markCard(correct) {
+  if (correct) {
+    correctCount++;
+  } else {
+    wrongCards.push(deck[current]);
+  }
+  current++;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+
+  if (current >= deck.length) {
+    showFinished();
+  } else {
+    // animate
+    const area = document.getElementById('cardArea');
+    area.classList.add('animating');
+    setTimeout(() => area.classList.remove('animating'), 300);
+    updateCard();
+    updateStats();
+  }
+}
+
+function updateCard() {
+  if (current >= deck.length) return;
+  const card = deck[current];
+  document.getElementById('questionText').textContent = card.q;
+  document.getElementById('answerText').innerHTML = card.a;
+  document.getElementById('frontCategory').textContent = card.cat;
+  document.getElementById('backCategory').textContent = card.cat + ' — Answer';
+  const num = `${current + 1} / ${deck.length}`;
+  document.getElementById('cardNum').textContent = num;
+  document.getElementById('cardNumBack').textContent = num;
+  updateStats();
+}
+
+function updateStats() {
+  const remaining = deck.length - current;
+  document.getElementById('stat-remaining').textContent = remaining;
+  document.getElementById('stat-correct').textContent = correctCount;
+  document.getElementById('stat-wrong').textContent = wrongCards.length;
+  document.getElementById('stat-total').textContent = deck.length;
+  const pct = deck.length > 0 ? ((current / deck.length) * 100).toFixed(0) : 0;
+  document.getElementById('progress').style.width = pct + '%';
+}
+
+function showFinished() {
+  document.getElementById('cardArea').style.display = 'none';
+  const finished = document.getElementById('finishedScreen');
+  finished.classList.add('show');
+  const total = correctCount + wrongCards.length;
+  const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+  document.getElementById('scorePct').textContent = pct + '%';
+  document.getElementById('reviewBtn').style.display = wrongCards.length > 0 ? '' : 'none';
+  updateStats();
+}
+
+function restartWithWrong() {
+  if (wrongCards.length === 0) { resetDeck(); return; }
+  deck = [...wrongCards];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+// Keyboard support
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); flipCard(); }
+  if (e.code === 'ArrowRight' && isFlipped) markCard(true);
+  if (e.code === 'ArrowLeft' && isFlipped) markCard(false);
+  if (e.code === 'KeyS') shuffleDeck();
+});
+
+// ===== MODE MANAGEMENT =====
+let currentMode = 'flashcard';
+let allExpanded = false;
+
+function setMode(mode) {
+  currentMode = mode;
+  const flashcardEls = [
+    document.getElementById('cardArea'),
+    document.querySelector('.stats-bar'),
+    document.querySelector('.progress-wrap'),
+    document.querySelector('.controls'),
+    document.getElementById('judgeBtns'),
+    document.getElementById('finishedScreen'),
+  ];
+  const listView = document.getElementById('listView');
+  const btnFlash = document.getElementById('modeFlashcard');
+  const btnBrowse = document.getElementById('modeBrowse');
+
+  if (mode === 'flashcard') {
+    flashcardEls.forEach(el => { if (el) el.style.display = ''; });
+    listView.classList.remove('visible');
+    btnFlash.classList.add('active');
+    btnBrowse.classList.remove('active');
+    // Re-hide finished if it wasn't showing
+    if (current < deck.length) document.getElementById('finishedScreen').classList.remove('show');
+  } else {
+    // Browse mode
+    flashcardEls.forEach(el => { if (el) el.style.display = 'none'; });
+    listView.classList.add('visible');
+    btnFlash.classList.remove('active');
+    btnBrowse.classList.add('active');
+    renderList();
+  }
+}
+
+function renderList() {
+  const query = (document.getElementById('listSearch').value || '').toLowerCase().trim();
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  const filtered = query
+    ? source.filter(c => c.q.toLowerCase().includes(query) || c.a.toLowerCase().replace(/<[^>]+>/g, '').includes(query))
+    : source;
+
+  document.getElementById('listCount').textContent = `${filtered.length} term${filtered.length !== 1 ? 's' : ''}`;
+
+  const container = document.getElementById('listItems');
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="no-results">No matching cards found.</div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map((card, i) => {
+    const globalIdx = ALL_CARDS.indexOf(card) + 1;
+    return `
+    <div class="list-item" id="li-${i}">
+      <div class="list-item-header" onclick="toggleListItem(${i})">
+        <span class="list-item-num">${globalIdx}</span>
+        <span class="list-item-q">${escapeHtml(card.q)}</span>
+        <span class="list-item-cat">${card.cat}</span>
+        <svg class="list-item-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="list-item-answer">${card.a}</div>
+    </div>`;
+  }).join('');
+
+  // Restore expanded state if allExpanded
+  if (allExpanded) {
+    container.querySelectorAll('.list-item').forEach(el => el.classList.add('open'));
+  }
+}
+
+function toggleListItem(idx) {
+  const el = document.getElementById(`li-${idx}`);
+  if (el) el.classList.toggle('open');
+}
+
+function toggleExpandAll() {
+  allExpanded = !allExpanded;
+  const btn = document.getElementById('expandAllBtn');
+  btn.textContent = allExpanded ? 'Collapse All' : 'Expand All';
+  document.querySelectorAll('.list-item').forEach(el => {
+    if (allExpanded) el.classList.add('open');
+    else el.classList.remove('open');
+  });
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Init
+buildTabs();
+resetDeck();
+</script>
+</body>
+</html>

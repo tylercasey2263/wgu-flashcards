@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WGU D333 – Ethics in Technology Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --card-front: #161b22;
+    --card-back: #141e1a;
+    --accent: #2dcc8f;
+    --accent2: #58a6ff;
+    --accent3: #f78166;
+    --warn: #e3b341;
+    --text: #f0f6fc;
+    --muted: #9aabb8;
+    --border: rgba(255,255,255,0.1);
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* BG grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(0,229,160,0.12);
+    border: 1px solid rgba(0,229,160,0.3);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: clamp(24px, 5vw, 40px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #e8f0f7, #00e5a0 60%, #4f9eff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Category tabs */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+    justify-content: center;
+  }
+
+  .tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .tab:hover { border-color: var(--accent2); color: var(--accent2); }
+  .tab.active { background: rgba(79,158,255,0.15); border-color: var(--accent2); color: var(--accent2); }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    flex: 1;
+    min-width: 120px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 3px;
+    font-weight: 500;
+  }
+
+  .stat.correct .stat-num { color: var(--accent); }
+  .stat.wrong .stat-num { color: var(--accent3); }
+  .stat.remaining .stat-num { color: var(--accent2); }
+  .stat.total .stat-num { color: var(--warn); }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    height: 4px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  /* Card area */
+  .card-area {
+    perspective: 1200px;
+    margin-bottom: 24px;
+    cursor: pointer;
+  }
+
+  .card-inner {
+    position: relative;
+    width: 100%;
+    min-height: 300px;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-inner.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 300px;
+  }
+
+  .card-front {
+    background: linear-gradient(135deg, #1a2336, #111e30);
+    border: 1px solid rgba(79,158,255,0.25);
+    box-shadow: 0 0 40px rgba(79,158,255,0.06), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+
+  .card-back {
+    background: linear-gradient(135deg, #162219, #0e1c14);
+    border: 1px solid rgba(0,229,160,0.2);
+    box-shadow: 0 0 40px rgba(0,229,160,0.05), inset 0 1px 0 rgba(255,255,255,0.05);
+    transform: rotateY(180deg);
+  }
+
+  .card-category {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .card-front .card-category { background: rgba(79,158,255,0.12); color: var(--accent2); border: 1px solid rgba(79,158,255,0.2); }
+  .card-back .card-category { background: rgba(0,229,160,0.12); color: var(--accent); border: 1px solid rgba(0,229,160,0.2); }
+
+  .card-question {
+    font-size: clamp(17px, 3vw, 23px);
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+    margin-bottom: 16px;
+    letter-spacing: -0.1px;
+  }
+
+  .card-hint {
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+
+  .card-answer {
+    font-size: clamp(15px, 2.5vw, 19px);
+    line-height: 1.75;
+    color: #e8f5f0;
+    font-weight: 400;
+  }
+
+  .card-answer strong {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .card-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  /* Num indicator */
+  .card-num {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: 1px solid;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-flip {
+    background: rgba(79,158,255,0.1);
+    border-color: rgba(79,158,255,0.4);
+    color: var(--accent2);
+  }
+  .btn-flip:hover { background: rgba(79,158,255,0.2); transform: translateY(-1px); }
+
+  .btn-correct {
+    background: rgba(0,229,160,0.1);
+    border-color: rgba(0,229,160,0.4);
+    color: var(--accent);
+  }
+  .btn-correct:hover { background: rgba(0,229,160,0.2); transform: translateY(-1px); }
+
+  .btn-wrong {
+    background: rgba(255,107,107,0.1);
+    border-color: rgba(255,107,107,0.4);
+    color: var(--accent3);
+  }
+  .btn-wrong:hover { background: rgba(255,107,107,0.2); transform: translateY(-1px); }
+
+  .btn-shuffle {
+    background: rgba(245,197,66,0.1);
+    border-color: rgba(245,197,66,0.4);
+    color: var(--warn);
+  }
+  .btn-shuffle:hover { background: rgba(245,197,66,0.2); transform: translateY(-1px); }
+
+  .btn-reset {
+    background: rgba(255,255,255,0.04);
+    border-color: var(--border);
+    color: var(--muted);
+  }
+  .btn-reset:hover { border-color: var(--muted); color: var(--text); }
+
+  /* Judgment buttons only shown after flip */
+  .judge-btns { display: none; gap: 10px; justify-content: center; }
+  .judge-btns.visible { display: flex; }
+
+  /* Algorithm table */
+  .algo-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
+  .algo-table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 6px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .algo-table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+
+  .algo-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  /* Finished screen */
+  .finished {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .finished.show { display: block; }
+
+  .score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    box-shadow: 0 0 30px rgba(0,229,160,0.2);
+  }
+
+  .score-pct {
+    font-size: 32px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+  }
+
+  .score-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Card slide animation */
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .card-area.animating .card-inner { animation: slideIn 0.3s ease; }
+
+  /* ===== MODE TOGGLE ===== */
+  .mode-toggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 0 auto 28px;
+    width: fit-content;
+    background: var(--surface);
+  }
+
+  .mode-btn {
+    padding: 9px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .mode-btn svg { width: 14px; height: 14px; }
+  .mode-btn:hover { color: var(--text); }
+  .mode-btn.active { background: rgba(79,158,255,0.15); color: var(--accent2); }
+  .mode-btn + .mode-btn { border-left: 1px solid var(--border); }
+
+  /* ===== LIST / BROWSE MODE ===== */
+  .list-view { display: none; }
+  .list-view.visible { display: block; }
+
+  .list-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+  }
+
+  .list-search input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  .list-search input::placeholder { color: var(--muted); }
+
+  .list-search svg { color: var(--muted); flex-shrink: 0; }
+
+  .list-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .list-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .list-expand-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.08);
+    border: 1px solid rgba(79,158,255,0.2);
+    border-radius: 5px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .list-expand-btn:hover { background: rgba(79,158,255,0.16); }
+
+  .list-items { display: flex; flex-direction: column; gap: 8px; }
+
+  .list-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .list-item:hover { border-color: rgba(79,158,255,0.25); }
+  .list-item.open { border-color: rgba(0,229,160,0.25); }
+
+  .list-item-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .list-item-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 28px;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .list-item-q {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+  }
+
+  .list-item-cat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.1);
+    border: 1px solid rgba(79,158,255,0.15);
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+
+  .list-item-chevron {
+    color: var(--muted);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .list-item.open .list-item-chevron { transform: rotate(180deg); color: var(--accent); }
+
+  .list-item-answer {
+    display: none;
+    padding: 0 18px 16px 60px;
+    font-size: 15px;
+    line-height: 1.78;
+    color: #e8f5f0;
+    border-top: 1px solid rgba(0,229,160,0.1);
+    background: rgba(0,229,160,0.03);
+    padding-top: 14px;
+  }
+
+  .list-item.open .list-item-answer { display: block; }
+
+  .list-item-answer strong { color: var(--accent); }
+  .list-item-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  .list-item-answer table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+  .list-item-answer table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 5px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .list-item-answer table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+  .list-item-answer table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  .no-results {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  /* ===== HIDE FLASHCARD-ONLY ELEMENTS IN LIST MODE ===== */
+  .flashcard-only { transition: opacity 0.2s; }
+  .flashcard-only.hidden { display: none; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .card-face { padding: 24px 20px; }
+    .btn { padding: 10px 16px; font-size: 11px; }
+    .list-item-answer { padding-left: 18px; }
+    .list-item-cat { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="badge">WGU D333</div>
+    <h1>Ethics in Technology</h1>
+    <p class="subtitle">// flashcard study system · 2025–2026</p>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs" id="tabs"></div>
+
+  <!-- Mode Toggle -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modeFlashcard" onclick="setMode('flashcard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="12" y1="4" x2="12" y2="20"/></svg>Flashcards
+    </button>
+    <button class="mode-btn" id="modeBrowse" onclick="setMode('browse')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>Browse All
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat remaining"><div class="stat-num" id="stat-remaining">0</div><div class="stat-label">Remaining</div></div>
+    <div class="stat correct"><div class="stat-num" id="stat-correct">0</div><div class="stat-label">Correct</div></div>
+    <div class="stat wrong"><div class="stat-num" id="stat-wrong">0</div><div class="stat-label">Review</div></div>
+    <div class="stat total"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total</div></div>
+  </div>
+
+  <div class="progress-wrap"><div class="progress-fill" id="progress"></div></div>
+
+  <!-- Card -->
+  <div class="card-area" id="cardArea" onclick="flipCard()">
+    <div class="card-inner" id="cardInner">
+      <div class="card-face card-front">
+        <div class="card-num" id="cardNum">1 / 0</div>
+        <span class="card-category" id="frontCategory">Loading...</span>
+        <div class="card-question" id="questionText">Loading flashcards...</div>
+        <div class="card-hint">[ tap to reveal answer ]</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="card-num" id="cardNumBack">1 / 0</div>
+        <span class="card-category" id="backCategory">Answer</span>
+        <div class="card-answer" id="answerText"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn btn-flip" onclick="flipCard()">⟳ Flip</button>
+    <button class="btn btn-shuffle" onclick="shuffleDeck()">⇄ Shuffle</button>
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Reset</button>
+  </div>
+
+  <div class="judge-btns" id="judgeBtns">
+    <button class="btn btn-correct" onclick="markCard(true)">✓ Got It</button>
+    <button class="btn btn-wrong" onclick="markCard(false)">✗ Review Again</button>
+  </div>
+
+  <!-- List / Browse View -->
+  <div class="list-view" id="listView">
+    <div class="list-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="listSearch" placeholder="Search questions or answers..." oninput="renderList()">
+    </div>
+    <div class="list-controls-row">
+      <span class="list-count" id="listCount">0 terms</span>
+      <button class="list-expand-btn" id="expandAllBtn" onclick="toggleExpandAll()">Expand All</button>
+    </div>
+    <div class="list-items" id="listItems"></div>
+  </div>
+
+  <!-- Finished Screen -->
+  <div class="finished" id="finishedScreen">
+    <div class="score-circle">
+      <div class="score-pct" id="scorePct">0%</div>
+      <div class="score-label">Score</div>
+    </div>
+    <h2 style="font-size:24px;margin-bottom:8px;">Deck Complete!</h2>
+    <p style="color:var(--muted);margin-bottom:24px;font-family:'JetBrains Mono',monospace;font-size:13px;">Cards marked for review will be cycled back.</p>
+    <button class="btn btn-shuffle" onclick="restartWithWrong()" id="reviewBtn">↺ Review Missed</button>
+    &nbsp;
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Full Restart</button>
+  </div>
+</div>
+
+<script>
+const ALL_CARDS = [
+  // ===== ETHICAL FRAMEWORKS =====
+  { cat: "Ethical Frameworks", q: "What is utilitarianism and how is it applied to technology decisions?", a: "<strong>Utilitarianism</strong> judges actions by their consequences — the right action produces the <strong>greatest good for the greatest number</strong>. In technology, it is used to weigh benefits (e.g., data collection improving services) against harms (e.g., privacy loss). A key challenge is accurately predicting and measuring outcomes." },
+  { cat: "Ethical Frameworks", q: "What is deontological ethics and Kant's categorical imperative?", a: "<strong>Deontological ethics</strong> (Kant) judges actions based on adherence to <strong>rules or duties</strong>, not consequences. <strong>Kant's categorical imperative</strong> states: act only according to rules you could will to be universal laws. In tech, this means you should not deceive users even if deception would increase profits, because deception cannot be universalized." },
+  { cat: "Ethical Frameworks", q: "What is virtue ethics and how does it differ from utilitarianism and deontology?", a: "<strong>Virtue ethics</strong> focuses on the <strong>character of the moral agent</strong> rather than rules or outcomes. It asks, 'What would a virtuous person do?' Key virtues include honesty, courage, and fairness. In tech, it encourages engineers to cultivate integrity and responsibility rather than simply following checklists." },
+  { cat: "Ethical Frameworks", q: "What is social contract theory in the context of technology?", a: "<strong>Social contract theory</strong> holds that moral and political rules are based on an <strong>agreement among individuals</strong> to form a society with mutual benefit. In tech, terms of service and acceptable use policies represent a form of social contract between users and platforms. Violations undermine the trust that enables digital communities." },
+  { cat: "Ethical Frameworks", q: "What is the difference between ethical relativism and ethical absolutism?", a: "<strong>Ethical relativism</strong> holds that moral standards are <strong>culturally or individually determined</strong> — what is right varies across societies. <strong>Ethical absolutism</strong> holds that certain actions are <strong>universally right or wrong</strong> regardless of context. In tech, this tension arises with global platforms that must navigate differing cultural norms around censorship, privacy, and expression." },
+  { cat: "Ethical Frameworks", q: "What is stakeholder analysis in technology ethics?", a: "<strong>Stakeholder analysis</strong> identifies all parties affected by a technology decision — users, employees, shareholders, communities, and the environment. Each stakeholder's <strong>interests, power, and potential harms</strong> are mapped. Ethical decision-making requires considering impacts on all stakeholders, not just the most powerful or profitable ones." },
+  { cat: "Ethical Frameworks", q: "How do act utilitarianism and rule utilitarianism differ?", a: "<strong>Act utilitarianism</strong> evaluates each individual action by its specific consequences. <strong>Rule utilitarianism</strong> evaluates actions by whether the general rule behind them maximizes utility. In tech, act utilitarianism might justify a single privacy violation if it prevents harm, while rule utilitarianism would prohibit it because normalizing violations causes greater overall harm." },
+
+  // ===== PRIVACY & SURVEILLANCE =====
+  { cat: "Privacy & Surveillance", q: "What are the three types of privacy rights?", a: "<strong>Informational privacy</strong> — control over personal data collection and use<br><strong>Physical privacy</strong> — freedom from physical monitoring or intrusion<br><strong>Decisional privacy</strong> — autonomy to make personal choices without external interference. Technology increasingly challenges all three through data collection, surveillance cameras, and algorithmic nudging." },
+  { cat: "Privacy & Surveillance", q: "What is surveillance capitalism?", a: "<strong>Surveillance capitalism</strong> (coined by Shoshana Zuboff) is a business model that treats <strong>human experience as free raw material</strong> for data extraction and behavioral prediction. Companies collect vast amounts of user data to build predictive models sold to advertisers. Critics argue it undermines autonomy and democracy by monetizing personal behavior." },
+  { cat: "Privacy & Surveillance", q: "What is GDPR and what are its core privacy principles?", a: "<strong>GDPR (General Data Protection Regulation)</strong> is the EU regulation governing personal data protection. Core principles include: <strong>lawfulness and transparency</strong>, <strong>purpose limitation</strong>, <strong>data minimization</strong>, <strong>accuracy</strong>, <strong>storage limitation</strong>, <strong>integrity and confidentiality</strong>, and <strong>accountability</strong>. It grants individuals rights including access, erasure, and data portability." },
+  { cat: "Privacy & Surveillance", q: "What is privacy by design?", a: "<strong>Privacy by design</strong> means embedding privacy protections into the <strong>design and architecture</strong> of systems from the start, rather than adding them as afterthoughts. It includes principles like <strong>proactive prevention</strong>, privacy as the default, and full lifecycle data protection. GDPR codifies this concept as a legal requirement." },
+  { cat: "Privacy & Surveillance", q: "What is the difference between data anonymization and pseudonymization?", a: "<strong>Anonymization</strong> permanently removes all <strong>personally identifiable information (PII)</strong> so individuals can never be re-identified. <strong>Pseudonymization</strong> replaces identifiers with tokens or codes that <strong>can be reversed</strong> with a key. Under GDPR, pseudonymized data is still personal data; truly anonymized data is not." },
+  { cat: "Privacy & Surveillance", q: "What is data minimization?", a: "<strong>Data minimization</strong> is the principle that organizations should collect only the <strong>minimum amount of personal data necessary</strong> for a specific, stated purpose. It reduces risk of data breaches and misuse. Under GDPR, collecting excessive or irrelevant data violates this principle and can result in regulatory penalties." },
+  { cat: "Privacy & Surveillance", q: "What ethical concerns surround facial recognition technology?", a: "Facial recognition raises concerns about <strong>mass surveillance</strong>, chilling effects on free speech and assembly, <strong>racial and gender bias</strong> in accuracy rates, and lack of informed consent. Studies show higher error rates for darker-skinned individuals and women. Critics argue it enables authoritarian monitoring, while supporters cite law enforcement benefits." },
+  { cat: "Privacy & Surveillance", q: "How does the Fourth Amendment apply to digital privacy?", a: "The <strong>Fourth Amendment</strong> protects against unreasonable searches and seizures. In <strong>Carpenter v. United States (2018)</strong>, the Supreme Court ruled that accessing historical cell-site location records requires a warrant. The <strong>third-party doctrine</strong> — that sharing data with a company removes privacy expectations — has been narrowed for digital data." },
+  { cat: "Privacy & Surveillance", q: "What are cookies and tracking, and why are they ethically significant?", a: "<strong>Cookies</strong> are small data files stored by browsers to track user activity. <strong>First-party cookies</strong> support site functionality; <strong>third-party cookies</strong> enable cross-site tracking for targeted advertising. Ethical concerns include lack of meaningful consent, opaque data practices, and the creation of detailed behavioral profiles without user awareness." },
+  { cat: "Privacy & Surveillance", q: "What is the right to be forgotten?", a: "The <strong>right to be forgotten</strong> (right to erasure) allows individuals to request deletion of their personal data when it is no longer necessary, was unlawfully processed, or consent is withdrawn. Established under <strong>GDPR Article 17</strong>, it balances privacy against public interest and freedom of expression. Search engines may be required to de-index certain results." },
+  { cat: "Privacy & Surveillance", q: "What ethical issues arise from workplace surveillance?", a: "Workplace surveillance includes <strong>email monitoring, keystroke logging, GPS tracking, and video monitoring</strong>. Ethical concerns include erosion of employee trust, chilling effects on communication, disproportionate monitoring, and power imbalances. Supporters argue it protects trade secrets and ensures productivity, but critics say it must be <strong>transparent, proportionate, and respectful</strong> of dignity." },
+
+  // ===== INTELLECTUAL PROPERTY =====
+  { cat: "Intellectual Property", q: "What are the four main types of intellectual property protection?", a: "<table class='algo-table'><tr><th>Type</th><th>Protects</th><th>Duration</th></tr><tr><td><strong>Copyright</strong></td><td>Original creative works (code, text, music)</td><td>Life + 70 years</td></tr><tr><td><strong>Patent</strong></td><td>Novel inventions and processes</td><td>20 years</td></tr><tr><td><strong>Trademark</strong></td><td>Brand names, logos, slogans</td><td>Indefinite (with renewal)</td></tr><tr><td><strong>Trade Secret</strong></td><td>Confidential business info (algorithms, formulas)</td><td>As long as kept secret</td></tr></table>" },
+  { cat: "Intellectual Property", q: "What is the fair use doctrine?", a: "<strong>Fair use</strong> permits limited use of copyrighted material without permission for purposes such as <strong>criticism, commentary, news reporting, teaching, and research</strong>. Courts evaluate four factors: purpose of use, nature of the work, amount used, and market impact. Fair use is a defense, not a right, and is evaluated case by case." },
+  { cat: "Intellectual Property", q: "What is DRM and what ethical concerns does it raise?", a: "<strong>DRM (Digital Rights Management)</strong> is technology that controls access to and use of digital content. It prevents unauthorized copying but raises ethical concerns about <strong>limiting legitimate fair use</strong>, restricting user ownership, creating vendor lock-in, and reducing accessibility for people with disabilities. Critics argue DRM treats legitimate customers as potential criminals." },
+  { cat: "Intellectual Property", q: "What are the ethical considerations of open source software?", a: "<strong>Open source</strong> software makes source code freely available for use, modification, and distribution. Ethical benefits include <strong>transparency, collaboration, and reduced barriers</strong> to access. Concerns include sustainability (unpaid maintainers), security risks from abandoned projects, and corporations profiting from volunteer labor without contributing back." },
+  { cat: "Intellectual Property", q: "What is software piracy and why is it ethically debated?", a: "<strong>Software piracy</strong> is the unauthorized copying, distribution, or use of copyrighted software. Arguments against: it violates creators' rights and undermines economic incentives for innovation. Arguments for leniency: high prices create unequal access, copying does not deprive the owner, and some argue it increases market adoption. Legally, piracy is a <strong>copyright violation</strong>." },
+
+  // ===== AI & AUTOMATION ETHICS =====
+  { cat: "AI & Automation Ethics", q: "What is algorithmic bias and how does it manifest?", a: "<strong>Algorithmic bias</strong> occurs when automated systems produce <strong>systematically unfair outcomes</strong> that reflect or amplify existing prejudices. Sources include biased training data, flawed feature selection, and lack of diverse development teams. Examples include facial recognition with higher error rates for minorities and credit scoring that disadvantages certain demographics." },
+  { cat: "AI & Automation Ethics", q: "What are the ethical concerns of AI in hiring?", a: "AI hiring tools raise concerns about <strong>algorithmic discrimination</strong> — systems trained on historical data may perpetuate biases against women, minorities, or older workers. Amazon famously scrapped an AI recruiting tool that penalized resumes containing the word 'women's.' Ethical AI hiring requires <strong>transparency, regular auditing, and human oversight</strong>." },
+  { cat: "AI & Automation Ethics", q: "What are the ethical concerns of AI in criminal justice?", a: "AI in criminal justice includes <strong>predictive policing and recidivism risk tools</strong> like COMPAS. Ethical concerns include racial bias in predictions, lack of transparency in proprietary algorithms, <strong>due process violations</strong> when defendants cannot challenge opaque models, and reinforcement of systemic inequalities when biased historical data drives future decisions." },
+  { cat: "AI & Automation Ethics", q: "What ethical issues surround autonomous weapons?", a: "<strong>Autonomous weapons</strong> (lethal autonomous weapon systems) can select and engage targets without human intervention. Ethical concerns include <strong>accountability gaps</strong> when no human makes the kill decision, potential for arms races, lowered thresholds for conflict, and violation of principles of <strong>distinction and proportionality</strong> under international humanitarian law." },
+  { cat: "AI & Automation Ethics", q: "How does automation impact employment, and what is the UBI debate?", a: "<strong>Automation displaces routine jobs</strong> across manufacturing, retail, and transportation while creating new tech roles. This creates a <strong>skills gap</strong> and economic inequality. <strong>Universal Basic Income (UBI)</strong> is proposed as a safety net — proponents say it provides security; critics argue it reduces work incentives and is fiscally unsustainable." },
+  { cat: "AI & Automation Ethics", q: "What are deep fakes and what ethical concerns do they raise?", a: "<strong>Deep fakes</strong> use AI (deep learning) to create <strong>realistic but fabricated</strong> audio, video, or images. Ethical concerns include non-consensual pornography, political disinformation, fraud, and erosion of trust in authentic media. They challenge the reliability of <strong>visual evidence</strong> and raise questions about regulation versus free speech." },
+  { cat: "AI & Automation Ethics", q: "What is algorithmic discrimination and how can it be mitigated?", a: "<strong>Algorithmic discrimination</strong> is when automated decisions disproportionately harm protected groups. Mitigation strategies include: <strong>diverse and representative training data</strong>, fairness metrics and regular bias audits, <strong>explainable AI (XAI)</strong> to make decisions transparent, human-in-the-loop oversight, and regulatory frameworks requiring impact assessments." },
+
+  // ===== CYBERSECURITY ETHICS =====
+  { cat: "Cybersecurity Ethics", q: "What is the difference between authorized and unauthorized hacking?", a: "<strong>Authorized hacking</strong> (white hat / ethical hacking) involves testing systems <strong>with explicit permission</strong> to find vulnerabilities — through penetration tests or bug bounties. <strong>Unauthorized hacking</strong> (black hat) accesses systems without permission and is illegal under laws like the <strong>Computer Fraud and Abuse Act (CFAA)</strong>. Gray hat hackers find vulnerabilities without permission but disclose them." },
+  { cat: "Cybersecurity Ethics", q: "What is responsible disclosure in cybersecurity?", a: "<strong>Responsible disclosure</strong> is the practice of reporting discovered vulnerabilities to the <strong>affected vendor or organization</strong> before making them public, giving them time to develop a patch. It balances <strong>public safety</strong> against vendor interests. The typical process: report privately, allow a reasonable fix window (e.g., 90 days), then disclose publicly if unpatched." },
+  { cat: "Cybersecurity Ethics", q: "What are bug bounty programs and why are they ethically important?", a: "<strong>Bug bounty programs</strong> offer monetary rewards to security researchers who find and report vulnerabilities. They <strong>incentivize ethical disclosure</strong> over black-market exploit sales, improve software security, and create a legitimate channel for researchers. Major programs include those from Google, Microsoft, and HackerOne platform participants." },
+  { cat: "Cybersecurity Ethics", q: "What is the ethical debate around the Snowden disclosures?", a: "Edward <strong>Snowden</strong> leaked classified NSA documents in 2013 revealing mass government surveillance programs. <strong>Supporters</strong> argue he exposed unconstitutional violations of citizens' privacy and sparked essential public debate. <strong>Critics</strong> argue he endangered national security and violated his oath. The debate centers on <strong>whistleblowing ethics</strong> — when does public interest justify breaking the law?" },
+  { cat: "Cybersecurity Ethics", q: "What is whistleblowing and when is it ethically justified?", a: "<strong>Whistleblowing</strong> is reporting illegal, unethical, or harmful activities within an organization, often to external authorities or the public. It is generally considered ethically justified when: <strong>internal channels have been exhausted</strong>, the harm is serious, the whistleblower acts in good faith, and there is credible evidence. Legal protections vary by jurisdiction." },
+  { cat: "Cybersecurity Ethics", q: "What ethical principles guide cybersecurity professionals?", a: "Key principles include: <strong>do no harm</strong> — avoid causing damage during testing; <strong>respect privacy</strong> — access only what is authorized; <strong>act within scope</strong> — stay within agreed boundaries; <strong>report vulnerabilities</strong> responsibly; and <strong>maintain confidentiality</strong> of client data. The goal is to improve security without creating additional risk or violating trust." },
+
+  // ===== SOCIAL MEDIA & SOCIETY =====
+  { cat: "Social Media & Society", q: "What are filter bubbles and echo chambers?", a: "<strong>Filter bubbles</strong> (coined by Eli Pariser) occur when algorithms personalize content feeds to show users only information that <strong>confirms existing beliefs</strong>, limiting exposure to diverse viewpoints. <strong>Echo chambers</strong> are social environments where people encounter only like-minded views. Both contribute to polarization and reduce capacity for informed democratic participation." },
+  { cat: "Social Media & Society", q: "What is misinformation vs. disinformation?", a: "<strong>Misinformation</strong> is false or inaccurate information shared <strong>without intent to deceive</strong> — the sharer believes it is true. <strong>Disinformation</strong> is deliberately false information spread to <strong>deceive, manipulate, or cause harm</strong>. Social media amplifies both through viral sharing, algorithmic amplification, and lack of editorial gatekeeping." },
+  { cat: "Social Media & Society", q: "What is net neutrality and why is it ethically significant?", a: "<strong>Net neutrality</strong> is the principle that ISPs must treat all internet traffic <strong>equally</strong> without blocking, throttling, or creating paid fast lanes. Supporters argue it preserves free speech, innovation, and a level playing field. Opponents argue ISPs need flexibility to manage networks. Without it, large corporations could pay for preferential access, harming startups and consumers." },
+  { cat: "Social Media & Society", q: "What is the digital divide?", a: "The <strong>digital divide</strong> is the gap between those who have <strong>access to digital technology and the internet</strong> and those who do not. It spans economic, geographic, racial, and generational dimensions. Ethical concerns include unequal access to education, employment, healthcare, and civic participation. Bridging the divide is considered an <strong>equity and social justice</strong> issue." },
+  { cat: "Social Media & Society", q: "Why is digital accessibility considered an ethical obligation?", a: "<strong>Digital accessibility</strong> ensures that people with disabilities can use technology and access digital content. It is both an ethical obligation (rooted in <strong>equity and inclusion</strong>) and a legal requirement under laws like the <strong>ADA and Section 508</strong>. Standards such as <strong>WCAG (Web Content Accessibility Guidelines)</strong> define how to make web content perceivable, operable, understandable, and robust." },
+  { cat: "Social Media & Society", q: "How does social media manipulation affect democratic processes?", a: "Social media manipulation includes <strong>bot networks, coordinated inauthentic behavior, targeted disinformation, and micro-targeted political ads</strong>. These tactics can distort public opinion, suppress voter turnout, and undermine trust in elections. Ethical concerns center on platform responsibility, transparency in political advertising, and the tension between free speech and content moderation." },
+  { cat: "Social Media & Society", q: "What ethical issues arise from terms of service agreements?", a: "<strong>Terms of service (ToS)</strong> are contracts users must accept to use platforms. Ethical issues include: they are <strong>excessively long and difficult to understand</strong>, users have no negotiating power, consent is often not truly informed, and platforms can change terms unilaterally. Critics argue ToS agreements create <strong>illusory consent</strong> and exploit information asymmetry." },
+
+  // ===== PROFESSIONAL ETHICS =====
+  { cat: "Professional Ethics", q: "What are the key principles of the ACM Code of Ethics?", a: "The <strong>ACM Code of Ethics</strong> includes: <strong>1)</strong> Contribute to society and human well-being<br><strong>2)</strong> Avoid harm<br><strong>3)</strong> Be honest and trustworthy<br><strong>4)</strong> Be fair and take action not to discriminate<br><strong>5)</strong> Respect privacy<br><strong>6)</strong> Honor confidentiality<br><strong>7)</strong> Respect the work required to produce new ideas and computing artifacts" },
+  { cat: "Professional Ethics", q: "What are the key principles of the IEEE Code of Ethics?", a: "The <strong>IEEE Code of Ethics</strong> commits members to: hold paramount the <strong>safety, health, and welfare of the public</strong>; avoid conflicts of interest; be honest in claims and estimates; reject bribery; <strong>improve understanding of technology</strong>; maintain and enhance competence; seek and accept honest criticism; treat all persons fairly regardless of race, gender, or national origin." },
+  { cat: "Professional Ethics", q: "What is corporate social responsibility (CSR) in the technology sector?", a: "<strong>CSR</strong> holds that tech companies have obligations beyond profit — to <strong>society, the environment, and stakeholders</strong>. This includes responsible data practices, reducing environmental impact (e-waste, energy consumption), ethical supply chains, diversity and inclusion, and investing in communities. CSR moves beyond legal compliance to voluntary ethical commitments." },
+  { cat: "Professional Ethics", q: "What are the ethical responsibilities of software engineers?", a: "Software engineers have ethical duties to: write <strong>safe and reliable code</strong>, protect user data, disclose known defects, avoid conflicts of interest, respect intellectual property, and refuse to participate in unethical projects. The <strong>ACM/IEEE Software Engineering Code of Ethics</strong> identifies eight principles including public interest, client interests, product quality, and profession integrity." },
+  { cat: "Professional Ethics", q: "What is the ethical dilemma of dual-use technology?", a: "<strong>Dual-use technology</strong> has both beneficial civilian and harmful military or surveillance applications. Examples include encryption (privacy vs. criminal communication), drones (delivery vs. weapons), and AI (healthcare vs. autonomous weapons). Engineers face ethical dilemmas about whether to develop technologies that <strong>could be misused</strong> despite their beneficial potential." },
+  { cat: "Professional Ethics", q: "How should tech professionals handle ethical conflicts with employers?", a: "When employer demands conflict with ethical principles, professionals should: <strong>1)</strong> Raise concerns through internal channels first<br><strong>2)</strong> Document the ethical issues clearly<br><strong>3)</strong> Consult professional codes of ethics (ACM/IEEE)<br><strong>4)</strong> Seek legal counsel if needed<br><strong>5)</strong> Consider whistleblowing as a last resort if public safety is at stake. Professional codes generally place <strong>public interest above employer loyalty</strong>." },
+];
+
+
+let deck = [];
+let current = 0;
+let correctCount = 0;
+let wrongCards = [];
+let isFlipped = false;
+let activeCategory = "All";
+
+function getCategories() {
+  const cats = ["All", ...new Set(ALL_CARDS.map(c => c.cat))];
+  return cats;
+}
+
+function buildTabs() {
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = '';
+  getCategories().forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (cat === activeCategory ? ' active' : '');
+    const count = cat === 'All' ? ALL_CARDS.length : ALL_CARDS.filter(c => c.cat === cat).length;
+    btn.textContent = `${cat} (${count})`;
+    btn.onclick = () => {
+      activeCategory = cat;
+      buildTabs();
+      if (currentMode === 'browse') {
+        renderList();
+      } else {
+        resetDeck();
+      }
+    };
+    tabsEl.appendChild(btn);
+  });
+}
+
+function resetDeck() {
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  deck = [...source];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+function shuffleDeck() {
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  current = 0;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('cardInner').classList.toggle('flipped', isFlipped);
+  if (isFlipped) {
+    document.getElementById('judgeBtns').classList.add('visible');
+  } else {
+    document.getElementById('judgeBtns').classList.remove('visible');
+  }
+}
+
+function markCard(correct) {
+  if (correct) {
+    correctCount++;
+  } else {
+    wrongCards.push(deck[current]);
+  }
+  current++;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+
+  if (current >= deck.length) {
+    showFinished();
+  } else {
+    // animate
+    const area = document.getElementById('cardArea');
+    area.classList.add('animating');
+    setTimeout(() => area.classList.remove('animating'), 300);
+    updateCard();
+    updateStats();
+  }
+}
+
+function updateCard() {
+  if (current >= deck.length) return;
+  const card = deck[current];
+  document.getElementById('questionText').textContent = card.q;
+  document.getElementById('answerText').innerHTML = card.a;
+  document.getElementById('frontCategory').textContent = card.cat;
+  document.getElementById('backCategory').textContent = card.cat + ' — Answer';
+  const num = `${current + 1} / ${deck.length}`;
+  document.getElementById('cardNum').textContent = num;
+  document.getElementById('cardNumBack').textContent = num;
+  updateStats();
+}
+
+function updateStats() {
+  const remaining = deck.length - current;
+  document.getElementById('stat-remaining').textContent = remaining;
+  document.getElementById('stat-correct').textContent = correctCount;
+  document.getElementById('stat-wrong').textContent = wrongCards.length;
+  document.getElementById('stat-total').textContent = deck.length;
+  const pct = deck.length > 0 ? ((current / deck.length) * 100).toFixed(0) : 0;
+  document.getElementById('progress').style.width = pct + '%';
+}
+
+function showFinished() {
+  document.getElementById('cardArea').style.display = 'none';
+  const finished = document.getElementById('finishedScreen');
+  finished.classList.add('show');
+  const total = correctCount + wrongCards.length;
+  const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+  document.getElementById('scorePct').textContent = pct + '%';
+  document.getElementById('reviewBtn').style.display = wrongCards.length > 0 ? '' : 'none';
+  updateStats();
+}
+
+function restartWithWrong() {
+  if (wrongCards.length === 0) { resetDeck(); return; }
+  deck = [...wrongCards];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+// Keyboard support
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); flipCard(); }
+  if (e.code === 'ArrowRight' && isFlipped) markCard(true);
+  if (e.code === 'ArrowLeft' && isFlipped) markCard(false);
+  if (e.code === 'KeyS') shuffleDeck();
+});
+
+// ===== MODE MANAGEMENT =====
+let currentMode = 'flashcard';
+let allExpanded = false;
+
+function setMode(mode) {
+  currentMode = mode;
+  const flashcardEls = [
+    document.getElementById('cardArea'),
+    document.querySelector('.stats-bar'),
+    document.querySelector('.progress-wrap'),
+    document.querySelector('.controls'),
+    document.getElementById('judgeBtns'),
+    document.getElementById('finishedScreen'),
+  ];
+  const listView = document.getElementById('listView');
+  const btnFlash = document.getElementById('modeFlashcard');
+  const btnBrowse = document.getElementById('modeBrowse');
+
+  if (mode === 'flashcard') {
+    flashcardEls.forEach(el => { if (el) el.style.display = ''; });
+    listView.classList.remove('visible');
+    btnFlash.classList.add('active');
+    btnBrowse.classList.remove('active');
+    // Re-hide finished if it wasn't showing
+    if (current < deck.length) document.getElementById('finishedScreen').classList.remove('show');
+  } else {
+    // Browse mode
+    flashcardEls.forEach(el => { if (el) el.style.display = 'none'; });
+    listView.classList.add('visible');
+    btnFlash.classList.remove('active');
+    btnBrowse.classList.add('active');
+    renderList();
+  }
+}
+
+function renderList() {
+  const query = (document.getElementById('listSearch').value || '').toLowerCase().trim();
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  const filtered = query
+    ? source.filter(c => c.q.toLowerCase().includes(query) || c.a.toLowerCase().replace(/<[^>]+>/g, '').includes(query))
+    : source;
+
+  document.getElementById('listCount').textContent = `${filtered.length} term${filtered.length !== 1 ? 's' : ''}`;
+
+  const container = document.getElementById('listItems');
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="no-results">No matching cards found.</div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map((card, i) => {
+    const globalIdx = ALL_CARDS.indexOf(card) + 1;
+    return `
+    <div class="list-item" id="li-${i}">
+      <div class="list-item-header" onclick="toggleListItem(${i})">
+        <span class="list-item-num">${globalIdx}</span>
+        <span class="list-item-q">${escapeHtml(card.q)}</span>
+        <span class="list-item-cat">${card.cat}</span>
+        <svg class="list-item-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="list-item-answer">${card.a}</div>
+    </div>`;
+  }).join('');
+
+  // Restore expanded state if allExpanded
+  if (allExpanded) {
+    container.querySelectorAll('.list-item').forEach(el => el.classList.add('open'));
+  }
+}
+
+function toggleListItem(idx) {
+  const el = document.getElementById(`li-${idx}`);
+  if (el) el.classList.toggle('open');
+}
+
+function toggleExpandAll() {
+  allExpanded = !allExpanded;
+  const btn = document.getElementById('expandAllBtn');
+  btn.textContent = allExpanded ? 'Collapse All' : 'Expand All';
+  document.querySelectorAll('.list-item').forEach(el => {
+    if (allExpanded) el.classList.add('open');
+    else el.classList.remove('open');
+  });
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Init
+buildTabs();
+resetDeck();
+</script>
+</body>
+</html>

@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WGU D265 – Critical Thinking Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --card-front: #161b22;
+    --card-back: #141e1a;
+    --accent: #2dcc8f;
+    --accent2: #58a6ff;
+    --accent3: #f78166;
+    --warn: #e3b341;
+    --text: #f0f6fc;
+    --muted: #9aabb8;
+    --border: rgba(255,255,255,0.1);
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* BG grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(0,229,160,0.12);
+    border: 1px solid rgba(0,229,160,0.3);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: clamp(24px, 5vw, 40px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #e8f0f7, #00e5a0 60%, #4f9eff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Category tabs */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+    justify-content: center;
+  }
+
+  .tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .tab:hover { border-color: var(--accent2); color: var(--accent2); }
+  .tab.active { background: rgba(79,158,255,0.15); border-color: var(--accent2); color: var(--accent2); }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    flex: 1;
+    min-width: 120px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 3px;
+    font-weight: 500;
+  }
+
+  .stat.correct .stat-num { color: var(--accent); }
+  .stat.wrong .stat-num { color: var(--accent3); }
+  .stat.remaining .stat-num { color: var(--accent2); }
+  .stat.total .stat-num { color: var(--warn); }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    height: 4px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  /* Card area */
+  .card-area {
+    perspective: 1200px;
+    margin-bottom: 24px;
+    cursor: pointer;
+  }
+
+  .card-inner {
+    position: relative;
+    width: 100%;
+    min-height: 300px;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-inner.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 300px;
+  }
+
+  .card-front {
+    background: linear-gradient(135deg, #1a2336, #111e30);
+    border: 1px solid rgba(79,158,255,0.25);
+    box-shadow: 0 0 40px rgba(79,158,255,0.06), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+
+  .card-back {
+    background: linear-gradient(135deg, #162219, #0e1c14);
+    border: 1px solid rgba(0,229,160,0.2);
+    box-shadow: 0 0 40px rgba(0,229,160,0.05), inset 0 1px 0 rgba(255,255,255,0.05);
+    transform: rotateY(180deg);
+  }
+
+  .card-category {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .card-front .card-category { background: rgba(79,158,255,0.12); color: var(--accent2); border: 1px solid rgba(79,158,255,0.2); }
+  .card-back .card-category { background: rgba(0,229,160,0.12); color: var(--accent); border: 1px solid rgba(0,229,160,0.2); }
+
+  .card-question {
+    font-size: clamp(17px, 3vw, 23px);
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+    margin-bottom: 16px;
+    letter-spacing: -0.1px;
+  }
+
+  .card-hint {
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+
+  .card-answer {
+    font-size: clamp(15px, 2.5vw, 19px);
+    line-height: 1.75;
+    color: #e8f5f0;
+    font-weight: 400;
+  }
+
+  .card-answer strong {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .card-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  /* Num indicator */
+  .card-num {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: 1px solid;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-flip {
+    background: rgba(79,158,255,0.1);
+    border-color: rgba(79,158,255,0.4);
+    color: var(--accent2);
+  }
+  .btn-flip:hover { background: rgba(79,158,255,0.2); transform: translateY(-1px); }
+
+  .btn-correct {
+    background: rgba(0,229,160,0.1);
+    border-color: rgba(0,229,160,0.4);
+    color: var(--accent);
+  }
+  .btn-correct:hover { background: rgba(0,229,160,0.2); transform: translateY(-1px); }
+
+  .btn-wrong {
+    background: rgba(255,107,107,0.1);
+    border-color: rgba(255,107,107,0.4);
+    color: var(--accent3);
+  }
+  .btn-wrong:hover { background: rgba(255,107,107,0.2); transform: translateY(-1px); }
+
+  .btn-shuffle {
+    background: rgba(245,197,66,0.1);
+    border-color: rgba(245,197,66,0.4);
+    color: var(--warn);
+  }
+  .btn-shuffle:hover { background: rgba(245,197,66,0.2); transform: translateY(-1px); }
+
+  .btn-reset {
+    background: rgba(255,255,255,0.04);
+    border-color: var(--border);
+    color: var(--muted);
+  }
+  .btn-reset:hover { border-color: var(--muted); color: var(--text); }
+
+  /* Judgment buttons only shown after flip */
+  .judge-btns { display: none; gap: 10px; justify-content: center; }
+  .judge-btns.visible { display: flex; }
+
+  /* Algorithm table */
+  .algo-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
+  .algo-table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 6px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .algo-table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+
+  .algo-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  /* Finished screen */
+  .finished {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .finished.show { display: block; }
+
+  .score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    box-shadow: 0 0 30px rgba(0,229,160,0.2);
+  }
+
+  .score-pct {
+    font-size: 32px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+  }
+
+  .score-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Card slide animation */
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .card-area.animating .card-inner { animation: slideIn 0.3s ease; }
+
+  /* ===== MODE TOGGLE ===== */
+  .mode-toggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 0 auto 28px;
+    width: fit-content;
+    background: var(--surface);
+  }
+
+  .mode-btn {
+    padding: 9px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .mode-btn svg { width: 14px; height: 14px; }
+  .mode-btn:hover { color: var(--text); }
+  .mode-btn.active { background: rgba(79,158,255,0.15); color: var(--accent2); }
+  .mode-btn + .mode-btn { border-left: 1px solid var(--border); }
+
+  /* ===== LIST / BROWSE MODE ===== */
+  .list-view { display: none; }
+  .list-view.visible { display: block; }
+
+  .list-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+  }
+
+  .list-search input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  .list-search input::placeholder { color: var(--muted); }
+
+  .list-search svg { color: var(--muted); flex-shrink: 0; }
+
+  .list-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .list-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .list-expand-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.08);
+    border: 1px solid rgba(79,158,255,0.2);
+    border-radius: 5px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .list-expand-btn:hover { background: rgba(79,158,255,0.16); }
+
+  .list-items { display: flex; flex-direction: column; gap: 8px; }
+
+  .list-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .list-item:hover { border-color: rgba(79,158,255,0.25); }
+  .list-item.open { border-color: rgba(0,229,160,0.25); }
+
+  .list-item-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .list-item-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 28px;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .list-item-q {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+  }
+
+  .list-item-cat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.1);
+    border: 1px solid rgba(79,158,255,0.15);
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+
+  .list-item-chevron {
+    color: var(--muted);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .list-item.open .list-item-chevron { transform: rotate(180deg); color: var(--accent); }
+
+  .list-item-answer {
+    display: none;
+    padding: 0 18px 16px 60px;
+    font-size: 15px;
+    line-height: 1.78;
+    color: #e8f5f0;
+    border-top: 1px solid rgba(0,229,160,0.1);
+    background: rgba(0,229,160,0.03);
+    padding-top: 14px;
+  }
+
+  .list-item.open .list-item-answer { display: block; }
+
+  .list-item-answer strong { color: var(--accent); }
+  .list-item-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  .list-item-answer table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+  .list-item-answer table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 5px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .list-item-answer table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+  .list-item-answer table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  .no-results {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  /* ===== HIDE FLASHCARD-ONLY ELEMENTS IN LIST MODE ===== */
+  .flashcard-only { transition: opacity 0.2s; }
+  .flashcard-only.hidden { display: none; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .card-face { padding: 24px 20px; }
+    .btn { padding: 10px 16px; font-size: 11px; }
+    .list-item-answer { padding-left: 18px; }
+    .list-item-cat { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="badge">WGU D265</div>
+    <h1>Critical Thinking: Reason and Evidence</h1>
+    <p class="subtitle">// flashcard study system · 2025–2026</p>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs" id="tabs"></div>
+
+  <!-- Mode Toggle -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modeFlashcard" onclick="setMode('flashcard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="12" y1="4" x2="12" y2="20"/></svg>Flashcards
+    </button>
+    <button class="mode-btn" id="modeBrowse" onclick="setMode('browse')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>Browse All
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat remaining"><div class="stat-num" id="stat-remaining">0</div><div class="stat-label">Remaining</div></div>
+    <div class="stat correct"><div class="stat-num" id="stat-correct">0</div><div class="stat-label">Correct</div></div>
+    <div class="stat wrong"><div class="stat-num" id="stat-wrong">0</div><div class="stat-label">Review</div></div>
+    <div class="stat total"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total</div></div>
+  </div>
+
+  <div class="progress-wrap"><div class="progress-fill" id="progress"></div></div>
+
+  <!-- Card -->
+  <div class="card-area" id="cardArea" onclick="flipCard()">
+    <div class="card-inner" id="cardInner">
+      <div class="card-face card-front">
+        <div class="card-num" id="cardNum">1 / 0</div>
+        <span class="card-category" id="frontCategory">Loading...</span>
+        <div class="card-question" id="questionText">Loading flashcards...</div>
+        <div class="card-hint">[ tap to reveal answer ]</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="card-num" id="cardNumBack">1 / 0</div>
+        <span class="card-category" id="backCategory">Answer</span>
+        <div class="card-answer" id="answerText"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn btn-flip" onclick="flipCard()">⟳ Flip</button>
+    <button class="btn btn-shuffle" onclick="shuffleDeck()">⇄ Shuffle</button>
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Reset</button>
+  </div>
+
+  <div class="judge-btns" id="judgeBtns">
+    <button class="btn btn-correct" onclick="markCard(true)">✓ Got It</button>
+    <button class="btn btn-wrong" onclick="markCard(false)">✗ Review Again</button>
+  </div>
+
+  <!-- List / Browse View -->
+  <div class="list-view" id="listView">
+    <div class="list-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="listSearch" placeholder="Search questions or answers..." oninput="renderList()">
+    </div>
+    <div class="list-controls-row">
+      <span class="list-count" id="listCount">0 terms</span>
+      <button class="list-expand-btn" id="expandAllBtn" onclick="toggleExpandAll()">Expand All</button>
+    </div>
+    <div class="list-items" id="listItems"></div>
+  </div>
+
+  <!-- Finished Screen -->
+  <div class="finished" id="finishedScreen">
+    <div class="score-circle">
+      <div class="score-pct" id="scorePct">0%</div>
+      <div class="score-label">Score</div>
+    </div>
+    <h2 style="font-size:24px;margin-bottom:8px;">Deck Complete!</h2>
+    <p style="color:var(--muted);margin-bottom:24px;font-family:'JetBrains Mono',monospace;font-size:13px;">Cards marked for review will be cycled back.</p>
+    <button class="btn btn-shuffle" onclick="restartWithWrong()" id="reviewBtn">↺ Review Missed</button>
+    &nbsp;
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Full Restart</button>
+  </div>
+</div>
+
+<script>
+const ALL_CARDS = [
+  // ===== FOUNDATIONS =====
+  { cat: "Foundations", q: "What is critical thinking?", a: "<strong>Critical thinking</strong> is the disciplined process of actively analyzing, evaluating, and synthesizing information to form well-reasoned judgments. It involves questioning assumptions, examining evidence, and recognizing biases before reaching conclusions." },
+  { cat: "Foundations", q: "What is the difference between a claim and an opinion?", a: "A <strong>claim</strong> is a statement that can be supported or refuted with evidence and reasoning. An <strong>opinion</strong> is a personal belief that may or may not be based on evidence. Critical thinking requires turning opinions into defensible claims." },
+  { cat: "Foundations", q: "What is intellectual humility?", a: "<strong>Intellectual humility</strong> is the recognition that your knowledge and beliefs may be wrong or incomplete. It involves being open to new evidence, willing to revise positions, and aware of the limits of your own understanding." },
+  { cat: "Foundations", q: "What is the difference between a fact and an inference?", a: "A <strong>fact</strong> is a verifiable piece of information that can be confirmed through observation or evidence. An <strong>inference</strong> is a conclusion drawn from facts through reasoning — it goes beyond what is directly observed and may be incorrect." },
+  { cat: "Foundations", q: "What is Occam's razor?", a: "<strong>Occam's razor</strong> (principle of parsimony) states that among competing explanations, the one with the <strong>fewest assumptions</strong> should be preferred. It does not guarantee truth but favors simplicity when all else is equal." },
+  { cat: "Foundations", q: "What is the Socratic method?", a: "A method of inquiry using <strong>systematic questioning</strong> to expose contradictions in one's thinking, stimulate critical reflection, and arrive at clearer understanding. It involves asking probing questions rather than lecturing or providing answers directly." },
+
+  // ===== ARGUMENTS =====
+  { cat: "Arguments", q: "What is a logical argument?", a: "A logical argument consists of one or more <strong>premises</strong> (reasons or evidence) that support a <strong>conclusion</strong>. A well-formed argument presents premises that, if true, provide logical support for the conclusion." },
+  { cat: "Arguments", q: "What is the difference between deductive and inductive reasoning?", a: "<strong>Deductive reasoning</strong> moves from general premises to a specific conclusion — if premises are true and the form is valid, the conclusion is <strong>guaranteed</strong>.<br><strong>Inductive reasoning</strong> moves from specific observations to a general conclusion — the conclusion is <strong>probable</strong> but not guaranteed." },
+  { cat: "Arguments", q: "What is the difference between validity and soundness?", a: "<strong>Validity</strong> means the conclusion logically follows from the premises (proper form). <strong>Soundness</strong> requires that the argument is both valid AND all premises are actually true. An argument can be valid but unsound if a premise is false." },
+  { cat: "Arguments", q: "What is modus ponens?", a: "<strong>Modus ponens</strong> (affirming the antecedent) is a valid deductive form:<br>If P, then Q.<br>P is true.<br>Therefore, Q is true.<br>Example: If it rains, the ground is wet. It is raining. Therefore, the ground is wet." },
+  { cat: "Arguments", q: "What is modus tollens?", a: "<strong>Modus tollens</strong> (denying the consequent) is a valid deductive form:<br>If P, then Q.<br>Q is not true.<br>Therefore, P is not true.<br>Example: If it rains, the ground is wet. The ground is not wet. Therefore, it is not raining." },
+  { cat: "Arguments", q: "What is a premise indicator vs. a conclusion indicator?", a: "<strong>Premise indicators</strong>: because, since, given that, for, as indicated by<br><strong>Conclusion indicators</strong>: therefore, thus, hence, consequently, so, it follows that<br>These words help identify the structure of an argument." },
+  { cat: "Arguments", q: "What is a counterargument?", a: "A <strong>counterargument</strong> is an opposing position or objection to a claim. Strong critical thinkers anticipate counterarguments and address them with <strong>rebuttals</strong> — responses that explain why the counterargument is weak or does not undermine the original claim." },
+  { cat: "Arguments", q: "What is an analogy in reasoning?", a: "An <strong>analogy</strong> compares two things that share relevant similarities to support a conclusion about one based on knowledge of the other. Analogies are a form of <strong>inductive reasoning</strong> and are only as strong as the relevant similarities between the compared items." },
+
+  // ===== FALLACIES =====
+  { cat: "Fallacies", q: "What is an ad hominem fallacy?", a: "<strong>Ad hominem</strong> (against the person) attacks the character or motives of the person making the argument rather than addressing the argument itself. Example: 'You can't trust her opinion on climate change — she's not even a scientist.'" },
+  { cat: "Fallacies", q: "What is a straw man fallacy?", a: "A <strong>straw man</strong> misrepresents someone's argument to make it easier to attack. Instead of addressing the actual position, a distorted or exaggerated version is refuted. Example: 'She wants to cut military spending, so she obviously doesn't care about national security.'" },
+  { cat: "Fallacies", q: "What is a slippery slope fallacy?", a: "A <strong>slippery slope</strong> argues that one event will inevitably lead to a chain of increasingly extreme consequences, without providing evidence for each link in the chain. Example: 'If we allow students to redo one test, soon no one will ever study.'" },
+  { cat: "Fallacies", q: "What is an appeal to authority fallacy?", a: "An <strong>appeal to authority</strong> cites someone as an expert on a topic outside their area of expertise, or treats authority as infallible. It is only fallacious when the cited authority is <strong>not a legitimate expert</strong> on the subject in question." },
+  { cat: "Fallacies", q: "What is a false dichotomy (false dilemma)?", a: "A <strong>false dichotomy</strong> presents only two options when more alternatives exist. It forces an either/or choice where nuance or middle ground is possible. Example: 'You're either with us or against us.'" },
+  { cat: "Fallacies", q: "What is a hasty generalization?", a: "A <strong>hasty generalization</strong> draws a broad conclusion from insufficient or unrepresentative evidence. Example: 'I met two rude people from that city, so everyone there must be rude.' It fails to consider sample size and diversity." },
+  { cat: "Fallacies", q: "What is the post hoc (ergo propter hoc) fallacy?", a: "<strong>Post hoc</strong> (after this, therefore because of this) assumes that because event B followed event A, A caused B. <strong>Correlation in time does not prove causation.</strong> Example: 'I wore my lucky socks and won the game, so the socks caused the win.'" },
+  { cat: "Fallacies", q: "What is a red herring fallacy?", a: "A <strong>red herring</strong> introduces an irrelevant topic to divert attention from the original issue. It changes the subject rather than addressing the actual argument. Example: discussing a politician's family life instead of their policy position." },
+  { cat: "Fallacies", q: "What is a circular reasoning (begging the question) fallacy?", a: "<strong>Circular reasoning</strong> occurs when the conclusion is assumed in one of the premises. The argument 'proves' itself by restating its claim as evidence. Example: 'This news source is trustworthy because it says it is trustworthy.'" },
+  { cat: "Fallacies", q: "What is the bandwagon fallacy (ad populum)?", a: "The <strong>bandwagon fallacy</strong> argues that something is true or good because many people believe it or do it. Popularity does not equal truth or quality. Example: 'Millions of people buy this product, so it must be the best.'" },
+
+  // ===== EVIDENCE =====
+  { cat: "Evidence", q: "What is the difference between anecdotal and empirical evidence?", a: "<strong>Anecdotal evidence</strong> consists of personal stories or isolated examples — it is subjective and not generalizable. <strong>Empirical evidence</strong> is gathered through systematic observation or experimentation and can be <strong>verified and replicated</strong>." },
+  { cat: "Evidence", q: "What is the difference between primary and secondary sources?", a: "<strong>Primary sources</strong> are original, firsthand accounts (research studies, interviews, original documents). <strong>Secondary sources</strong> analyze, interpret, or summarize primary sources (textbooks, review articles, commentaries)." },
+  { cat: "Evidence", q: "What does burden of proof mean?", a: "<strong>Burden of proof</strong> is the obligation to provide evidence for a claim. It falls on the person <strong>making the claim</strong>, not on the person questioning it. Extraordinary claims require extraordinary evidence." },
+  { cat: "Evidence", q: "What is the difference between quantitative and qualitative evidence?", a: "<strong>Quantitative evidence</strong> involves numerical data and statistical analysis (surveys, experiments). <strong>Qualitative evidence</strong> involves descriptions, themes, and interpretive analysis (interviews, case studies). Both have value depending on the research question." },
+  { cat: "Evidence", q: "What makes a source credible?", a: "Credible sources have <strong>authority</strong> (expertise of author), <strong>accuracy</strong> (verifiable information), <strong>objectivity</strong> (minimal bias), <strong>currency</strong> (up-to-date), and <strong>coverage</strong> (sufficient depth). Peer-reviewed academic sources are generally considered the most credible." },
+  { cat: "Evidence", q: "What is peer review and why is it important?", a: "<strong>Peer review</strong> is the process where experts in a field evaluate research before publication. It checks for methodological rigor, accuracy, and contribution to knowledge. It is important because it acts as <strong>quality control for academic research</strong>." },
+
+  // ===== LOGIC =====
+  { cat: "Logic", q: "What is a syllogism?", a: "A <strong>syllogism</strong> is a form of deductive reasoning with two premises and a conclusion. Example: All mammals are warm-blooded (major premise). Dogs are mammals (minor premise). Therefore, dogs are warm-blooded (conclusion)." },
+  { cat: "Logic", q: "What is the difference between a necessary and sufficient condition?", a: "A <strong>necessary condition</strong> must be present for something to occur (oxygen is necessary for fire). A <strong>sufficient condition</strong> guarantees the occurrence (a lit match in dry kindling is sufficient for fire). Something can be necessary without being sufficient." },
+  { cat: "Logic", q: "What is the difference between correlation and causation?", a: "<strong>Correlation</strong> means two variables are related or move together. <strong>Causation</strong> means one variable directly produces a change in another. Correlation does not prove causation — a <strong>third variable</strong> or coincidence may explain the relationship." },
+  { cat: "Logic", q: "What are the three requirements for establishing causation?", a: "<strong>1) Correlation</strong> – the variables must be related<br><strong>2) Temporal precedence</strong> – the cause must come before the effect<br><strong>3) Elimination of alternatives</strong> – other explanations must be ruled out through controlled methods" },
+  { cat: "Logic", q: "What is a logical contradiction?", a: "A <strong>logical contradiction</strong> occurs when two statements cannot both be true at the same time in the same context. Example: 'It is raining and it is not raining in the same place at the same time.' Contradictions indicate an error in reasoning." },
+
+  // ===== BIAS =====
+  { cat: "Bias", q: "What is confirmation bias?", a: "<strong>Confirmation bias</strong> is the tendency to search for, interpret, and remember information that <strong>confirms pre-existing beliefs</strong> while ignoring or dismissing contradictory evidence. It is one of the most pervasive cognitive biases affecting critical thinking." },
+  { cat: "Bias", q: "What is the Dunning-Kruger effect?", a: "The <strong>Dunning-Kruger effect</strong> is a cognitive bias where people with <strong>low competence in an area overestimate their ability</strong>, while those with high competence tend to underestimate theirs. It occurs because unskilled individuals lack the knowledge to recognize their deficiencies." },
+  { cat: "Bias", q: "What is anchoring bias?", a: "<strong>Anchoring bias</strong> is the tendency to rely too heavily on the <strong>first piece of information</strong> encountered (the anchor) when making decisions. Subsequent judgments are adjusted from the anchor, often insufficiently." },
+  { cat: "Bias", q: "What is availability heuristic?", a: "The <strong>availability heuristic</strong> causes people to judge the likelihood of events based on how easily examples come to mind. Vivid, recent, or emotionally charged events seem more probable, even if they are statistically rare (e.g., overestimating plane crash risk after news coverage)." },
+  { cat: "Bias", q: "What is groupthink?", a: "<strong>Groupthink</strong> occurs when the desire for group harmony or conformity overrides realistic evaluation of alternatives. It suppresses dissent, discourages critical analysis, and can lead to <strong>poor decision-making</strong>. Symptoms include illusion of invulnerability and self-censorship." },
+  { cat: "Bias", q: "What is implicit (unconscious) bias?", a: "<strong>Implicit bias</strong> refers to attitudes or stereotypes that affect understanding, actions, and decisions <strong>unconsciously</strong>. Unlike explicit bias, people are often unaware of these biases. They develop through life experiences and cultural exposure." },
+
+  // ===== SCIENTIFIC REASONING =====
+  { cat: "Scientific Reasoning", q: "What is falsifiability and why is it important?", a: "<strong>Falsifiability</strong> means a claim or hypothesis can potentially be proven false by evidence or experiment. It is a key criterion for scientific claims, proposed by <strong>Karl Popper</strong>. Unfalsifiable claims (that cannot be tested) fall outside the realm of science." },
+  { cat: "Scientific Reasoning", q: "What is the difference between a hypothesis, a theory, and a law?", a: "<strong>Hypothesis</strong> – a testable prediction about a specific phenomenon<br><strong>Theory</strong> – a well-supported explanation of a broad set of observations, tested repeatedly<br><strong>Law</strong> – a statement describing a consistent pattern in nature (e.g., gravity), without explaining why" },
+  { cat: "Scientific Reasoning", q: "What is the difference between a controlled experiment and an observational study?", a: "In a <strong>controlled experiment</strong>, the researcher manipulates the independent variable and controls other variables. In an <strong>observational study</strong>, the researcher observes without intervention. Experiments can establish causation; observational studies can only show correlation." },
+  { cat: "Scientific Reasoning", q: "What is replicability in research?", a: "<strong>Replicability</strong> means that a study's results can be reproduced by other researchers using the same methods. It is essential for <strong>scientific credibility</strong> because it demonstrates that findings are reliable and not due to chance, error, or fraud." },
+  { cat: "Scientific Reasoning", q: "What is a sample size and why does it matter?", a: "<strong>Sample size</strong> is the number of subjects or observations in a study. Larger samples are more likely to be <strong>representative of the population</strong> and reduce the impact of outliers. Small samples increase the risk of hasty generalization." },
+  { cat: "Scientific Reasoning", q: "What is selection bias in research?", a: "<strong>Selection bias</strong> occurs when the sample studied is <strong>not representative</strong> of the target population. This can happen through non-random sampling, self-selection, or exclusion criteria that skew the results, making conclusions unreliable for the broader population." },
+];
+
+
+let deck = [];
+let current = 0;
+let correctCount = 0;
+let wrongCards = [];
+let isFlipped = false;
+let activeCategory = "All";
+
+function getCategories() {
+  const cats = ["All", ...new Set(ALL_CARDS.map(c => c.cat))];
+  return cats;
+}
+
+function buildTabs() {
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = '';
+  getCategories().forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (cat === activeCategory ? ' active' : '');
+    const count = cat === 'All' ? ALL_CARDS.length : ALL_CARDS.filter(c => c.cat === cat).length;
+    btn.textContent = `${cat} (${count})`;
+    btn.onclick = () => {
+      activeCategory = cat;
+      buildTabs();
+      if (currentMode === 'browse') {
+        renderList();
+      } else {
+        resetDeck();
+      }
+    };
+    tabsEl.appendChild(btn);
+  });
+}
+
+function resetDeck() {
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  deck = [...source];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+function shuffleDeck() {
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  current = 0;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('cardInner').classList.toggle('flipped', isFlipped);
+  if (isFlipped) {
+    document.getElementById('judgeBtns').classList.add('visible');
+  } else {
+    document.getElementById('judgeBtns').classList.remove('visible');
+  }
+}
+
+function markCard(correct) {
+  if (correct) {
+    correctCount++;
+  } else {
+    wrongCards.push(deck[current]);
+  }
+  current++;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+
+  if (current >= deck.length) {
+    showFinished();
+  } else {
+    // animate
+    const area = document.getElementById('cardArea');
+    area.classList.add('animating');
+    setTimeout(() => area.classList.remove('animating'), 300);
+    updateCard();
+    updateStats();
+  }
+}
+
+function updateCard() {
+  if (current >= deck.length) return;
+  const card = deck[current];
+  document.getElementById('questionText').textContent = card.q;
+  document.getElementById('answerText').innerHTML = card.a;
+  document.getElementById('frontCategory').textContent = card.cat;
+  document.getElementById('backCategory').textContent = card.cat + ' — Answer';
+  const num = `${current + 1} / ${deck.length}`;
+  document.getElementById('cardNum').textContent = num;
+  document.getElementById('cardNumBack').textContent = num;
+  updateStats();
+}
+
+function updateStats() {
+  const remaining = deck.length - current;
+  document.getElementById('stat-remaining').textContent = remaining;
+  document.getElementById('stat-correct').textContent = correctCount;
+  document.getElementById('stat-wrong').textContent = wrongCards.length;
+  document.getElementById('stat-total').textContent = deck.length;
+  const pct = deck.length > 0 ? ((current / deck.length) * 100).toFixed(0) : 0;
+  document.getElementById('progress').style.width = pct + '%';
+}
+
+function showFinished() {
+  document.getElementById('cardArea').style.display = 'none';
+  const finished = document.getElementById('finishedScreen');
+  finished.classList.add('show');
+  const total = correctCount + wrongCards.length;
+  const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+  document.getElementById('scorePct').textContent = pct + '%';
+  document.getElementById('reviewBtn').style.display = wrongCards.length > 0 ? '' : 'none';
+  updateStats();
+}
+
+function restartWithWrong() {
+  if (wrongCards.length === 0) { resetDeck(); return; }
+  deck = [...wrongCards];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+// Keyboard support
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); flipCard(); }
+  if (e.code === 'ArrowRight' && isFlipped) markCard(true);
+  if (e.code === 'ArrowLeft' && isFlipped) markCard(false);
+  if (e.code === 'KeyS') shuffleDeck();
+});
+
+// ===== MODE MANAGEMENT =====
+let currentMode = 'flashcard';
+let allExpanded = false;
+
+function setMode(mode) {
+  currentMode = mode;
+  const flashcardEls = [
+    document.getElementById('cardArea'),
+    document.querySelector('.stats-bar'),
+    document.querySelector('.progress-wrap'),
+    document.querySelector('.controls'),
+    document.getElementById('judgeBtns'),
+    document.getElementById('finishedScreen'),
+  ];
+  const listView = document.getElementById('listView');
+  const btnFlash = document.getElementById('modeFlashcard');
+  const btnBrowse = document.getElementById('modeBrowse');
+
+  if (mode === 'flashcard') {
+    flashcardEls.forEach(el => { if (el) el.style.display = ''; });
+    listView.classList.remove('visible');
+    btnFlash.classList.add('active');
+    btnBrowse.classList.remove('active');
+    // Re-hide finished if it wasn't showing
+    if (current < deck.length) document.getElementById('finishedScreen').classList.remove('show');
+  } else {
+    // Browse mode
+    flashcardEls.forEach(el => { if (el) el.style.display = 'none'; });
+    listView.classList.add('visible');
+    btnFlash.classList.remove('active');
+    btnBrowse.classList.add('active');
+    renderList();
+  }
+}
+
+function renderList() {
+  const query = (document.getElementById('listSearch').value || '').toLowerCase().trim();
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  const filtered = query
+    ? source.filter(c => c.q.toLowerCase().includes(query) || c.a.toLowerCase().replace(/<[^>]+>/g, '').includes(query))
+    : source;
+
+  document.getElementById('listCount').textContent = `${filtered.length} term${filtered.length !== 1 ? 's' : ''}`;
+
+  const container = document.getElementById('listItems');
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="no-results">No matching cards found.</div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map((card, i) => {
+    const globalIdx = ALL_CARDS.indexOf(card) + 1;
+    return `
+    <div class="list-item" id="li-${i}">
+      <div class="list-item-header" onclick="toggleListItem(${i})">
+        <span class="list-item-num">${globalIdx}</span>
+        <span class="list-item-q">${escapeHtml(card.q)}</span>
+        <span class="list-item-cat">${card.cat}</span>
+        <svg class="list-item-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="list-item-answer">${card.a}</div>
+    </div>`;
+  }).join('');
+
+  // Restore expanded state if allExpanded
+  if (allExpanded) {
+    container.querySelectorAll('.list-item').forEach(el => el.classList.add('open'));
+  }
+}
+
+function toggleListItem(idx) {
+  const el = document.getElementById(`li-${idx}`);
+  if (el) el.classList.toggle('open');
+}
+
+function toggleExpandAll() {
+  allExpanded = !allExpanded;
+  const btn = document.getElementById('expandAllBtn');
+  btn.textContent = allExpanded ? 'Collapse All' : 'Expand All';
+  document.querySelectorAll('.list-item').forEach(el => {
+    if (allExpanded) el.classList.add('open');
+    else el.classList.remove('open');
+  });
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Init
+buildTabs();
+resetDeck();
+</script>
+</body>
+</html>

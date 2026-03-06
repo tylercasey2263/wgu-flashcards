@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WGU C844 – Emerging Technologies in Cybersecurity Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --card-front: #161b22;
+    --card-back: #141e1a;
+    --accent: #2dcc8f;
+    --accent2: #58a6ff;
+    --accent3: #f78166;
+    --warn: #e3b341;
+    --text: #f0f6fc;
+    --muted: #9aabb8;
+    --border: rgba(255,255,255,0.1);
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* BG grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(0,229,160,0.12);
+    border: 1px solid rgba(0,229,160,0.3);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: clamp(24px, 5vw, 40px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #e8f0f7, #00e5a0 60%, #4f9eff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Category tabs */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+    justify-content: center;
+  }
+
+  .tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .tab:hover { border-color: var(--accent2); color: var(--accent2); }
+  .tab.active { background: rgba(79,158,255,0.15); border-color: var(--accent2); color: var(--accent2); }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    flex: 1;
+    min-width: 120px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 3px;
+    font-weight: 500;
+  }
+
+  .stat.correct .stat-num { color: var(--accent); }
+  .stat.wrong .stat-num { color: var(--accent3); }
+  .stat.remaining .stat-num { color: var(--accent2); }
+  .stat.total .stat-num { color: var(--warn); }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    height: 4px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  /* Card area */
+  .card-area {
+    perspective: 1200px;
+    margin-bottom: 24px;
+    cursor: pointer;
+  }
+
+  .card-inner {
+    position: relative;
+    width: 100%;
+    min-height: 300px;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-inner.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 300px;
+  }
+
+  .card-front {
+    background: linear-gradient(135deg, #1a2336, #111e30);
+    border: 1px solid rgba(79,158,255,0.25);
+    box-shadow: 0 0 40px rgba(79,158,255,0.06), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+
+  .card-back {
+    background: linear-gradient(135deg, #162219, #0e1c14);
+    border: 1px solid rgba(0,229,160,0.2);
+    box-shadow: 0 0 40px rgba(0,229,160,0.05), inset 0 1px 0 rgba(255,255,255,0.05);
+    transform: rotateY(180deg);
+  }
+
+  .card-category {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .card-front .card-category { background: rgba(79,158,255,0.12); color: var(--accent2); border: 1px solid rgba(79,158,255,0.2); }
+  .card-back .card-category { background: rgba(0,229,160,0.12); color: var(--accent); border: 1px solid rgba(0,229,160,0.2); }
+
+  .card-question {
+    font-size: clamp(17px, 3vw, 23px);
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+    margin-bottom: 16px;
+    letter-spacing: -0.1px;
+  }
+
+  .card-hint {
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+
+  .card-answer {
+    font-size: clamp(15px, 2.5vw, 19px);
+    line-height: 1.75;
+    color: #e8f5f0;
+    font-weight: 400;
+  }
+
+  .card-answer strong {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .card-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  /* Num indicator */
+  .card-num {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: 1px solid;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-flip {
+    background: rgba(79,158,255,0.1);
+    border-color: rgba(79,158,255,0.4);
+    color: var(--accent2);
+  }
+  .btn-flip:hover { background: rgba(79,158,255,0.2); transform: translateY(-1px); }
+
+  .btn-correct {
+    background: rgba(0,229,160,0.1);
+    border-color: rgba(0,229,160,0.4);
+    color: var(--accent);
+  }
+  .btn-correct:hover { background: rgba(0,229,160,0.2); transform: translateY(-1px); }
+
+  .btn-wrong {
+    background: rgba(255,107,107,0.1);
+    border-color: rgba(255,107,107,0.4);
+    color: var(--accent3);
+  }
+  .btn-wrong:hover { background: rgba(255,107,107,0.2); transform: translateY(-1px); }
+
+  .btn-shuffle {
+    background: rgba(245,197,66,0.1);
+    border-color: rgba(245,197,66,0.4);
+    color: var(--warn);
+  }
+  .btn-shuffle:hover { background: rgba(245,197,66,0.2); transform: translateY(-1px); }
+
+  .btn-reset {
+    background: rgba(255,255,255,0.04);
+    border-color: var(--border);
+    color: var(--muted);
+  }
+  .btn-reset:hover { border-color: var(--muted); color: var(--text); }
+
+  /* Judgment buttons only shown after flip */
+  .judge-btns { display: none; gap: 10px; justify-content: center; }
+  .judge-btns.visible { display: flex; }
+
+  /* Algorithm table */
+  .algo-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
+  .algo-table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 6px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .algo-table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+
+  .algo-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  /* Finished screen */
+  .finished {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .finished.show { display: block; }
+
+  .score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    box-shadow: 0 0 30px rgba(0,229,160,0.2);
+  }
+
+  .score-pct {
+    font-size: 32px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+  }
+
+  .score-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Card slide animation */
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .card-area.animating .card-inner { animation: slideIn 0.3s ease; }
+
+  /* ===== MODE TOGGLE ===== */
+  .mode-toggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 0 auto 28px;
+    width: fit-content;
+    background: var(--surface);
+  }
+
+  .mode-btn {
+    padding: 9px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .mode-btn svg { width: 14px; height: 14px; }
+  .mode-btn:hover { color: var(--text); }
+  .mode-btn.active { background: rgba(79,158,255,0.15); color: var(--accent2); }
+  .mode-btn + .mode-btn { border-left: 1px solid var(--border); }
+
+  /* ===== LIST / BROWSE MODE ===== */
+  .list-view { display: none; }
+  .list-view.visible { display: block; }
+
+  .list-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+  }
+
+  .list-search input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  .list-search input::placeholder { color: var(--muted); }
+
+  .list-search svg { color: var(--muted); flex-shrink: 0; }
+
+  .list-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .list-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .list-expand-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.08);
+    border: 1px solid rgba(79,158,255,0.2);
+    border-radius: 5px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .list-expand-btn:hover { background: rgba(79,158,255,0.16); }
+
+  .list-items { display: flex; flex-direction: column; gap: 8px; }
+
+  .list-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .list-item:hover { border-color: rgba(79,158,255,0.25); }
+  .list-item.open { border-color: rgba(0,229,160,0.25); }
+
+  .list-item-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .list-item-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 28px;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .list-item-q {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+  }
+
+  .list-item-cat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.1);
+    border: 1px solid rgba(79,158,255,0.15);
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+
+  .list-item-chevron {
+    color: var(--muted);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .list-item.open .list-item-chevron { transform: rotate(180deg); color: var(--accent); }
+
+  .list-item-answer {
+    display: none;
+    padding: 0 18px 16px 60px;
+    font-size: 15px;
+    line-height: 1.78;
+    color: #e8f5f0;
+    border-top: 1px solid rgba(0,229,160,0.1);
+    background: rgba(0,229,160,0.03);
+    padding-top: 14px;
+  }
+
+  .list-item.open .list-item-answer { display: block; }
+
+  .list-item-answer strong { color: var(--accent); }
+  .list-item-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  .list-item-answer table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+  .list-item-answer table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 5px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .list-item-answer table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+  .list-item-answer table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  .no-results {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  /* ===== HIDE FLASHCARD-ONLY ELEMENTS IN LIST MODE ===== */
+  .flashcard-only { transition: opacity 0.2s; }
+  .flashcard-only.hidden { display: none; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .card-face { padding: 24px 20px; }
+    .btn { padding: 10px 16px; font-size: 11px; }
+    .list-item-answer { padding-left: 18px; }
+    .list-item-cat { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="badge">WGU C844</div>
+    <h1>Emerging Technologies in Cybersecurity</h1>
+    <p class="subtitle">// flashcard study system · 2025–2026</p>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs" id="tabs"></div>
+
+  <!-- Mode Toggle -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modeFlashcard" onclick="setMode('flashcard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="12" y1="4" x2="12" y2="20"/></svg>Flashcards
+    </button>
+    <button class="mode-btn" id="modeBrowse" onclick="setMode('browse')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>Browse All
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat remaining"><div class="stat-num" id="stat-remaining">0</div><div class="stat-label">Remaining</div></div>
+    <div class="stat correct"><div class="stat-num" id="stat-correct">0</div><div class="stat-label">Correct</div></div>
+    <div class="stat wrong"><div class="stat-num" id="stat-wrong">0</div><div class="stat-label">Review</div></div>
+    <div class="stat total"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total</div></div>
+  </div>
+
+  <div class="progress-wrap"><div class="progress-fill" id="progress"></div></div>
+
+  <!-- Card -->
+  <div class="card-area" id="cardArea" onclick="flipCard()">
+    <div class="card-inner" id="cardInner">
+      <div class="card-face card-front">
+        <div class="card-num" id="cardNum">1 / 0</div>
+        <span class="card-category" id="frontCategory">Loading...</span>
+        <div class="card-question" id="questionText">Loading flashcards...</div>
+        <div class="card-hint">[ tap to reveal answer ]</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="card-num" id="cardNumBack">1 / 0</div>
+        <span class="card-category" id="backCategory">Answer</span>
+        <div class="card-answer" id="answerText"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn btn-flip" onclick="flipCard()">⟳ Flip</button>
+    <button class="btn btn-shuffle" onclick="shuffleDeck()">⇄ Shuffle</button>
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Reset</button>
+  </div>
+
+  <div class="judge-btns" id="judgeBtns">
+    <button class="btn btn-correct" onclick="markCard(true)">✓ Got It</button>
+    <button class="btn btn-wrong" onclick="markCard(false)">✗ Review Again</button>
+  </div>
+
+  <!-- List / Browse View -->
+  <div class="list-view" id="listView">
+    <div class="list-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="listSearch" placeholder="Search questions or answers..." oninput="renderList()">
+    </div>
+    <div class="list-controls-row">
+      <span class="list-count" id="listCount">0 terms</span>
+      <button class="list-expand-btn" id="expandAllBtn" onclick="toggleExpandAll()">Expand All</button>
+    </div>
+    <div class="list-items" id="listItems"></div>
+  </div>
+
+  <!-- Finished Screen -->
+  <div class="finished" id="finishedScreen">
+    <div class="score-circle">
+      <div class="score-pct" id="scorePct">0%</div>
+      <div class="score-label">Score</div>
+    </div>
+    <h2 style="font-size:24px;margin-bottom:8px;">Deck Complete!</h2>
+    <p style="color:var(--muted);margin-bottom:24px;font-family:'JetBrains Mono',monospace;font-size:13px;">Cards marked for review will be cycled back.</p>
+    <button class="btn btn-shuffle" onclick="restartWithWrong()" id="reviewBtn">↺ Review Missed</button>
+    &nbsp;
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Full Restart</button>
+  </div>
+</div>
+
+<script>
+const ALL_CARDS = [
+  // ===== CLOUD SECURITY =====
+  { cat: "Cloud Security", q: "What is the cloud shared responsibility model?", a: "The <strong>shared responsibility model</strong> divides security duties between the cloud provider and the customer. The provider secures the <strong>infrastructure</strong> (physical, network, hypervisor). The customer is responsible for <strong>data, identity, access management, OS patching, and application security</strong>. The exact split depends on the service model (IaaS, PaaS, SaaS)." },
+  { cat: "Cloud Security", q: "How does responsibility differ across IaaS, PaaS, and SaaS?", a: "<table class='algo-table'><tr><th>Responsibility</th><th>IaaS</th><th>PaaS</th><th>SaaS</th></tr><tr><td>Application</td><td>Customer</td><td>Customer</td><td>Provider</td></tr><tr><td>OS/Runtime</td><td>Customer</td><td>Provider</td><td>Provider</td></tr><tr><td>Infrastructure</td><td>Provider</td><td>Provider</td><td>Provider</td></tr><tr><td>Data & Access</td><td>Customer</td><td>Customer</td><td>Customer</td></tr></table>" },
+  { cat: "Cloud Security", q: "What is CSPM (Cloud Security Posture Management)?", a: "<strong>CSPM</strong> tools continuously monitor cloud environments for <strong>misconfigurations</strong>, <strong>compliance violations</strong>, and <strong>security risks</strong>. They automatically detect issues like open S3 buckets, overly permissive IAM policies, and unencrypted databases. CSPM provides visibility across multi-cloud environments and can auto-remediate common misconfigurations." },
+  { cat: "Cloud Security", q: "What is a CASB (Cloud Access Security Broker)?", a: "A <strong>CASB</strong> sits between cloud users and cloud service providers to enforce <strong>security policies</strong>. It provides <strong>visibility</strong> into cloud application usage, <strong>data loss prevention (DLP)</strong>, <strong>threat protection</strong>, and <strong>compliance monitoring</strong>. CASBs can detect shadow IT by identifying unauthorized cloud services in use." },
+  { cat: "Cloud Security", q: "What is SASE (Secure Access Service Edge)?", a: "<strong>SASE</strong> converges networking and security into a single cloud-delivered service. It combines <strong>SD-WAN</strong> with security functions including <strong>CASB</strong>, <strong>Firewall-as-a-Service (FWaaS)</strong>, <strong>Secure Web Gateway (SWG)</strong>, and <strong>Zero Trust Network Access (ZTNA)</strong>. SASE provides consistent security regardless of user location." },
+  { cat: "Cloud Security", q: "What are key security concerns with containerization (Docker/Kubernetes)?", a: "Container security concerns include <strong>vulnerable base images</strong>, <strong>container escape</strong> attacks (breaking out to the host), <strong>misconfigured orchestration</strong> (exposed Kubernetes API), <strong>insufficient isolation</strong> between containers, and <strong>secrets management</strong>. Best practices include image scanning, least-privilege pod security policies, and network policies to restrict inter-container traffic." },
+  { cat: "Cloud Security", q: "What is serverless security and what are its unique risks?", a: "<strong>Serverless computing</strong> (e.g., AWS Lambda) shifts infrastructure management to the provider, but introduces unique risks: <strong>injection attacks</strong> through event data, <strong>overprivileged function permissions</strong>, <strong>insecure third-party dependencies</strong>, and <strong>insufficient logging</strong>. The ephemeral nature of functions makes traditional monitoring tools less effective." },
+  // ===== AI & ML IN SECURITY =====
+  { cat: "AI & ML in Security", q: "How is AI/ML used for threat detection?", a: "AI/ML enhances threat detection through <strong>anomaly detection</strong> (identifying deviations from normal behavior), <strong>ML-based SIEM correlation</strong> (reducing false positives), <strong>user and entity behavior analytics (UEBA)</strong>, and <strong>automated malware classification</strong>. ML models can identify zero-day threats by recognizing patterns that signature-based systems miss." },
+  { cat: "AI & ML in Security", q: "What is adversarial machine learning?", a: "<strong>Adversarial ML</strong> involves attacks that manipulate ML models by crafting inputs designed to cause misclassification. Techniques include <strong>evasion attacks</strong> (crafting inputs that bypass detection), <strong>poisoning attacks</strong> (corrupting training data), and <strong>model stealing</strong> (extracting model parameters). These attacks can undermine AI-based security tools." },
+  { cat: "AI & ML in Security", q: "What are deepfakes and what cybersecurity risks do they pose?", a: "<strong>Deepfakes</strong> use AI (generative adversarial networks) to create highly realistic fake audio, video, or images. Cybersecurity risks include <strong>social engineering</strong> (impersonating executives for fraudulent transfers), <strong>disinformation campaigns</strong>, <strong>bypassing biometric authentication</strong>, and <strong>identity fraud</strong>. Detection methods include analyzing artifacts and using AI-based deepfake detectors." },
+  { cat: "AI & ML in Security", q: "What is UEBA and how does it detect insider threats?", a: "<strong>UEBA (User and Entity Behavior Analytics)</strong> uses ML to establish baselines of normal user behavior and detect anomalies. It identifies insider threats by detecting unusual patterns such as <strong>abnormal login times</strong>, <strong>excessive data downloads</strong>, <strong>privilege escalation attempts</strong>, and <strong>access to unusual resources</strong>. UEBA assigns risk scores to users and entities." },
+  // ===== BLOCKCHAIN =====
+  { cat: "Blockchain", q: "What is blockchain immutability and how does consensus work?", a: "<strong>Blockchain immutability</strong> means that once data is written to a block and confirmed, it cannot be altered without modifying all subsequent blocks, which requires majority consensus. <strong>Consensus mechanisms</strong> include <strong>Proof of Work (PoW)</strong> (mining), <strong>Proof of Stake (PoS)</strong> (staking), and <strong>Practical Byzantine Fault Tolerance (PBFT)</strong>." },
+  { cat: "Blockchain", q: "What are smart contracts and what security risks do they have?", a: "<strong>Smart contracts</strong> are self-executing programs stored on a blockchain that automatically enforce agreement terms when conditions are met. Security risks include <strong>reentrancy attacks</strong>, <strong>integer overflow/underflow</strong>, <strong>logic bugs</strong>, and <strong>immutability of deployed code</strong> (bugs cannot be patched). Auditing smart contracts before deployment is critical." },
+  { cat: "Blockchain", q: "What are common cryptocurrency security threats?", a: "Key threats include <strong>51% attacks</strong> (gaining majority hash power to manipulate the chain), <strong>private key theft</strong> (wallet compromise), <strong>exchange hacks</strong>, <strong>phishing attacks</strong> targeting crypto users, <strong>smart contract exploits</strong>, and <strong>cryptojacking</strong> (unauthorized mining using victim's resources). Cold storage and hardware wallets mitigate key theft risks." },
+  // ===== IoT SECURITY =====
+  { cat: "IoT Security", q: "What makes IoT devices particularly vulnerable to attack?", a: "IoT devices are vulnerable due to <strong>weak or default credentials</strong>, <strong>limited processing power</strong> (cannot run robust security software), <strong>lack of encryption</strong>, <strong>infrequent firmware updates</strong>, <strong>large attack surface</strong> (billions of devices), and <strong>insecure communication protocols</strong>. Many IoT manufacturers prioritize functionality over security." },
+  { cat: "IoT Security", q: "What are key items from the OWASP IoT Top 10?", a: "<strong>Weak/default passwords</strong> – easily guessable credentials<br><strong>Insecure network services</strong> – unnecessary open ports<br><strong>Insecure ecosystem interfaces</strong> – vulnerable APIs and web interfaces<br><strong>Lack of secure update mechanism</strong> – no signed firmware updates<br><strong>Use of insecure components</strong> – outdated libraries<br><strong>Insufficient privacy protection</strong> – exposed personal data" },
+  { cat: "IoT Security", q: "What are the security implications of 5G networks?", a: "<strong>5G</strong> introduces new security challenges including a <strong>vastly expanded attack surface</strong> (massive IoT connectivity), <strong>network slicing vulnerabilities</strong> (isolation between virtual networks), <strong>increased reliance on software</strong> (SDN/NFV), and <strong>edge computing risks</strong>. However, 5G also improves security with stronger mutual authentication and encryption compared to 4G." },
+  // ===== QUANTUM COMPUTING =====
+  { cat: "Quantum Computing", q: "How does quantum computing threaten current cryptography?", a: "Quantum computers running <strong>Shor's algorithm</strong> can efficiently factor large numbers and compute discrete logarithms, breaking <strong>RSA</strong>, <strong>ECC</strong>, and <strong>Diffie-Hellman</strong> encryption. <strong>Grover's algorithm</strong> reduces symmetric key security by half (AES-256 effectively becomes AES-128). This threatens the foundation of secure internet communications." },
+  { cat: "Quantum Computing", q: "What is post-quantum cryptography (PQC)?", a: "<strong>Post-quantum cryptography</strong> refers to cryptographic algorithms designed to resist attacks from quantum computers. <strong>NIST</strong> has standardized PQC algorithms including <strong>CRYSTALS-Kyber</strong> (key encapsulation) and <strong>CRYSTALS-Dilithium</strong> (digital signatures). These are based on mathematical problems like <strong>lattice-based cryptography</strong> that quantum computers cannot efficiently solve." },
+  { cat: "Quantum Computing", q: "What is the 'harvest now, decrypt later' threat?", a: "The <strong>harvest now, decrypt later</strong> strategy involves adversaries capturing and storing encrypted data today with the expectation that future quantum computers will be able to decrypt it. This is a significant threat to data with <strong>long-term confidentiality requirements</strong> such as state secrets, medical records, and financial data. Organizations should begin <strong>crypto-agility</strong> planning now." },
+  { cat: "Quantum Computing", q: "What is quantum key distribution (QKD)?", a: "<strong>QKD (Quantum Key Distribution)</strong> uses quantum mechanics principles to securely exchange encryption keys. If an eavesdropper intercepts the quantum transmission, the act of observation <strong>disturbs the quantum states</strong>, alerting the communicating parties. QKD provides <strong>information-theoretic security</strong> but currently requires specialized hardware and short distances." },
+  // ===== ZERO TRUST =====
+  { cat: "Zero Trust", q: "What are the core principles of zero trust architecture?", a: "<strong>Never trust, always verify</strong> – authenticate every request regardless of source<br><strong>Least privilege access</strong> – grant minimum required permissions<br><strong>Assume breach</strong> – design as if attackers are already inside<br><strong>Microsegmentation</strong> – isolate workloads and enforce granular policies<br><strong>Continuous verification</strong> – constantly reassess trust based on context" },
+  { cat: "Zero Trust", q: "How does zero trust differ from traditional perimeter-based security?", a: "<strong>Traditional security</strong> uses a <strong>castle-and-moat</strong> approach where everything inside the network is trusted. <strong>Zero trust</strong> eliminates implicit trust and verifies every user, device, and connection regardless of location. This is critical because modern threats often involve <strong>lateral movement</strong> after initial breach, which perimeter security cannot prevent." },
+  { cat: "Zero Trust", q: "What role does microsegmentation play in zero trust?", a: "<strong>Microsegmentation</strong> divides the network into small, isolated zones with individual security policies enforced at the workload level. In zero trust, it prevents <strong>lateral movement</strong> by requiring authentication and authorization for every communication between segments. Even if an attacker compromises one workload, they cannot freely access others." },
+  { cat: "Zero Trust", q: "What is ZTNA (Zero Trust Network Access)?", a: "<strong>ZTNA (Zero Trust Network Access)</strong> provides secure remote access based on identity verification and device posture rather than network location. Unlike traditional VPNs that grant broad network access, ZTNA provides <strong>application-level access</strong> only to authorized resources. It is a key component of <strong>SASE</strong> architectures." },
+  // ===== THREAT INTELLIGENCE =====
+  { cat: "Threat Intelligence", q: "What are STIX and TAXII in threat intelligence?", a: "<strong>STIX (Structured Threat Information eXpression)</strong> is a standardized language for describing cyber threat information including indicators, TTPs, and threat actors. <strong>TAXII (Trusted Automated eXchange of Indicator Information)</strong> is the transport protocol used to exchange STIX data between organizations. Together they enable automated threat intelligence sharing." },
+  { cat: "Threat Intelligence", q: "What is the MITRE ATT&CK framework?", a: "<strong>MITRE ATT&CK</strong> is a knowledge base of adversary tactics, techniques, and procedures (TTPs) based on real-world observations. It organizes attacks into a matrix of <strong>14 tactics</strong> (reconnaissance through impact) and hundreds of techniques. Security teams use it for <strong>threat detection</strong>, <strong>gap analysis</strong>, <strong>red team exercises</strong>, and <strong>SOC maturity assessment</strong>." },
+  { cat: "Threat Intelligence", q: "What is a digital twin in cybersecurity?", a: "A <strong>digital twin</strong> is a virtual replica of a physical system, network, or infrastructure used for security testing and simulation. In cybersecurity, digital twins allow organizations to <strong>simulate attacks</strong>, <strong>test defenses</strong>, and <strong>model the impact of changes</strong> without risking production systems. They are valuable for critical infrastructure protection." },
+  { cat: "Threat Intelligence", q: "What are the security risks of edge computing?", a: "<strong>Edge computing</strong> processes data near its source rather than in centralized data centers. Security risks include <strong>physical security</strong> of distributed edge nodes, <strong>expanded attack surface</strong>, <strong>limited security controls</strong> on edge devices, <strong>data sovereignty concerns</strong>, and <strong>difficulty in centralized monitoring</strong>. Edge nodes are often in uncontrolled environments making them vulnerable to tampering." },
+  { cat: "Threat Intelligence", q: "What are the three levels of threat intelligence?", a: "<strong>Strategic</strong> – high-level trends and risks for executive decision-making (who and why)<br><strong>Tactical</strong> – adversary TTPs used to improve defenses and detection (how)<br><strong>Operational</strong> – specific details about imminent attacks (when and where)<br>Organizations should consume all three levels to build a comprehensive threat intelligence program." },
+  { cat: "Threat Intelligence", q: "What is threat hunting and how does it differ from traditional monitoring?", a: "<strong>Threat hunting</strong> is a proactive approach where analysts actively search for hidden threats that evade automated detection. Unlike traditional monitoring which relies on alerts, threat hunting uses <strong>hypothesis-driven investigation</strong>, <strong>behavioral analysis</strong>, and <strong>threat intelligence</strong> to uncover advanced persistent threats (APTs) and zero-day exploits already inside the network." },
+  { cat: "Cloud Security", q: "What is the difference between public, private, and hybrid cloud?", a: "<strong>Public cloud</strong> – shared infrastructure operated by a third party (AWS, Azure, GCP), multi-tenant<br><strong>Private cloud</strong> – dedicated infrastructure for a single organization, more control and security<br><strong>Hybrid cloud</strong> – combination of public and private, allowing data and applications to move between them based on security and performance requirements" },
+  { cat: "AI & ML in Security", q: "What is automated incident response using AI?", a: "<strong>AI-driven incident response</strong> uses machine learning to automatically triage, categorize, and respond to security alerts. It can <strong>correlate related events</strong>, <strong>prioritize by severity</strong>, <strong>execute playbooks</strong> (isolate endpoints, block IPs), and <strong>reduce analyst fatigue</strong> from alert overload. SOAR platforms increasingly integrate AI for faster response times." },
+  { cat: "Blockchain", q: "What is the difference between public and private blockchains?", a: "<strong>Public blockchains</strong> (Bitcoin, Ethereum) are open, permissionless, and anyone can participate in consensus. <strong>Private blockchains</strong> (Hyperledger) are permissioned, with access restricted to authorized participants. Private blockchains offer faster transactions and more privacy but sacrifice decentralization. <strong>Consortium blockchains</strong> are governed by a group of organizations." },
+  { cat: "IoT Security", q: "What is an IoT botnet and what is a notable example?", a: "An <strong>IoT botnet</strong> is a network of compromised IoT devices controlled by an attacker to launch attacks, typically DDoS. The <strong>Mirai botnet</strong> is the most notable example, which compromised hundreds of thousands of IoT devices (cameras, routers) using default credentials and launched record-breaking DDoS attacks in 2016." },
+  { cat: "Quantum Computing", q: "What is crypto-agility and why is it important?", a: "<strong>Crypto-agility</strong> is the ability of a system to quickly switch between cryptographic algorithms without significant changes to infrastructure. It is critical because the transition to <strong>post-quantum cryptography</strong> will require organizations to replace vulnerable algorithms. Crypto-agile systems can adapt to new standards as they emerge, reducing migration risk." },
+  { cat: "Zero Trust", q: "What is continuous adaptive trust in zero trust?", a: "<strong>Continuous adaptive trust</strong> means that trust levels are not static but are <strong>constantly reassessed</strong> based on changing context. Factors include <strong>user behavior</strong>, <strong>device health</strong>, <strong>location</strong>, <strong>time of access</strong>, and <strong>sensitivity of the resource</strong>. If risk increases during a session (e.g., unusual activity), access can be restricted or revoked in real time." },
+  { cat: "AI & ML in Security", q: "What is the role of natural language processing (NLP) in cybersecurity?", a: "<strong>NLP</strong> is used in cybersecurity for <strong>phishing email detection</strong> (analyzing text patterns and intent), <strong>threat intelligence processing</strong> (extracting IOCs from unstructured reports), <strong>dark web monitoring</strong> (scanning forums for stolen data), and <strong>automated report generation</strong>. NLP helps security teams process large volumes of text-based threat data." },
+  { cat: "Threat Intelligence", q: "What are Indicators of Compromise (IOCs) versus Indicators of Attack (IOAs)?", a: "<strong>IOCs (Indicators of Compromise)</strong> are forensic evidence that a breach has occurred, such as malicious IP addresses, file hashes, and domain names. <strong>IOAs (Indicators of Attack)</strong> focus on detecting the <strong>intent and behavior</strong> of an attacker in real time, regardless of specific tools used. IOAs are proactive while IOCs are reactive." },
+  { cat: "IoT Security", q: "What is device identity and attestation in IoT security?", a: "<strong>Device identity</strong> ensures each IoT device has a unique, verifiable identity using <strong>digital certificates</strong> or <strong>hardware security modules (HSMs)</strong>. <strong>Attestation</strong> is the process of verifying that a device's software and configuration have not been tampered with before granting network access. Together they prevent unauthorized or compromised devices from joining the network." },
+];
+
+
+let deck = [];
+let current = 0;
+let correctCount = 0;
+let wrongCards = [];
+let isFlipped = false;
+let activeCategory = "All";
+
+function getCategories() {
+  const cats = ["All", ...new Set(ALL_CARDS.map(c => c.cat))];
+  return cats;
+}
+
+function buildTabs() {
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = '';
+  getCategories().forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (cat === activeCategory ? ' active' : '');
+    const count = cat === 'All' ? ALL_CARDS.length : ALL_CARDS.filter(c => c.cat === cat).length;
+    btn.textContent = `${cat} (${count})`;
+    btn.onclick = () => {
+      activeCategory = cat;
+      buildTabs();
+      if (currentMode === 'browse') {
+        renderList();
+      } else {
+        resetDeck();
+      }
+    };
+    tabsEl.appendChild(btn);
+  });
+}
+
+function resetDeck() {
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  deck = [...source];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+function shuffleDeck() {
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  current = 0;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('cardInner').classList.toggle('flipped', isFlipped);
+  if (isFlipped) {
+    document.getElementById('judgeBtns').classList.add('visible');
+  } else {
+    document.getElementById('judgeBtns').classList.remove('visible');
+  }
+}
+
+function markCard(correct) {
+  if (correct) {
+    correctCount++;
+  } else {
+    wrongCards.push(deck[current]);
+  }
+  current++;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+
+  if (current >= deck.length) {
+    showFinished();
+  } else {
+    // animate
+    const area = document.getElementById('cardArea');
+    area.classList.add('animating');
+    setTimeout(() => area.classList.remove('animating'), 300);
+    updateCard();
+    updateStats();
+  }
+}
+
+function updateCard() {
+  if (current >= deck.length) return;
+  const card = deck[current];
+  document.getElementById('questionText').textContent = card.q;
+  document.getElementById('answerText').innerHTML = card.a;
+  document.getElementById('frontCategory').textContent = card.cat;
+  document.getElementById('backCategory').textContent = card.cat + ' — Answer';
+  const num = `${current + 1} / ${deck.length}`;
+  document.getElementById('cardNum').textContent = num;
+  document.getElementById('cardNumBack').textContent = num;
+  updateStats();
+}
+
+function updateStats() {
+  const remaining = deck.length - current;
+  document.getElementById('stat-remaining').textContent = remaining;
+  document.getElementById('stat-correct').textContent = correctCount;
+  document.getElementById('stat-wrong').textContent = wrongCards.length;
+  document.getElementById('stat-total').textContent = deck.length;
+  const pct = deck.length > 0 ? ((current / deck.length) * 100).toFixed(0) : 0;
+  document.getElementById('progress').style.width = pct + '%';
+}
+
+function showFinished() {
+  document.getElementById('cardArea').style.display = 'none';
+  const finished = document.getElementById('finishedScreen');
+  finished.classList.add('show');
+  const total = correctCount + wrongCards.length;
+  const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+  document.getElementById('scorePct').textContent = pct + '%';
+  document.getElementById('reviewBtn').style.display = wrongCards.length > 0 ? '' : 'none';
+  updateStats();
+}
+
+function restartWithWrong() {
+  if (wrongCards.length === 0) { resetDeck(); return; }
+  deck = [...wrongCards];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+// Keyboard support
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); flipCard(); }
+  if (e.code === 'ArrowRight' && isFlipped) markCard(true);
+  if (e.code === 'ArrowLeft' && isFlipped) markCard(false);
+  if (e.code === 'KeyS') shuffleDeck();
+});
+
+// ===== MODE MANAGEMENT =====
+let currentMode = 'flashcard';
+let allExpanded = false;
+
+function setMode(mode) {
+  currentMode = mode;
+  const flashcardEls = [
+    document.getElementById('cardArea'),
+    document.querySelector('.stats-bar'),
+    document.querySelector('.progress-wrap'),
+    document.querySelector('.controls'),
+    document.getElementById('judgeBtns'),
+    document.getElementById('finishedScreen'),
+  ];
+  const listView = document.getElementById('listView');
+  const btnFlash = document.getElementById('modeFlashcard');
+  const btnBrowse = document.getElementById('modeBrowse');
+
+  if (mode === 'flashcard') {
+    flashcardEls.forEach(el => { if (el) el.style.display = ''; });
+    listView.classList.remove('visible');
+    btnFlash.classList.add('active');
+    btnBrowse.classList.remove('active');
+    // Re-hide finished if it wasn't showing
+    if (current < deck.length) document.getElementById('finishedScreen').classList.remove('show');
+  } else {
+    // Browse mode
+    flashcardEls.forEach(el => { if (el) el.style.display = 'none'; });
+    listView.classList.add('visible');
+    btnFlash.classList.remove('active');
+    btnBrowse.classList.add('active');
+    renderList();
+  }
+}
+
+function renderList() {
+  const query = (document.getElementById('listSearch').value || '').toLowerCase().trim();
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  const filtered = query
+    ? source.filter(c => c.q.toLowerCase().includes(query) || c.a.toLowerCase().replace(/<[^>]+>/g, '').includes(query))
+    : source;
+
+  document.getElementById('listCount').textContent = `${filtered.length} term${filtered.length !== 1 ? 's' : ''}`;
+
+  const container = document.getElementById('listItems');
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="no-results">No matching cards found.</div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map((card, i) => {
+    const globalIdx = ALL_CARDS.indexOf(card) + 1;
+    return `
+    <div class="list-item" id="li-${i}">
+      <div class="list-item-header" onclick="toggleListItem(${i})">
+        <span class="list-item-num">${globalIdx}</span>
+        <span class="list-item-q">${escapeHtml(card.q)}</span>
+        <span class="list-item-cat">${card.cat}</span>
+        <svg class="list-item-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="list-item-answer">${card.a}</div>
+    </div>`;
+  }).join('');
+
+  // Restore expanded state if allExpanded
+  if (allExpanded) {
+    container.querySelectorAll('.list-item').forEach(el => el.classList.add('open'));
+  }
+}
+
+function toggleListItem(idx) {
+  const el = document.getElementById(`li-${idx}`);
+  if (el) el.classList.toggle('open');
+}
+
+function toggleExpandAll() {
+  allExpanded = !allExpanded;
+  const btn = document.getElementById('expandAllBtn');
+  btn.textContent = allExpanded ? 'Collapse All' : 'Expand All';
+  document.querySelectorAll('.list-item').forEach(el => {
+    if (allExpanded) el.classList.add('open');
+    else el.classList.remove('open');
+  });
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Init
+buildTabs();
+resetDeck();
+</script>
+</body>
+</html>

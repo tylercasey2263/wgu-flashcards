@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WGU D430 – Fundamentals of Information Security Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --card-front: #161b22;
+    --card-back: #141e1a;
+    --accent: #2dcc8f;
+    --accent2: #58a6ff;
+    --accent3: #f78166;
+    --warn: #e3b341;
+    --text: #f0f6fc;
+    --muted: #9aabb8;
+    --border: rgba(255,255,255,0.1);
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* BG grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(0,229,160,0.12);
+    border: 1px solid rgba(0,229,160,0.3);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: clamp(24px, 5vw, 40px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #e8f0f7, #00e5a0 60%, #4f9eff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Category tabs */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+    justify-content: center;
+  }
+
+  .tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .tab:hover { border-color: var(--accent2); color: var(--accent2); }
+  .tab.active { background: rgba(79,158,255,0.15); border-color: var(--accent2); color: var(--accent2); }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    flex: 1;
+    min-width: 120px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 3px;
+    font-weight: 500;
+  }
+
+  .stat.correct .stat-num { color: var(--accent); }
+  .stat.wrong .stat-num { color: var(--accent3); }
+  .stat.remaining .stat-num { color: var(--accent2); }
+  .stat.total .stat-num { color: var(--warn); }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    height: 4px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  /* Card area */
+  .card-area {
+    perspective: 1200px;
+    margin-bottom: 24px;
+    cursor: pointer;
+  }
+
+  .card-inner {
+    position: relative;
+    width: 100%;
+    min-height: 300px;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-inner.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 300px;
+  }
+
+  .card-front {
+    background: linear-gradient(135deg, #1a2336, #111e30);
+    border: 1px solid rgba(79,158,255,0.25);
+    box-shadow: 0 0 40px rgba(79,158,255,0.06), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+
+  .card-back {
+    background: linear-gradient(135deg, #162219, #0e1c14);
+    border: 1px solid rgba(0,229,160,0.2);
+    box-shadow: 0 0 40px rgba(0,229,160,0.05), inset 0 1px 0 rgba(255,255,255,0.05);
+    transform: rotateY(180deg);
+  }
+
+  .card-category {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .card-front .card-category { background: rgba(79,158,255,0.12); color: var(--accent2); border: 1px solid rgba(79,158,255,0.2); }
+  .card-back .card-category { background: rgba(0,229,160,0.12); color: var(--accent); border: 1px solid rgba(0,229,160,0.2); }
+
+  .card-question {
+    font-size: clamp(17px, 3vw, 23px);
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+    margin-bottom: 16px;
+    letter-spacing: -0.1px;
+  }
+
+  .card-hint {
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+
+  .card-answer {
+    font-size: clamp(15px, 2.5vw, 19px);
+    line-height: 1.75;
+    color: #e8f5f0;
+    font-weight: 400;
+  }
+
+  .card-answer strong {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .card-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  /* Num indicator */
+  .card-num {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: 1px solid;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-flip {
+    background: rgba(79,158,255,0.1);
+    border-color: rgba(79,158,255,0.4);
+    color: var(--accent2);
+  }
+  .btn-flip:hover { background: rgba(79,158,255,0.2); transform: translateY(-1px); }
+
+  .btn-correct {
+    background: rgba(0,229,160,0.1);
+    border-color: rgba(0,229,160,0.4);
+    color: var(--accent);
+  }
+  .btn-correct:hover { background: rgba(0,229,160,0.2); transform: translateY(-1px); }
+
+  .btn-wrong {
+    background: rgba(255,107,107,0.1);
+    border-color: rgba(255,107,107,0.4);
+    color: var(--accent3);
+  }
+  .btn-wrong:hover { background: rgba(255,107,107,0.2); transform: translateY(-1px); }
+
+  .btn-shuffle {
+    background: rgba(245,197,66,0.1);
+    border-color: rgba(245,197,66,0.4);
+    color: var(--warn);
+  }
+  .btn-shuffle:hover { background: rgba(245,197,66,0.2); transform: translateY(-1px); }
+
+  .btn-reset {
+    background: rgba(255,255,255,0.04);
+    border-color: var(--border);
+    color: var(--muted);
+  }
+  .btn-reset:hover { border-color: var(--muted); color: var(--text); }
+
+  /* Judgment buttons only shown after flip */
+  .judge-btns { display: none; gap: 10px; justify-content: center; }
+  .judge-btns.visible { display: flex; }
+
+  /* Algorithm table */
+  .algo-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
+  .algo-table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 6px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .algo-table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+
+  .algo-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  /* Finished screen */
+  .finished {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .finished.show { display: block; }
+
+  .score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    box-shadow: 0 0 30px rgba(0,229,160,0.2);
+  }
+
+  .score-pct {
+    font-size: 32px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+  }
+
+  .score-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Card slide animation */
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .card-area.animating .card-inner { animation: slideIn 0.3s ease; }
+
+  /* ===== MODE TOGGLE ===== */
+  .mode-toggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 0 auto 28px;
+    width: fit-content;
+    background: var(--surface);
+  }
+
+  .mode-btn {
+    padding: 9px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .mode-btn svg { width: 14px; height: 14px; }
+  .mode-btn:hover { color: var(--text); }
+  .mode-btn.active { background: rgba(79,158,255,0.15); color: var(--accent2); }
+  .mode-btn + .mode-btn { border-left: 1px solid var(--border); }
+
+  /* ===== LIST / BROWSE MODE ===== */
+  .list-view { display: none; }
+  .list-view.visible { display: block; }
+
+  .list-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+  }
+
+  .list-search input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  .list-search input::placeholder { color: var(--muted); }
+
+  .list-search svg { color: var(--muted); flex-shrink: 0; }
+
+  .list-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .list-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .list-expand-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.08);
+    border: 1px solid rgba(79,158,255,0.2);
+    border-radius: 5px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .list-expand-btn:hover { background: rgba(79,158,255,0.16); }
+
+  .list-items { display: flex; flex-direction: column; gap: 8px; }
+
+  .list-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .list-item:hover { border-color: rgba(79,158,255,0.25); }
+  .list-item.open { border-color: rgba(0,229,160,0.25); }
+
+  .list-item-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .list-item-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 28px;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .list-item-q {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+  }
+
+  .list-item-cat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.1);
+    border: 1px solid rgba(79,158,255,0.15);
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+
+  .list-item-chevron {
+    color: var(--muted);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .list-item.open .list-item-chevron { transform: rotate(180deg); color: var(--accent); }
+
+  .list-item-answer {
+    display: none;
+    padding: 0 18px 16px 60px;
+    font-size: 15px;
+    line-height: 1.78;
+    color: #e8f5f0;
+    border-top: 1px solid rgba(0,229,160,0.1);
+    background: rgba(0,229,160,0.03);
+    padding-top: 14px;
+  }
+
+  .list-item.open .list-item-answer { display: block; }
+
+  .list-item-answer strong { color: var(--accent); }
+  .list-item-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  .list-item-answer table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+  .list-item-answer table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 5px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .list-item-answer table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+  .list-item-answer table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  .no-results {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  /* ===== HIDE FLASHCARD-ONLY ELEMENTS IN LIST MODE ===== */
+  .flashcard-only { transition: opacity 0.2s; }
+  .flashcard-only.hidden { display: none; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .card-face { padding: 24px 20px; }
+    .btn { padding: 10px 16px; font-size: 11px; }
+    .list-item-answer { padding-left: 18px; }
+    .list-item-cat { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="badge">WGU D430</div>
+    <h1>Fundamentals of Information Security</h1>
+    <p class="subtitle">// flashcard study system · 2025–2026</p>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs" id="tabs"></div>
+
+  <!-- Mode Toggle -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modeFlashcard" onclick="setMode('flashcard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="12" y1="4" x2="12" y2="20"/></svg>Flashcards
+    </button>
+    <button class="mode-btn" id="modeBrowse" onclick="setMode('browse')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>Browse All
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat remaining"><div class="stat-num" id="stat-remaining">0</div><div class="stat-label">Remaining</div></div>
+    <div class="stat correct"><div class="stat-num" id="stat-correct">0</div><div class="stat-label">Correct</div></div>
+    <div class="stat wrong"><div class="stat-num" id="stat-wrong">0</div><div class="stat-label">Review</div></div>
+    <div class="stat total"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total</div></div>
+  </div>
+
+  <div class="progress-wrap"><div class="progress-fill" id="progress"></div></div>
+
+  <!-- Card -->
+  <div class="card-area" id="cardArea" onclick="flipCard()">
+    <div class="card-inner" id="cardInner">
+      <div class="card-face card-front">
+        <div class="card-num" id="cardNum">1 / 0</div>
+        <span class="card-category" id="frontCategory">Loading...</span>
+        <div class="card-question" id="questionText">Loading flashcards...</div>
+        <div class="card-hint">[ tap to reveal answer ]</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="card-num" id="cardNumBack">1 / 0</div>
+        <span class="card-category" id="backCategory">Answer</span>
+        <div class="card-answer" id="answerText"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn btn-flip" onclick="flipCard()">⟳ Flip</button>
+    <button class="btn btn-shuffle" onclick="shuffleDeck()">⇄ Shuffle</button>
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Reset</button>
+  </div>
+
+  <div class="judge-btns" id="judgeBtns">
+    <button class="btn btn-correct" onclick="markCard(true)">✓ Got It</button>
+    <button class="btn btn-wrong" onclick="markCard(false)">✗ Review Again</button>
+  </div>
+
+  <!-- List / Browse View -->
+  <div class="list-view" id="listView">
+    <div class="list-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="listSearch" placeholder="Search questions or answers..." oninput="renderList()">
+    </div>
+    <div class="list-controls-row">
+      <span class="list-count" id="listCount">0 terms</span>
+      <button class="list-expand-btn" id="expandAllBtn" onclick="toggleExpandAll()">Expand All</button>
+    </div>
+    <div class="list-items" id="listItems"></div>
+  </div>
+
+  <!-- Finished Screen -->
+  <div class="finished" id="finishedScreen">
+    <div class="score-circle">
+      <div class="score-pct" id="scorePct">0%</div>
+      <div class="score-label">Score</div>
+    </div>
+    <h2 style="font-size:24px;margin-bottom:8px;">Deck Complete!</h2>
+    <p style="color:var(--muted);margin-bottom:24px;font-family:'JetBrains Mono',monospace;font-size:13px;">Cards marked for review will be cycled back.</p>
+    <button class="btn btn-shuffle" onclick="restartWithWrong()" id="reviewBtn">↺ Review Missed</button>
+    &nbsp;
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Full Restart</button>
+  </div>
+</div>
+
+<script>
+const ALL_CARDS = [
+  // ===== CIA TRIAD & CONCEPTS =====
+  { cat: "CIA Triad & Concepts", q: "What are the three components of the CIA triad?", a: "<strong>Confidentiality</strong> – ensuring information is accessible only to authorized parties<br><strong>Integrity</strong> – ensuring data is accurate, complete, and unaltered<br><strong>Availability</strong> – ensuring systems and data are accessible when needed by authorized users" },
+  { cat: "CIA Triad & Concepts", q: "What is non-repudiation in information security?", a: "<strong>Non-repudiation</strong> ensures that a party cannot deny having performed an action. It is achieved through mechanisms like <strong>digital signatures, audit logs, and timestamps</strong> that create undeniable proof of origin or receipt." },
+  { cat: "CIA Triad & Concepts", q: "What is the difference between authentication, authorization, and accountability (AAA)?", a: "<strong>Authentication</strong> – verifying identity (who are you?)<br><strong>Authorization</strong> – granting permissions (what can you access?)<br><strong>Accountability</strong> – tracking actions to a specific user (what did you do?)<br>Together these form the <span class='tag'>AAA</span> framework for access security." },
+  { cat: "CIA Triad & Concepts", q: "What is the principle of least privilege?", a: "<strong>Least privilege</strong> grants users only the <strong>minimum level of access</strong> necessary to perform their job functions. It limits the attack surface and reduces the impact of compromised accounts or insider threats." },
+  { cat: "CIA Triad & Concepts", q: "What is the need-to-know principle?", a: "<strong>Need-to-know</strong> restricts access to information based on whether a user requires that specific data to perform their duties. Even if a user has the proper clearance level, they should <strong>not access data unless their role requires it</strong>." },
+  { cat: "CIA Triad & Concepts", q: "What is separation of duties and why is it important?", a: "<strong>Separation of duties</strong> divides critical tasks among multiple individuals so that no single person has complete control over a process. It prevents <strong>fraud, errors, and abuse of privilege</strong> by requiring collusion between parties to circumvent controls." },
+  { cat: "CIA Triad & Concepts", q: "What is defense in depth?", a: "<strong>Defense in depth</strong> is a layered security strategy that deploys <strong>multiple overlapping security controls</strong> so that if one layer fails, others still provide protection. Examples include combining firewalls, IDS, encryption, access controls, and physical security." },
+  { cat: "CIA Triad & Concepts", q: "What is the difference between due care and due diligence?", a: "<strong>Due care</strong> means taking <strong>reasonable steps</strong> to protect assets (implementing security policies). <strong>Due diligence</strong> means <strong>continuously verifying</strong> that those protections are working (auditing, monitoring, risk assessments). Both are required to avoid negligence claims." },
+
+  // ===== THREATS & ATTACKS =====
+  { cat: "Threats & Attacks", q: "What is the relationship between threat, vulnerability, and risk?", a: "A <strong>threat</strong> is any potential danger to an asset. A <strong>vulnerability</strong> is a weakness that can be exploited. <strong>Risk</strong> is the likelihood that a threat will exploit a vulnerability and the resulting impact. <span class='tag'>Risk = Threat x Vulnerability x Impact</span>." },
+  { cat: "Threats & Attacks", q: "What are the main types of threat actors?", a: "<strong>Insider threats</strong> – employees or contractors with authorized access<br><strong>APT (Advanced Persistent Threat)</strong> – nation-state or well-funded groups with long-term objectives<br><strong>Script kiddies</strong> – unskilled attackers using pre-built tools<br><strong>Hacktivists</strong> – politically motivated hackers<br><strong>Organized crime</strong> – financially motivated groups" },
+  { cat: "Threats & Attacks", q: "What is social engineering?", a: "<strong>Social engineering</strong> manipulates people into divulging confidential information or performing actions that compromise security. It exploits <strong>human psychology</strong> — trust, fear, urgency, and authority — rather than technical vulnerabilities." },
+  { cat: "Threats & Attacks", q: "What are the different types of phishing attacks?", a: "<strong>Phishing</strong> – mass emails impersonating legitimate entities<br><strong>Spear phishing</strong> – targeted at specific individuals or organizations<br><strong>Whaling</strong> – targeting senior executives or high-value individuals<br><strong>Vishing</strong> – voice-based phishing via phone calls<br><strong>Smishing</strong> – SMS/text message-based phishing" },
+  { cat: "Threats & Attacks", q: "What is pretexting?", a: "<strong>Pretexting</strong> is a social engineering technique where an attacker creates a <strong>fabricated scenario (pretext)</strong> to trick a victim into revealing information or granting access. The attacker typically impersonates a trusted role such as IT support, a bank employee, or a coworker." },
+  { cat: "Threats & Attacks", q: "What is the difference between a DoS and DDoS attack?", a: "A <strong>DoS (Denial of Service)</strong> attack overwhelms a target from a <strong>single source</strong> to make it unavailable. A <strong>DDoS (Distributed Denial of Service)</strong> attack uses <strong>multiple compromised systems (botnet)</strong> to flood the target simultaneously, making it much harder to mitigate." },
+  { cat: "Threats & Attacks", q: "What is a man-in-the-middle (MITM) attack?", a: "A <strong>MITM attack</strong> occurs when an attacker secretly intercepts and potentially alters communication between two parties who believe they are communicating directly. Common techniques include <strong>ARP spoofing, DNS spoofing, and SSL stripping</strong>." },
+
+  // ===== MALWARE =====
+  { cat: "Malware", q: "What is the difference between a virus and a worm?", a: "A <strong>virus</strong> requires <strong>user interaction</strong> to execute and attaches itself to a host file or program to spread. A <strong>worm</strong> is <strong>self-replicating</strong> and spreads automatically across networks without user action, often consuming bandwidth and system resources." },
+  { cat: "Malware", q: "What is a Trojan horse in cybersecurity?", a: "A <strong>Trojan</strong> is malware disguised as <strong>legitimate software</strong> that performs malicious actions once installed. Unlike viruses and worms, Trojans <strong>do not self-replicate</strong>. They often create backdoors, steal data, or download additional malware." },
+  { cat: "Malware", q: "What is ransomware and how does it work?", a: "<strong>Ransomware</strong> encrypts a victim's files or locks system access and demands <strong>payment (usually cryptocurrency)</strong> for the decryption key. Variants include <strong>crypto-ransomware</strong> (encrypts files) and <strong>locker ransomware</strong> (locks the entire system)." },
+  { cat: "Malware", q: "What is a rootkit?", a: "A <strong>rootkit</strong> is malware designed to gain <strong>privileged (root) access</strong> and hide its presence from detection tools. It modifies the OS kernel or boot process to remain persistent and can conceal other malware, making it extremely difficult to detect and remove." },
+  { cat: "Malware", q: "What is the difference between spyware, adware, and a keylogger?", a: "<strong>Spyware</strong> – secretly monitors user activity and transmits data to attackers<br><strong>Adware</strong> – displays unwanted advertisements, may track browsing habits<br><strong>Keylogger</strong> – records keystrokes to capture passwords, credit cards, and other sensitive input" },
+  { cat: "Malware", q: "What is a botnet?", a: "A <strong>botnet</strong> is a network of <strong>compromised computers (bots/zombies)</strong> controlled remotely by an attacker via a command-and-control (C2) server. Botnets are used for DDoS attacks, spam distribution, credential stuffing, and cryptocurrency mining." },
+
+  // ===== ACCESS CONTROL =====
+  { cat: "Access Control", q: "What is Discretionary Access Control (DAC)?", a: "<strong>DAC</strong> allows the <strong>resource owner</strong> to decide who can access their resources. It is flexible but less secure because users can transfer permissions to others. <strong>Windows NTFS permissions</strong> are a common example of DAC." },
+  { cat: "Access Control", q: "What is Mandatory Access Control (MAC)?", a: "<strong>MAC</strong> uses <strong>system-enforced labels and clearance levels</strong> to control access. Users cannot override or transfer permissions. It is the most restrictive model and is used in <strong>military and government</strong> environments (e.g., Top Secret, Secret, Confidential)." },
+  { cat: "Access Control", q: "What is Role-Based Access Control (RBAC)?", a: "<strong>RBAC</strong> assigns permissions based on <strong>organizational roles</strong> rather than individual identities. Users inherit permissions by being assigned to a role (e.g., Manager, Analyst). It simplifies administration and enforces <strong>least privilege</strong> at scale." },
+  { cat: "Access Control", q: "What is Attribute-Based Access Control (ABAC)?", a: "<strong>ABAC</strong> grants access based on <strong>attributes</strong> of the user, resource, environment, and action. Policies evaluate conditions like department, time of day, location, and data sensitivity. It is the most <strong>granular and flexible</strong> access control model." },
+  { cat: "Access Control", q: "What is multi-factor authentication (MFA)?", a: "<strong>MFA</strong> requires <strong>two or more authentication factors</strong> from different categories:<br><strong>Something you know</strong> – password, PIN<br><strong>Something you have</strong> – smart card, token, phone<br><strong>Something you are</strong> – biometrics (fingerprint, retina)<br>MFA significantly reduces the risk of unauthorized access." },
+  { cat: "Access Control", q: "What makes a strong password policy?", a: "Strong password policies enforce <strong>minimum length (12+ characters)</strong>, complexity (uppercase, lowercase, numbers, symbols), <strong>account lockout</strong> after failed attempts, password history to prevent reuse, and regular expiration intervals. NIST now recommends <strong>length over complexity</strong>." },
+
+  // ===== SECURITY CONTROLS =====
+  { cat: "Security Controls", q: "What are the four functional types of security controls?", a: "<strong>Preventive</strong> – stop incidents before they occur (firewalls, access controls)<br><strong>Detective</strong> – identify incidents as or after they occur (IDS, audit logs)<br><strong>Corrective</strong> – fix issues after detection (patching, restoring backups)<br><strong>Compensating</strong> – alternative controls when primary controls are not feasible" },
+  { cat: "Security Controls", q: "What are the three categories of security controls by implementation?", a: "<strong>Technical (Logical)</strong> – implemented through technology (encryption, firewalls, IDS)<br><strong>Administrative (Managerial)</strong> – policies, procedures, training, and risk assessments<br><strong>Physical</strong> – tangible protections (locks, guards, cameras, fencing, mantraps)" },
+  { cat: "Security Controls", q: "What is the difference between an IDS and an IPS?", a: "An <strong>IDS (Intrusion Detection System)</strong> monitors and <strong>alerts</strong> on suspicious activity but does not block it. An <strong>IPS (Intrusion Prevention System)</strong> monitors and <strong>actively blocks</strong> malicious traffic in real time. IPS is placed inline with network traffic." },
+  { cat: "Security Controls", q: "What is the difference between a firewall and a proxy?", a: "A <strong>firewall</strong> filters traffic based on rules (IP, port, protocol) at the network level. A <strong>proxy server</strong> acts as an intermediary that inspects and filters traffic at the <strong>application level</strong>, providing content filtering, caching, and anonymity." },
+  { cat: "Security Controls", q: "What is encryption and what are symmetric vs. asymmetric types?", a: "<strong>Encryption</strong> converts plaintext to ciphertext using an algorithm and key.<br><strong>Symmetric</strong> – same key for encryption and decryption (AES, DES); fast but key distribution is a challenge<br><strong>Asymmetric</strong> – public/private key pair (RSA, ECC); slower but solves key distribution" },
+  { cat: "Security Controls", q: "What is a VPN and what security does it provide?", a: "A <strong>VPN (Virtual Private Network)</strong> creates an <strong>encrypted tunnel</strong> over a public network to provide confidentiality and integrity for data in transit. Common protocols include <span class='tag'>IPSec</span>, <span class='tag'>SSL/TLS</span>, and <span class='tag'>WireGuard</span>." },
+
+  // ===== INCIDENT RESPONSE =====
+  { cat: "Incident Response", q: "What are the six phases of incident response (PICERL)?", a: "<strong>P</strong>reparation – policies, tools, and training<br><strong>I</strong>dentification – detecting and confirming incidents<br><strong>C</strong>ontainment – limiting the spread and damage<br><strong>E</strong>radication – removing the root cause<br><strong>R</strong>ecovery – restoring systems to normal operation<br><strong>L</strong>essons Learned – post-incident review and improvement" },
+  { cat: "Incident Response", q: "What is the purpose of the Preparation phase in incident response?", a: "Preparation involves establishing an <strong>incident response team (IRT)</strong>, developing response plans and playbooks, deploying monitoring tools, conducting training and tabletop exercises, and ensuring communication channels are ready <strong>before an incident occurs</strong>." },
+  { cat: "Incident Response", q: "What is containment in incident response?", a: "<strong>Containment</strong> limits the scope and impact of an incident. <strong>Short-term containment</strong> isolates affected systems immediately (disconnecting from network). <strong>Long-term containment</strong> applies temporary fixes to keep business running while preparing for eradication." },
+  { cat: "Incident Response", q: "Why is the Lessons Learned phase important?", a: "The <strong>Lessons Learned</strong> phase conducts a formal review of the incident to identify <strong>what worked, what failed, and what should be improved</strong>. It produces documentation, updates policies and procedures, and strengthens defenses to prevent recurrence." },
+  { cat: "Incident Response", q: "What is an incident response plan (IRP)?", a: "An <strong>IRP</strong> is a documented set of procedures for detecting, responding to, and recovering from security incidents. It defines <strong>roles, escalation paths, communication plans, and technical procedures</strong> to ensure a coordinated and efficient response." },
+
+  // ===== COMPLIANCE =====
+  { cat: "Compliance", q: "What are the five functions of the NIST Cybersecurity Framework (CSF)?", a: "<strong>Identify</strong> – asset management, risk assessment<br><strong>Protect</strong> – access control, training, encryption<br><strong>Detect</strong> – monitoring, anomaly detection<br><strong>Respond</strong> – incident response, mitigation<br><strong>Recover</strong> – restoration, communication, improvements" },
+  { cat: "Compliance", q: "What is HIPAA and what does it protect?", a: "<strong>HIPAA (Health Insurance Portability and Accountability Act)</strong> protects <strong>Protected Health Information (PHI)</strong> in the healthcare industry. It requires administrative, physical, and technical safeguards and mandates <strong>breach notification</strong> to affected individuals." },
+  { cat: "Compliance", q: "What is PCI-DSS?", a: "<strong>PCI-DSS (Payment Card Industry Data Security Standard)</strong> is a set of security standards for organizations that handle <strong>credit card data</strong>. It requires measures like encryption, access control, network segmentation, vulnerability scanning, and regular security testing." },
+  { cat: "Compliance", q: "What are the key requirements of GDPR?", a: "<strong>GDPR (General Data Protection Regulation)</strong> protects EU citizens' personal data. Key requirements include <strong>explicit consent</strong>, right to access, right to be forgotten, <strong>72-hour breach notification</strong>, data minimization, and appointment of a Data Protection Officer (DPO) for certain organizations." },
+  { cat: "Compliance", q: "What are the four risk response strategies?", a: "<strong>Accept</strong> – acknowledge the risk and take no action (cost of mitigation exceeds impact)<br><strong>Mitigate</strong> – implement controls to reduce likelihood or impact<br><strong>Transfer</strong> – shift risk to a third party (insurance, outsourcing)<br><strong>Avoid</strong> – eliminate the risk by removing the activity or asset" },
+  { cat: "Compliance", q: "What is the difference between a policy, standard, guideline, and procedure?", a: "<strong>Policy</strong> – high-level statement of management intent (mandatory)<br><strong>Standard</strong> – specific mandatory requirements for implementation<br><strong>Guideline</strong> – recommended best practices (not mandatory)<br><strong>Procedure</strong> – step-by-step instructions for completing a task" },
+];
+
+
+let deck = [];
+let current = 0;
+let correctCount = 0;
+let wrongCards = [];
+let isFlipped = false;
+let activeCategory = "All";
+
+function getCategories() {
+  const cats = ["All", ...new Set(ALL_CARDS.map(c => c.cat))];
+  return cats;
+}
+
+function buildTabs() {
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = '';
+  getCategories().forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (cat === activeCategory ? ' active' : '');
+    const count = cat === 'All' ? ALL_CARDS.length : ALL_CARDS.filter(c => c.cat === cat).length;
+    btn.textContent = `${cat} (${count})`;
+    btn.onclick = () => {
+      activeCategory = cat;
+      buildTabs();
+      if (currentMode === 'browse') {
+        renderList();
+      } else {
+        resetDeck();
+      }
+    };
+    tabsEl.appendChild(btn);
+  });
+}
+
+function resetDeck() {
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  deck = [...source];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+function shuffleDeck() {
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  current = 0;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('cardInner').classList.toggle('flipped', isFlipped);
+  if (isFlipped) {
+    document.getElementById('judgeBtns').classList.add('visible');
+  } else {
+    document.getElementById('judgeBtns').classList.remove('visible');
+  }
+}
+
+function markCard(correct) {
+  if (correct) {
+    correctCount++;
+  } else {
+    wrongCards.push(deck[current]);
+  }
+  current++;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+
+  if (current >= deck.length) {
+    showFinished();
+  } else {
+    // animate
+    const area = document.getElementById('cardArea');
+    area.classList.add('animating');
+    setTimeout(() => area.classList.remove('animating'), 300);
+    updateCard();
+    updateStats();
+  }
+}
+
+function updateCard() {
+  if (current >= deck.length) return;
+  const card = deck[current];
+  document.getElementById('questionText').textContent = card.q;
+  document.getElementById('answerText').innerHTML = card.a;
+  document.getElementById('frontCategory').textContent = card.cat;
+  document.getElementById('backCategory').textContent = card.cat + ' — Answer';
+  const num = `${current + 1} / ${deck.length}`;
+  document.getElementById('cardNum').textContent = num;
+  document.getElementById('cardNumBack').textContent = num;
+  updateStats();
+}
+
+function updateStats() {
+  const remaining = deck.length - current;
+  document.getElementById('stat-remaining').textContent = remaining;
+  document.getElementById('stat-correct').textContent = correctCount;
+  document.getElementById('stat-wrong').textContent = wrongCards.length;
+  document.getElementById('stat-total').textContent = deck.length;
+  const pct = deck.length > 0 ? ((current / deck.length) * 100).toFixed(0) : 0;
+  document.getElementById('progress').style.width = pct + '%';
+}
+
+function showFinished() {
+  document.getElementById('cardArea').style.display = 'none';
+  const finished = document.getElementById('finishedScreen');
+  finished.classList.add('show');
+  const total = correctCount + wrongCards.length;
+  const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+  document.getElementById('scorePct').textContent = pct + '%';
+  document.getElementById('reviewBtn').style.display = wrongCards.length > 0 ? '' : 'none';
+  updateStats();
+}
+
+function restartWithWrong() {
+  if (wrongCards.length === 0) { resetDeck(); return; }
+  deck = [...wrongCards];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+// Keyboard support
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); flipCard(); }
+  if (e.code === 'ArrowRight' && isFlipped) markCard(true);
+  if (e.code === 'ArrowLeft' && isFlipped) markCard(false);
+  if (e.code === 'KeyS') shuffleDeck();
+});
+
+// ===== MODE MANAGEMENT =====
+let currentMode = 'flashcard';
+let allExpanded = false;
+
+function setMode(mode) {
+  currentMode = mode;
+  const flashcardEls = [
+    document.getElementById('cardArea'),
+    document.querySelector('.stats-bar'),
+    document.querySelector('.progress-wrap'),
+    document.querySelector('.controls'),
+    document.getElementById('judgeBtns'),
+    document.getElementById('finishedScreen'),
+  ];
+  const listView = document.getElementById('listView');
+  const btnFlash = document.getElementById('modeFlashcard');
+  const btnBrowse = document.getElementById('modeBrowse');
+
+  if (mode === 'flashcard') {
+    flashcardEls.forEach(el => { if (el) el.style.display = ''; });
+    listView.classList.remove('visible');
+    btnFlash.classList.add('active');
+    btnBrowse.classList.remove('active');
+    // Re-hide finished if it wasn't showing
+    if (current < deck.length) document.getElementById('finishedScreen').classList.remove('show');
+  } else {
+    // Browse mode
+    flashcardEls.forEach(el => { if (el) el.style.display = 'none'; });
+    listView.classList.add('visible');
+    btnFlash.classList.remove('active');
+    btnBrowse.classList.add('active');
+    renderList();
+  }
+}
+
+function renderList() {
+  const query = (document.getElementById('listSearch').value || '').toLowerCase().trim();
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  const filtered = query
+    ? source.filter(c => c.q.toLowerCase().includes(query) || c.a.toLowerCase().replace(/<[^>]+>/g, '').includes(query))
+    : source;
+
+  document.getElementById('listCount').textContent = `${filtered.length} term${filtered.length !== 1 ? 's' : ''}`;
+
+  const container = document.getElementById('listItems');
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="no-results">No matching cards found.</div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map((card, i) => {
+    const globalIdx = ALL_CARDS.indexOf(card) + 1;
+    return `
+    <div class="list-item" id="li-${i}">
+      <div class="list-item-header" onclick="toggleListItem(${i})">
+        <span class="list-item-num">${globalIdx}</span>
+        <span class="list-item-q">${escapeHtml(card.q)}</span>
+        <span class="list-item-cat">${card.cat}</span>
+        <svg class="list-item-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="list-item-answer">${card.a}</div>
+    </div>`;
+  }).join('');
+
+  // Restore expanded state if allExpanded
+  if (allExpanded) {
+    container.querySelectorAll('.list-item').forEach(el => el.classList.add('open'));
+  }
+}
+
+function toggleListItem(idx) {
+  const el = document.getElementById(`li-${idx}`);
+  if (el) el.classList.toggle('open');
+}
+
+function toggleExpandAll() {
+  allExpanded = !allExpanded;
+  const btn = document.getElementById('expandAllBtn');
+  btn.textContent = allExpanded ? 'Collapse All' : 'Expand All';
+  document.querySelectorAll('.list-item').forEach(el => {
+    if (allExpanded) el.classList.add('open');
+    else el.classList.remove('open');
+  });
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Init
+buildTabs();
+resetDeck();
+</script>
+</body>
+</html>

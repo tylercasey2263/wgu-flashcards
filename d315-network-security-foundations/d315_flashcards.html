@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WGU D315 – Network and Security Foundations Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --card-front: #161b22;
+    --card-back: #141e1a;
+    --accent: #2dcc8f;
+    --accent2: #58a6ff;
+    --accent3: #f78166;
+    --warn: #e3b341;
+    --text: #f0f6fc;
+    --muted: #9aabb8;
+    --border: rgba(255,255,255,0.1);
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* BG grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(0,229,160,0.12);
+    border: 1px solid rgba(0,229,160,0.3);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: clamp(24px, 5vw, 40px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #e8f0f7, #00e5a0 60%, #4f9eff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Category tabs */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+    justify-content: center;
+  }
+
+  .tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .tab:hover { border-color: var(--accent2); color: var(--accent2); }
+  .tab.active { background: rgba(79,158,255,0.15); border-color: var(--accent2); color: var(--accent2); }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    flex: 1;
+    min-width: 120px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 3px;
+    font-weight: 500;
+  }
+
+  .stat.correct .stat-num { color: var(--accent); }
+  .stat.wrong .stat-num { color: var(--accent3); }
+  .stat.remaining .stat-num { color: var(--accent2); }
+  .stat.total .stat-num { color: var(--warn); }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    height: 4px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  /* Card area */
+  .card-area {
+    perspective: 1200px;
+    margin-bottom: 24px;
+    cursor: pointer;
+  }
+
+  .card-inner {
+    position: relative;
+    width: 100%;
+    min-height: 300px;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-inner.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 300px;
+  }
+
+  .card-front {
+    background: linear-gradient(135deg, #1a2336, #111e30);
+    border: 1px solid rgba(79,158,255,0.25);
+    box-shadow: 0 0 40px rgba(79,158,255,0.06), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+
+  .card-back {
+    background: linear-gradient(135deg, #162219, #0e1c14);
+    border: 1px solid rgba(0,229,160,0.2);
+    box-shadow: 0 0 40px rgba(0,229,160,0.05), inset 0 1px 0 rgba(255,255,255,0.05);
+    transform: rotateY(180deg);
+  }
+
+  .card-category {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .card-front .card-category { background: rgba(79,158,255,0.12); color: var(--accent2); border: 1px solid rgba(79,158,255,0.2); }
+  .card-back .card-category { background: rgba(0,229,160,0.12); color: var(--accent); border: 1px solid rgba(0,229,160,0.2); }
+
+  .card-question {
+    font-size: clamp(17px, 3vw, 23px);
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+    margin-bottom: 16px;
+    letter-spacing: -0.1px;
+  }
+
+  .card-hint {
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+
+  .card-answer {
+    font-size: clamp(15px, 2.5vw, 19px);
+    line-height: 1.75;
+    color: #e8f5f0;
+    font-weight: 400;
+  }
+
+  .card-answer strong {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .card-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  /* Num indicator */
+  .card-num {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: 1px solid;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-flip {
+    background: rgba(79,158,255,0.1);
+    border-color: rgba(79,158,255,0.4);
+    color: var(--accent2);
+  }
+  .btn-flip:hover { background: rgba(79,158,255,0.2); transform: translateY(-1px); }
+
+  .btn-correct {
+    background: rgba(0,229,160,0.1);
+    border-color: rgba(0,229,160,0.4);
+    color: var(--accent);
+  }
+  .btn-correct:hover { background: rgba(0,229,160,0.2); transform: translateY(-1px); }
+
+  .btn-wrong {
+    background: rgba(255,107,107,0.1);
+    border-color: rgba(255,107,107,0.4);
+    color: var(--accent3);
+  }
+  .btn-wrong:hover { background: rgba(255,107,107,0.2); transform: translateY(-1px); }
+
+  .btn-shuffle {
+    background: rgba(245,197,66,0.1);
+    border-color: rgba(245,197,66,0.4);
+    color: var(--warn);
+  }
+  .btn-shuffle:hover { background: rgba(245,197,66,0.2); transform: translateY(-1px); }
+
+  .btn-reset {
+    background: rgba(255,255,255,0.04);
+    border-color: var(--border);
+    color: var(--muted);
+  }
+  .btn-reset:hover { border-color: var(--muted); color: var(--text); }
+
+  /* Judgment buttons only shown after flip */
+  .judge-btns { display: none; gap: 10px; justify-content: center; }
+  .judge-btns.visible { display: flex; }
+
+  /* Algorithm table */
+  .algo-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
+  .algo-table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 6px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .algo-table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+
+  .algo-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  /* Finished screen */
+  .finished {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .finished.show { display: block; }
+
+  .score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    box-shadow: 0 0 30px rgba(0,229,160,0.2);
+  }
+
+  .score-pct {
+    font-size: 32px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+  }
+
+  .score-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Card slide animation */
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .card-area.animating .card-inner { animation: slideIn 0.3s ease; }
+
+  /* ===== MODE TOGGLE ===== */
+  .mode-toggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 0 auto 28px;
+    width: fit-content;
+    background: var(--surface);
+  }
+
+  .mode-btn {
+    padding: 9px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .mode-btn svg { width: 14px; height: 14px; }
+  .mode-btn:hover { color: var(--text); }
+  .mode-btn.active { background: rgba(79,158,255,0.15); color: var(--accent2); }
+  .mode-btn + .mode-btn { border-left: 1px solid var(--border); }
+
+  /* ===== LIST / BROWSE MODE ===== */
+  .list-view { display: none; }
+  .list-view.visible { display: block; }
+
+  .list-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+  }
+
+  .list-search input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  .list-search input::placeholder { color: var(--muted); }
+
+  .list-search svg { color: var(--muted); flex-shrink: 0; }
+
+  .list-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .list-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .list-expand-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.08);
+    border: 1px solid rgba(79,158,255,0.2);
+    border-radius: 5px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .list-expand-btn:hover { background: rgba(79,158,255,0.16); }
+
+  .list-items { display: flex; flex-direction: column; gap: 8px; }
+
+  .list-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .list-item:hover { border-color: rgba(79,158,255,0.25); }
+  .list-item.open { border-color: rgba(0,229,160,0.25); }
+
+  .list-item-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .list-item-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 28px;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .list-item-q {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+  }
+
+  .list-item-cat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.1);
+    border: 1px solid rgba(79,158,255,0.15);
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+
+  .list-item-chevron {
+    color: var(--muted);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .list-item.open .list-item-chevron { transform: rotate(180deg); color: var(--accent); }
+
+  .list-item-answer {
+    display: none;
+    padding: 0 18px 16px 60px;
+    font-size: 15px;
+    line-height: 1.78;
+    color: #e8f5f0;
+    border-top: 1px solid rgba(0,229,160,0.1);
+    background: rgba(0,229,160,0.03);
+    padding-top: 14px;
+  }
+
+  .list-item.open .list-item-answer { display: block; }
+
+  .list-item-answer strong { color: var(--accent); }
+  .list-item-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  .list-item-answer table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+  .list-item-answer table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 5px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .list-item-answer table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+  .list-item-answer table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  .no-results {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  /* ===== HIDE FLASHCARD-ONLY ELEMENTS IN LIST MODE ===== */
+  .flashcard-only { transition: opacity 0.2s; }
+  .flashcard-only.hidden { display: none; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .card-face { padding: 24px 20px; }
+    .btn { padding: 10px 16px; font-size: 11px; }
+    .list-item-answer { padding-left: 18px; }
+    .list-item-cat { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="badge">WGU D315</div>
+    <h1>Network and Security - Foundations</h1>
+    <p class="subtitle">// flashcard study system · 2025–2026</p>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs" id="tabs"></div>
+
+  <!-- Mode Toggle -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modeFlashcard" onclick="setMode('flashcard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="12" y1="4" x2="12" y2="20"/></svg>Flashcards
+    </button>
+    <button class="mode-btn" id="modeBrowse" onclick="setMode('browse')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>Browse All
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat remaining"><div class="stat-num" id="stat-remaining">0</div><div class="stat-label">Remaining</div></div>
+    <div class="stat correct"><div class="stat-num" id="stat-correct">0</div><div class="stat-label">Correct</div></div>
+    <div class="stat wrong"><div class="stat-num" id="stat-wrong">0</div><div class="stat-label">Review</div></div>
+    <div class="stat total"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total</div></div>
+  </div>
+
+  <div class="progress-wrap"><div class="progress-fill" id="progress"></div></div>
+
+  <!-- Card -->
+  <div class="card-area" id="cardArea" onclick="flipCard()">
+    <div class="card-inner" id="cardInner">
+      <div class="card-face card-front">
+        <div class="card-num" id="cardNum">1 / 0</div>
+        <span class="card-category" id="frontCategory">Loading...</span>
+        <div class="card-question" id="questionText">Loading flashcards...</div>
+        <div class="card-hint">[ tap to reveal answer ]</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="card-num" id="cardNumBack">1 / 0</div>
+        <span class="card-category" id="backCategory">Answer</span>
+        <div class="card-answer" id="answerText"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn btn-flip" onclick="flipCard()">⟳ Flip</button>
+    <button class="btn btn-shuffle" onclick="shuffleDeck()">⇄ Shuffle</button>
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Reset</button>
+  </div>
+
+  <div class="judge-btns" id="judgeBtns">
+    <button class="btn btn-correct" onclick="markCard(true)">✓ Got It</button>
+    <button class="btn btn-wrong" onclick="markCard(false)">✗ Review Again</button>
+  </div>
+
+  <!-- List / Browse View -->
+  <div class="list-view" id="listView">
+    <div class="list-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="listSearch" placeholder="Search questions or answers..." oninput="renderList()">
+    </div>
+    <div class="list-controls-row">
+      <span class="list-count" id="listCount">0 terms</span>
+      <button class="list-expand-btn" id="expandAllBtn" onclick="toggleExpandAll()">Expand All</button>
+    </div>
+    <div class="list-items" id="listItems"></div>
+  </div>
+
+  <!-- Finished Screen -->
+  <div class="finished" id="finishedScreen">
+    <div class="score-circle">
+      <div class="score-pct" id="scorePct">0%</div>
+      <div class="score-label">Score</div>
+    </div>
+    <h2 style="font-size:24px;margin-bottom:8px;">Deck Complete!</h2>
+    <p style="color:var(--muted);margin-bottom:24px;font-family:'JetBrains Mono',monospace;font-size:13px;">Cards marked for review will be cycled back.</p>
+    <button class="btn btn-shuffle" onclick="restartWithWrong()" id="reviewBtn">↺ Review Missed</button>
+    &nbsp;
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Full Restart</button>
+  </div>
+</div>
+
+<script>
+const ALL_CARDS = [
+  // ===== OSI MODEL =====
+  { cat: "OSI Model", q: "What are the seven layers of the OSI model from bottom to top?", a: "<strong>Layer 1</strong> – Physical<br><strong>Layer 2</strong> – Data Link<br><strong>Layer 3</strong> – Network<br><strong>Layer 4</strong> – Transport<br><strong>Layer 5</strong> – Session<br><strong>Layer 6</strong> – Presentation<br><strong>Layer 7</strong> – Application" },
+  { cat: "OSI Model", q: "What is the function of the Physical layer (Layer 1) and what is its PDU?", a: "The <strong>Physical layer</strong> transmits raw bit streams over a physical medium such as copper, fiber, or wireless. Its PDU is <strong>bits</strong>. Devices at this layer include <strong>hubs</strong>, <strong>repeaters</strong>, and <strong>cables</strong>." },
+  { cat: "OSI Model", q: "What is the function of the Data Link layer (Layer 2) and what is its PDU?", a: "The <strong>Data Link layer</strong> provides node-to-node data transfer and handles MAC addressing, error detection, and frame synchronization. Its PDU is a <strong>frame</strong>. Devices include <strong>switches</strong> and <strong>bridges</strong>." },
+  { cat: "OSI Model", q: "What is the function of the Network layer (Layer 3) and what is its PDU?", a: "The <strong>Network layer</strong> handles logical addressing (IP) and routing of packets between different networks. Its PDU is a <strong>packet</strong>. The primary device at this layer is a <strong>router</strong>." },
+  { cat: "OSI Model", q: "What is the function of the Transport layer (Layer 4) and what is its PDU?", a: "The <strong>Transport layer</strong> provides end-to-end communication, flow control, error recovery, and segmentation. Its PDU is a <strong>segment</strong> (TCP) or <strong>datagram</strong> (UDP)." },
+  { cat: "OSI Model", q: "What are the functions of OSI Layers 5, 6, and 7?", a: "<strong>Session (L5)</strong> – manages sessions and dialog control between applications<br><strong>Presentation (L6)</strong> – handles data translation, encryption, and compression<br><strong>Application (L7)</strong> – provides network services directly to end-user applications" },
+  { cat: "OSI Model", q: "What is encapsulation and decapsulation in networking?", a: "<strong>Encapsulation</strong> is the process of adding headers (and sometimes trailers) as data moves down the OSI layers from Application to Physical. <strong>Decapsulation</strong> is the reverse process, stripping headers as data moves up the layers at the receiving host." },
+  // ===== TCP/IP MODEL =====
+  { cat: "TCP/IP Model", q: "What are the four layers of the TCP/IP model?", a: "<strong>Layer 1</strong> – Network Access (Link)<br><strong>Layer 2</strong> – Internet<br><strong>Layer 3</strong> – Transport<br><strong>Layer 4</strong> – Application<br>The TCP/IP model maps the OSI's seven layers into four practical layers." },
+  { cat: "TCP/IP Model", q: "How do the TCP/IP model layers map to the OSI model?", a: "<table class='algo-table'><tr><th>TCP/IP Layer</th><th>OSI Layers</th></tr><tr><td>Application</td><td>Application, Presentation, Session (5-7)</td></tr><tr><td>Transport</td><td>Transport (4)</td></tr><tr><td>Internet</td><td>Network (3)</td></tr><tr><td>Network Access</td><td>Data Link, Physical (1-2)</td></tr></table>" },
+  { cat: "TCP/IP Model", q: "What is the difference between TCP and UDP?", a: "<table class='algo-table'><tr><th>Feature</th><th>TCP</th><th>UDP</th></tr><tr><td>Connection</td><td>Connection-oriented (3-way handshake)</td><td>Connectionless</td></tr><tr><td>Reliability</td><td>Guaranteed delivery with ACKs</td><td>Best-effort, no guarantees</td></tr><tr><td>Speed</td><td>Slower due to overhead</td><td>Faster, minimal overhead</td></tr><tr><td>Use Case</td><td>HTTP, FTP, SSH</td><td>DNS, DHCP, streaming, VoIP</td></tr></table>" },
+  // ===== NETWORK DEVICES =====
+  { cat: "Network Devices", q: "What is the difference between a hub and a switch?", a: "A <strong>hub</strong> operates at Layer 1 and broadcasts all traffic to every port, creating a single collision domain. A <strong>switch</strong> operates at Layer 2, uses MAC address tables to forward frames only to the correct port, and creates a separate collision domain per port." },
+  { cat: "Network Devices", q: "What is the difference between a router and a switch?", a: "A <strong>switch</strong> operates at Layer 2 and forwards frames based on MAC addresses within a single network. A <strong>router</strong> operates at Layer 3 and forwards packets between different networks based on IP addresses, making routing decisions using routing tables." },
+  { cat: "Network Devices", q: "What is a firewall and at what OSI layers can it operate?", a: "A <strong>firewall</strong> filters network traffic based on predefined security rules. It can operate at <strong>Layer 3</strong> (packet filtering by IP), <strong>Layer 4</strong> (stateful inspection by port/protocol), or <strong>Layer 7</strong> (application-layer filtering). It controls traffic between trusted and untrusted networks." },
+  { cat: "Network Devices", q: "What is ARP and how does it work?", a: "<strong>ARP (Address Resolution Protocol)</strong> resolves IP addresses to MAC addresses on a local network. A device broadcasts an ARP request asking who owns a specific IP, and the device with that IP responds with its MAC address. ARP operates at <strong>Layer 2/3</strong>." },
+  { cat: "Network Devices", q: "What is the difference between a MAC address and an IP address?", a: "A <strong>MAC address</strong> is a 48-bit hardware address (e.g., <span class='tag'>AA:BB:CC:DD:EE:FF</span>) burned into a NIC, used at Layer 2 for local communication. An <strong>IP address</strong> is a logical address assigned at Layer 3 used for routing between networks." },
+  // ===== IP ADDRESSING =====
+  { cat: "IP Addressing", q: "What are the IPv4 address classes and their ranges?", a: "<table class='algo-table'><tr><th>Class</th><th>Range</th><th>Default Mask</th><th>Use</th></tr><tr><td>A</td><td>1.0.0.0 – 126.255.255.255</td><td>/8</td><td>Large networks</td></tr><tr><td>B</td><td>128.0.0.0 – 191.255.255.255</td><td>/16</td><td>Medium networks</td></tr><tr><td>C</td><td>192.0.0.0 – 223.255.255.255</td><td>/24</td><td>Small networks</td></tr></table>" },
+  { cat: "IP Addressing", q: "What are the three private IPv4 address ranges?", a: "<strong>Class A</strong> – <span class='tag'>10.0.0.0/8</span> (10.0.0.0 – 10.255.255.255)<br><strong>Class B</strong> – <span class='tag'>172.16.0.0/12</span> (172.16.0.0 – 172.31.255.255)<br><strong>Class C</strong> – <span class='tag'>192.168.0.0/16</span> (192.168.0.0 – 192.168.255.255)<br>These are non-routable on the public internet (RFC 1918)." },
+  { cat: "IP Addressing", q: "What is CIDR notation and how does it relate to subnetting?", a: "<strong>CIDR (Classless Inter-Domain Routing)</strong> notation uses a slash followed by the number of network bits (e.g., <span class='tag'>/24</span> = 255.255.255.0). It replaces classful addressing, allowing flexible subnet sizes. A <span class='tag'>/24</span> network provides 254 usable host addresses." },
+  { cat: "IP Addressing", q: "How do you calculate the number of usable hosts in a subnet?", a: "The formula is <strong>2^(host bits) - 2</strong>. You subtract 2 because one address is the network address and one is the broadcast address. For example, a <span class='tag'>/26</span> has 6 host bits: 2^6 - 2 = <strong>62 usable hosts</strong>." },
+  { cat: "IP Addressing", q: "What is the format of an IPv6 address?", a: "An <strong>IPv6 address</strong> is 128 bits written as eight groups of four hexadecimal digits separated by colons (e.g., <span class='tag'>2001:0db8:85a3:0000:0000:8a2e:0370:7334</span>). Leading zeros can be omitted and consecutive groups of zeros can be replaced with <span class='tag'>::</span> once." },
+  { cat: "IP Addressing", q: "What is the purpose of the 127.0.0.0/8 address range?", a: "The <strong>127.0.0.0/8</strong> range is reserved for <strong>loopback testing</strong>. The most common address is <span class='tag'>127.0.0.1</span>, which refers to the local host itself. Traffic sent to this address never leaves the machine and is used for diagnostic purposes." },
+  // ===== PROTOCOLS & PORTS =====
+  { cat: "Protocols & Ports", q: "What are the well-known ports for HTTP, HTTPS, FTP, and SSH?", a: "<strong>HTTP</strong> – <span class='tag'>port 80</span><br><strong>HTTPS</strong> – <span class='tag'>port 443</span><br><strong>FTP</strong> – <span class='tag'>port 20 (data) / 21 (control)</span><br><strong>SSH</strong> – <span class='tag'>port 22</span>" },
+  { cat: "Protocols & Ports", q: "What are the well-known ports for DNS, DHCP, SMTP, and RDP?", a: "<strong>DNS</strong> – <span class='tag'>port 53</span> (TCP and UDP)<br><strong>DHCP</strong> – <span class='tag'>port 67 (server) / 68 (client)</span><br><strong>SMTP</strong> – <span class='tag'>port 25</span><br><strong>RDP</strong> – <span class='tag'>port 3389</span>" },
+  { cat: "Protocols & Ports", q: "How does DHCP assign IP addresses to clients?", a: "<strong>DHCP</strong> uses a four-step process called <strong>DORA</strong>:<br><strong>Discover</strong> – client broadcasts to find a DHCP server<br><strong>Offer</strong> – server offers an IP address<br><strong>Request</strong> – client requests the offered address<br><strong>Acknowledge</strong> – server confirms the lease" },
+  { cat: "Protocols & Ports", q: "How does DNS resolve a domain name to an IP address?", a: "<strong>DNS (Domain Name System)</strong> translates human-readable domain names to IP addresses. The process involves querying a <strong>recursive resolver</strong>, which checks root servers, TLD servers, and authoritative name servers. Results are cached with a <strong>TTL (Time to Live)</strong> value to speed up future lookups." },
+  { cat: "Protocols & Ports", q: "What is ICMP and what tools use it?", a: "<strong>ICMP (Internet Control Message Protocol)</strong> is a Layer 3 protocol used for network diagnostics and error reporting. The <strong>ping</strong> command uses ICMP Echo Request/Reply to test connectivity. <strong>Traceroute</strong> uses ICMP TTL exceeded messages to map the path to a destination." },
+  { cat: "Protocols & Ports", q: "What are the three ranges of TCP/UDP port numbers?", a: "<strong>Well-Known Ports</strong> – <span class='tag'>0–1023</span> (assigned to common services like HTTP, SSH)<br><strong>Registered Ports</strong> – <span class='tag'>1024–49151</span> (used by vendor applications)<br><strong>Dynamic/Ephemeral Ports</strong> – <span class='tag'>49152–65535</span> (temporarily assigned for client-side connections)" },
+  // ===== WIRELESS =====
+  { cat: "Wireless", q: "What are the main 802.11 wireless standards and their speeds?", a: "<table class='algo-table'><tr><th>Standard</th><th>Frequency</th><th>Max Speed</th></tr><tr><td>802.11a</td><td>5 GHz</td><td>54 Mbps</td></tr><tr><td>802.11b</td><td>2.4 GHz</td><td>11 Mbps</td></tr><tr><td>802.11g</td><td>2.4 GHz</td><td>54 Mbps</td></tr><tr><td>802.11n (Wi-Fi 4)</td><td>2.4/5 GHz</td><td>600 Mbps</td></tr><tr><td>802.11ac (Wi-Fi 5)</td><td>5 GHz</td><td>6.9 Gbps</td></tr><tr><td>802.11ax (Wi-Fi 6)</td><td>2.4/5/6 GHz</td><td>9.6 Gbps</td></tr></table>" },
+  { cat: "Wireless", q: "What is the difference between the 2.4 GHz and 5 GHz frequency bands?", a: "<strong>2.4 GHz</strong> provides longer range and better wall penetration but has only 3 non-overlapping channels and more interference. <strong>5 GHz</strong> offers higher speeds and more non-overlapping channels (23+) but shorter range and weaker penetration through obstacles." },
+  { cat: "Wireless", q: "How do WEP, WPA, WPA2, and WPA3 compare for wireless security?", a: "<table class='algo-table'><tr><th>Protocol</th><th>Encryption</th><th>Security Level</th></tr><tr><td>WEP</td><td>RC4 (static key)</td><td>Broken – do not use</td></tr><tr><td>WPA</td><td>TKIP</td><td>Weak – deprecated</td></tr><tr><td>WPA2</td><td>AES-CCMP</td><td>Strong – current standard</td></tr><tr><td>WPA3</td><td>AES-GCMP / SAE</td><td>Strongest – forward secrecy</td></tr></table>" },
+  { cat: "Wireless", q: "What is the SSID and why might you hide it?", a: "The <strong>SSID (Service Set Identifier)</strong> is the name of a wireless network that clients see when scanning for Wi-Fi. Hiding the SSID stops it from being broadcast in beacon frames, providing minimal security through obscurity. However, it is not a strong security measure because the SSID can still be discovered through probe requests." },
+  // ===== SECURITY BASICS =====
+  { cat: "Security Basics", q: "What is the CIA triad in information security?", a: "<strong>Confidentiality</strong> – ensures data is accessible only to authorized users (encryption, access controls)<br><strong>Integrity</strong> – ensures data is accurate and unaltered (hashing, digital signatures)<br><strong>Availability</strong> – ensures systems and data are accessible when needed (redundancy, backups)" },
+  { cat: "Security Basics", q: "What are the main types of malware?", a: "<strong>Virus</strong> – attaches to files and requires user action to spread<br><strong>Worm</strong> – self-replicates across networks without user interaction<br><strong>Trojan</strong> – disguised as legitimate software<br><strong>Ransomware</strong> – encrypts data and demands payment<br><strong>Spyware</strong> – secretly monitors user activity<br><strong>Rootkit</strong> – hides deep in the OS to maintain persistent access" },
+  { cat: "Security Basics", q: "What are common types of social engineering attacks?", a: "<strong>Phishing</strong> – fraudulent emails impersonating trusted sources<br><strong>Spear phishing</strong> – targeted phishing at specific individuals<br><strong>Vishing</strong> – voice-based phishing over phone<br><strong>Pretexting</strong> – creating a fabricated scenario to extract information<br><strong>Tailgating</strong> – following authorized personnel through secure doors" },
+  { cat: "Security Basics", q: "What is the difference between IDS and IPS?", a: "An <strong>IDS (Intrusion Detection System)</strong> passively monitors network traffic and alerts administrators to suspicious activity but does not block it. An <strong>IPS (Intrusion Prevention System)</strong> sits inline with traffic and can actively block or drop malicious packets in real time." },
+  { cat: "Security Basics", q: "What are the main types of VPNs?", a: "<strong>Site-to-site VPN</strong> – connects entire networks together over the internet (e.g., branch offices to HQ)<br><strong>Remote access VPN</strong> – allows individual users to connect securely to a corporate network from any location<br>Both use encryption protocols like <strong>IPsec</strong> or <strong>SSL/TLS</strong> to create secure tunnels." },
+  { cat: "Security Basics", q: "What is a packet filtering firewall versus a stateful firewall?", a: "A <strong>packet filtering firewall</strong> examines each packet individually based on source/destination IP, port, and protocol without tracking connection state. A <strong>stateful firewall</strong> tracks the state of active connections and makes decisions based on the context of the traffic flow, offering stronger security." },
+  { cat: "Security Basics", q: "What is the principle of least privilege?", a: "The <strong>principle of least privilege</strong> states that users and systems should be granted only the minimum access rights needed to perform their job functions. This limits the potential damage from compromised accounts and reduces the attack surface of an organization." },
+  { cat: "Security Basics", q: "What is the TCP three-way handshake?", a: "The <strong>three-way handshake</strong> establishes a TCP connection in three steps:<br><strong>SYN</strong> – client sends a synchronize request<br><strong>SYN-ACK</strong> – server acknowledges and sends its own SYN<br><strong>ACK</strong> – client acknowledges the server's SYN<br>The connection is now established and data transfer can begin." },
+  { cat: "OSI Model", q: "At which OSI layer does a Layer 3 switch operate?", a: "A <strong>Layer 3 switch</strong> operates at both <strong>Layer 2 (Data Link)</strong> and <strong>Layer 3 (Network)</strong>. It can perform traditional switching using MAC addresses and also route packets between VLANs using IP addresses, combining the functionality of a switch and a router in a single device." },
+  { cat: "Protocols & Ports", q: "What ports do Telnet, POP3, IMAP, and SNMP use?", a: "<strong>Telnet</strong> – <span class='tag'>port 23</span><br><strong>POP3</strong> – <span class='tag'>port 110</span><br><strong>IMAP</strong> – <span class='tag'>port 143</span><br><strong>SNMP</strong> – <span class='tag'>port 161/162</span><br>Telnet and POP3 transmit in cleartext and should be replaced with SSH and IMAPS/POP3S respectively." },
+  { cat: "IP Addressing", q: "What is the APIPA address range and when is it used?", a: "<strong>APIPA (Automatic Private IP Addressing)</strong> uses the range <span class='tag'>169.254.0.0/16</span>. It is automatically assigned when a device cannot reach a DHCP server. APIPA allows limited local communication but does not provide internet access or routing capability." },
+  { cat: "Network Devices", q: "What is a wireless access point (WAP) and how does it differ from a wireless router?", a: "A <strong>wireless access point (WAP)</strong> provides Wi-Fi connectivity and bridges wireless clients to a wired network at Layer 2. A <strong>wireless router</strong> combines a WAP, switch, router, and often a DHCP server and NAT gateway in one device. Enterprise networks use standalone WAPs managed by wireless controllers." },
+  { cat: "Wireless", q: "What is MIMO and how does it improve wireless performance?", a: "<strong>MIMO (Multiple Input Multiple Output)</strong> uses multiple antennas at both the transmitter and receiver to send and receive multiple data streams simultaneously. <strong>802.11n</strong> introduced MIMO, and <strong>802.11ac</strong> uses <strong>MU-MIMO</strong> (Multi-User MIMO) to serve multiple clients at the same time, significantly increasing throughput and capacity." },
+  { cat: "Security Basics", q: "What is the difference between symmetric and asymmetric encryption?", a: "<strong>Symmetric encryption</strong> uses a <strong>single shared key</strong> for both encryption and decryption (e.g., AES, DES). It is fast but requires secure key exchange. <strong>Asymmetric encryption</strong> uses a <strong>public/private key pair</strong> (e.g., RSA, ECC). The public key encrypts and the private key decrypts. It is slower but solves the key distribution problem." },
+];
+
+
+let deck = [];
+let current = 0;
+let correctCount = 0;
+let wrongCards = [];
+let isFlipped = false;
+let activeCategory = "All";
+
+function getCategories() {
+  const cats = ["All", ...new Set(ALL_CARDS.map(c => c.cat))];
+  return cats;
+}
+
+function buildTabs() {
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = '';
+  getCategories().forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (cat === activeCategory ? ' active' : '');
+    const count = cat === 'All' ? ALL_CARDS.length : ALL_CARDS.filter(c => c.cat === cat).length;
+    btn.textContent = `${cat} (${count})`;
+    btn.onclick = () => {
+      activeCategory = cat;
+      buildTabs();
+      if (currentMode === 'browse') {
+        renderList();
+      } else {
+        resetDeck();
+      }
+    };
+    tabsEl.appendChild(btn);
+  });
+}
+
+function resetDeck() {
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  deck = [...source];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+function shuffleDeck() {
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  current = 0;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('cardInner').classList.toggle('flipped', isFlipped);
+  if (isFlipped) {
+    document.getElementById('judgeBtns').classList.add('visible');
+  } else {
+    document.getElementById('judgeBtns').classList.remove('visible');
+  }
+}
+
+function markCard(correct) {
+  if (correct) {
+    correctCount++;
+  } else {
+    wrongCards.push(deck[current]);
+  }
+  current++;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+
+  if (current >= deck.length) {
+    showFinished();
+  } else {
+    // animate
+    const area = document.getElementById('cardArea');
+    area.classList.add('animating');
+    setTimeout(() => area.classList.remove('animating'), 300);
+    updateCard();
+    updateStats();
+  }
+}
+
+function updateCard() {
+  if (current >= deck.length) return;
+  const card = deck[current];
+  document.getElementById('questionText').textContent = card.q;
+  document.getElementById('answerText').innerHTML = card.a;
+  document.getElementById('frontCategory').textContent = card.cat;
+  document.getElementById('backCategory').textContent = card.cat + ' — Answer';
+  const num = `${current + 1} / ${deck.length}`;
+  document.getElementById('cardNum').textContent = num;
+  document.getElementById('cardNumBack').textContent = num;
+  updateStats();
+}
+
+function updateStats() {
+  const remaining = deck.length - current;
+  document.getElementById('stat-remaining').textContent = remaining;
+  document.getElementById('stat-correct').textContent = correctCount;
+  document.getElementById('stat-wrong').textContent = wrongCards.length;
+  document.getElementById('stat-total').textContent = deck.length;
+  const pct = deck.length > 0 ? ((current / deck.length) * 100).toFixed(0) : 0;
+  document.getElementById('progress').style.width = pct + '%';
+}
+
+function showFinished() {
+  document.getElementById('cardArea').style.display = 'none';
+  const finished = document.getElementById('finishedScreen');
+  finished.classList.add('show');
+  const total = correctCount + wrongCards.length;
+  const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+  document.getElementById('scorePct').textContent = pct + '%';
+  document.getElementById('reviewBtn').style.display = wrongCards.length > 0 ? '' : 'none';
+  updateStats();
+}
+
+function restartWithWrong() {
+  if (wrongCards.length === 0) { resetDeck(); return; }
+  deck = [...wrongCards];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+// Keyboard support
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); flipCard(); }
+  if (e.code === 'ArrowRight' && isFlipped) markCard(true);
+  if (e.code === 'ArrowLeft' && isFlipped) markCard(false);
+  if (e.code === 'KeyS') shuffleDeck();
+});
+
+// ===== MODE MANAGEMENT =====
+let currentMode = 'flashcard';
+let allExpanded = false;
+
+function setMode(mode) {
+  currentMode = mode;
+  const flashcardEls = [
+    document.getElementById('cardArea'),
+    document.querySelector('.stats-bar'),
+    document.querySelector('.progress-wrap'),
+    document.querySelector('.controls'),
+    document.getElementById('judgeBtns'),
+    document.getElementById('finishedScreen'),
+  ];
+  const listView = document.getElementById('listView');
+  const btnFlash = document.getElementById('modeFlashcard');
+  const btnBrowse = document.getElementById('modeBrowse');
+
+  if (mode === 'flashcard') {
+    flashcardEls.forEach(el => { if (el) el.style.display = ''; });
+    listView.classList.remove('visible');
+    btnFlash.classList.add('active');
+    btnBrowse.classList.remove('active');
+    // Re-hide finished if it wasn't showing
+    if (current < deck.length) document.getElementById('finishedScreen').classList.remove('show');
+  } else {
+    // Browse mode
+    flashcardEls.forEach(el => { if (el) el.style.display = 'none'; });
+    listView.classList.add('visible');
+    btnFlash.classList.remove('active');
+    btnBrowse.classList.add('active');
+    renderList();
+  }
+}
+
+function renderList() {
+  const query = (document.getElementById('listSearch').value || '').toLowerCase().trim();
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  const filtered = query
+    ? source.filter(c => c.q.toLowerCase().includes(query) || c.a.toLowerCase().replace(/<[^>]+>/g, '').includes(query))
+    : source;
+
+  document.getElementById('listCount').textContent = `${filtered.length} term${filtered.length !== 1 ? 's' : ''}`;
+
+  const container = document.getElementById('listItems');
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="no-results">No matching cards found.</div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map((card, i) => {
+    const globalIdx = ALL_CARDS.indexOf(card) + 1;
+    return `
+    <div class="list-item" id="li-${i}">
+      <div class="list-item-header" onclick="toggleListItem(${i})">
+        <span class="list-item-num">${globalIdx}</span>
+        <span class="list-item-q">${escapeHtml(card.q)}</span>
+        <span class="list-item-cat">${card.cat}</span>
+        <svg class="list-item-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="list-item-answer">${card.a}</div>
+    </div>`;
+  }).join('');
+
+  // Restore expanded state if allExpanded
+  if (allExpanded) {
+    container.querySelectorAll('.list-item').forEach(el => el.classList.add('open'));
+  }
+}
+
+function toggleListItem(idx) {
+  const el = document.getElementById(`li-${idx}`);
+  if (el) el.classList.toggle('open');
+}
+
+function toggleExpandAll() {
+  allExpanded = !allExpanded;
+  const btn = document.getElementById('expandAllBtn');
+  btn.textContent = allExpanded ? 'Collapse All' : 'Expand All';
+  document.querySelectorAll('.list-item').forEach(el => {
+    if (allExpanded) el.classList.add('open');
+    else el.classList.remove('open');
+  });
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Init
+buildTabs();
+resetDeck();
+</script>
+</body>
+</html>

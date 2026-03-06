@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WGU D522 – Python for IT Automation Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --card-front: #161b22;
+    --card-back: #141e1a;
+    --accent: #2dcc8f;
+    --accent2: #58a6ff;
+    --accent3: #f78166;
+    --warn: #e3b341;
+    --text: #f0f6fc;
+    --muted: #9aabb8;
+    --border: rgba(255,255,255,0.1);
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* BG grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(0,229,160,0.12);
+    border: 1px solid rgba(0,229,160,0.3);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: clamp(24px, 5vw, 40px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #e8f0f7, #00e5a0 60%, #4f9eff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Category tabs */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+    justify-content: center;
+  }
+
+  .tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .tab:hover { border-color: var(--accent2); color: var(--accent2); }
+  .tab.active { background: rgba(79,158,255,0.15); border-color: var(--accent2); color: var(--accent2); }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    flex: 1;
+    min-width: 120px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 3px;
+    font-weight: 500;
+  }
+
+  .stat.correct .stat-num { color: var(--accent); }
+  .stat.wrong .stat-num { color: var(--accent3); }
+  .stat.remaining .stat-num { color: var(--accent2); }
+  .stat.total .stat-num { color: var(--warn); }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    height: 4px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  /* Card area */
+  .card-area {
+    perspective: 1200px;
+    margin-bottom: 24px;
+    cursor: pointer;
+  }
+
+  .card-inner {
+    position: relative;
+    width: 100%;
+    min-height: 300px;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-inner.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 300px;
+  }
+
+  .card-front {
+    background: linear-gradient(135deg, #1a2336, #111e30);
+    border: 1px solid rgba(79,158,255,0.25);
+    box-shadow: 0 0 40px rgba(79,158,255,0.06), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+
+  .card-back {
+    background: linear-gradient(135deg, #162219, #0e1c14);
+    border: 1px solid rgba(0,229,160,0.2);
+    box-shadow: 0 0 40px rgba(0,229,160,0.05), inset 0 1px 0 rgba(255,255,255,0.05);
+    transform: rotateY(180deg);
+  }
+
+  .card-category {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .card-front .card-category { background: rgba(79,158,255,0.12); color: var(--accent2); border: 1px solid rgba(79,158,255,0.2); }
+  .card-back .card-category { background: rgba(0,229,160,0.12); color: var(--accent); border: 1px solid rgba(0,229,160,0.2); }
+
+  .card-question {
+    font-size: clamp(17px, 3vw, 23px);
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+    margin-bottom: 16px;
+    letter-spacing: -0.1px;
+  }
+
+  .card-hint {
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+
+  .card-answer {
+    font-size: clamp(15px, 2.5vw, 19px);
+    line-height: 1.75;
+    color: #e8f5f0;
+    font-weight: 400;
+  }
+
+  .card-answer strong {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .card-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  /* Num indicator */
+  .card-num {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: 1px solid;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-flip {
+    background: rgba(79,158,255,0.1);
+    border-color: rgba(79,158,255,0.4);
+    color: var(--accent2);
+  }
+  .btn-flip:hover { background: rgba(79,158,255,0.2); transform: translateY(-1px); }
+
+  .btn-correct {
+    background: rgba(0,229,160,0.1);
+    border-color: rgba(0,229,160,0.4);
+    color: var(--accent);
+  }
+  .btn-correct:hover { background: rgba(0,229,160,0.2); transform: translateY(-1px); }
+
+  .btn-wrong {
+    background: rgba(255,107,107,0.1);
+    border-color: rgba(255,107,107,0.4);
+    color: var(--accent3);
+  }
+  .btn-wrong:hover { background: rgba(255,107,107,0.2); transform: translateY(-1px); }
+
+  .btn-shuffle {
+    background: rgba(245,197,66,0.1);
+    border-color: rgba(245,197,66,0.4);
+    color: var(--warn);
+  }
+  .btn-shuffle:hover { background: rgba(245,197,66,0.2); transform: translateY(-1px); }
+
+  .btn-reset {
+    background: rgba(255,255,255,0.04);
+    border-color: var(--border);
+    color: var(--muted);
+  }
+  .btn-reset:hover { border-color: var(--muted); color: var(--text); }
+
+  /* Judgment buttons only shown after flip */
+  .judge-btns { display: none; gap: 10px; justify-content: center; }
+  .judge-btns.visible { display: flex; }
+
+  /* Algorithm table */
+  .algo-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
+  .algo-table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 6px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .algo-table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+
+  .algo-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  /* Finished screen */
+  .finished {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .finished.show { display: block; }
+
+  .score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    box-shadow: 0 0 30px rgba(0,229,160,0.2);
+  }
+
+  .score-pct {
+    font-size: 32px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+  }
+
+  .score-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Card slide animation */
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .card-area.animating .card-inner { animation: slideIn 0.3s ease; }
+
+  /* ===== MODE TOGGLE ===== */
+  .mode-toggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 0 auto 28px;
+    width: fit-content;
+    background: var(--surface);
+  }
+
+  .mode-btn {
+    padding: 9px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .mode-btn svg { width: 14px; height: 14px; }
+  .mode-btn:hover { color: var(--text); }
+  .mode-btn.active { background: rgba(79,158,255,0.15); color: var(--accent2); }
+  .mode-btn + .mode-btn { border-left: 1px solid var(--border); }
+
+  /* ===== LIST / BROWSE MODE ===== */
+  .list-view { display: none; }
+  .list-view.visible { display: block; }
+
+  .list-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+  }
+
+  .list-search input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  .list-search input::placeholder { color: var(--muted); }
+
+  .list-search svg { color: var(--muted); flex-shrink: 0; }
+
+  .list-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .list-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .list-expand-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.08);
+    border: 1px solid rgba(79,158,255,0.2);
+    border-radius: 5px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .list-expand-btn:hover { background: rgba(79,158,255,0.16); }
+
+  .list-items { display: flex; flex-direction: column; gap: 8px; }
+
+  .list-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .list-item:hover { border-color: rgba(79,158,255,0.25); }
+  .list-item.open { border-color: rgba(0,229,160,0.25); }
+
+  .list-item-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .list-item-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 28px;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .list-item-q {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+  }
+
+  .list-item-cat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.1);
+    border: 1px solid rgba(79,158,255,0.15);
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+
+  .list-item-chevron {
+    color: var(--muted);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .list-item.open .list-item-chevron { transform: rotate(180deg); color: var(--accent); }
+
+  .list-item-answer {
+    display: none;
+    padding: 0 18px 16px 60px;
+    font-size: 15px;
+    line-height: 1.78;
+    color: #e8f5f0;
+    border-top: 1px solid rgba(0,229,160,0.1);
+    background: rgba(0,229,160,0.03);
+    padding-top: 14px;
+  }
+
+  .list-item.open .list-item-answer { display: block; }
+
+  .list-item-answer strong { color: var(--accent); }
+  .list-item-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  .list-item-answer table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+  .list-item-answer table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 5px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .list-item-answer table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+  .list-item-answer table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  .no-results {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  /* ===== HIDE FLASHCARD-ONLY ELEMENTS IN LIST MODE ===== */
+  .flashcard-only { transition: opacity 0.2s; }
+  .flashcard-only.hidden { display: none; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .card-face { padding: 24px 20px; }
+    .btn { padding: 10px 16px; font-size: 11px; }
+    .list-item-answer { padding-left: 18px; }
+    .list-item-cat { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="badge">WGU D522</div>
+    <h1>Python for IT Automation</h1>
+    <p class="subtitle">// flashcard study system · 2025–2026</p>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs" id="tabs"></div>
+
+  <!-- Mode Toggle -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modeFlashcard" onclick="setMode('flashcard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="12" y1="4" x2="12" y2="20"/></svg>Flashcards
+    </button>
+    <button class="mode-btn" id="modeBrowse" onclick="setMode('browse')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>Browse All
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat remaining"><div class="stat-num" id="stat-remaining">0</div><div class="stat-label">Remaining</div></div>
+    <div class="stat correct"><div class="stat-num" id="stat-correct">0</div><div class="stat-label">Correct</div></div>
+    <div class="stat wrong"><div class="stat-num" id="stat-wrong">0</div><div class="stat-label">Review</div></div>
+    <div class="stat total"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total</div></div>
+  </div>
+
+  <div class="progress-wrap"><div class="progress-fill" id="progress"></div></div>
+
+  <!-- Card -->
+  <div class="card-area" id="cardArea" onclick="flipCard()">
+    <div class="card-inner" id="cardInner">
+      <div class="card-face card-front">
+        <div class="card-num" id="cardNum">1 / 0</div>
+        <span class="card-category" id="frontCategory">Loading...</span>
+        <div class="card-question" id="questionText">Loading flashcards...</div>
+        <div class="card-hint">[ tap to reveal answer ]</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="card-num" id="cardNumBack">1 / 0</div>
+        <span class="card-category" id="backCategory">Answer</span>
+        <div class="card-answer" id="answerText"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn btn-flip" onclick="flipCard()">⟳ Flip</button>
+    <button class="btn btn-shuffle" onclick="shuffleDeck()">⇄ Shuffle</button>
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Reset</button>
+  </div>
+
+  <div class="judge-btns" id="judgeBtns">
+    <button class="btn btn-correct" onclick="markCard(true)">✓ Got It</button>
+    <button class="btn btn-wrong" onclick="markCard(false)">✗ Review Again</button>
+  </div>
+
+  <!-- List / Browse View -->
+  <div class="list-view" id="listView">
+    <div class="list-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="listSearch" placeholder="Search questions or answers..." oninput="renderList()">
+    </div>
+    <div class="list-controls-row">
+      <span class="list-count" id="listCount">0 terms</span>
+      <button class="list-expand-btn" id="expandAllBtn" onclick="toggleExpandAll()">Expand All</button>
+    </div>
+    <div class="list-items" id="listItems"></div>
+  </div>
+
+  <!-- Finished Screen -->
+  <div class="finished" id="finishedScreen">
+    <div class="score-circle">
+      <div class="score-pct" id="scorePct">0%</div>
+      <div class="score-label">Score</div>
+    </div>
+    <h2 style="font-size:24px;margin-bottom:8px;">Deck Complete!</h2>
+    <p style="color:var(--muted);margin-bottom:24px;font-family:'JetBrains Mono',monospace;font-size:13px;">Cards marked for review will be cycled back.</p>
+    <button class="btn btn-shuffle" onclick="restartWithWrong()" id="reviewBtn">↺ Review Missed</button>
+    &nbsp;
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Full Restart</button>
+  </div>
+</div>
+
+<script>
+const ALL_CARDS = [
+  // ===== PYTHON BASICS =====
+  { cat: "Python Basics", q: "What is Python and why is it popular for IT automation?", a: "Python is a <strong>high-level, interpreted</strong> programming language known for readability and simplicity. It is popular for automation because of its <strong>extensive standard library</strong>, cross-platform support, and large ecosystem of third-party modules for system, network, and cloud tasks." },
+  { cat: "Python Basics", q: "How do print() and input() work in Python?", a: "<span class='tag'>print()</span> outputs text to the console and supports multiple arguments and formatting. <span class='tag'>input()</span> pauses execution and reads a <strong>string from the user</strong>. The input value is always a string, so type conversion is needed for numbers." },
+  { cat: "Python Basics", q: "What are f-strings in Python?", a: "<strong>f-strings</strong> (formatted string literals) allow embedding expressions inside string literals using curly braces: <span class='tag'>f\"Hello, {name}\"</span>. They support formatting options like <span class='tag'>{value:.2f}</span> for decimal places and are the preferred string formatting method since Python 3.6." },
+  { cat: "Python Basics", q: "What are common Python string methods?", a: "<span class='tag'>split()</span> – break into list<br><span class='tag'>join()</span> – combine list into string<br><span class='tag'>strip()</span> – remove whitespace<br><span class='tag'>replace()</span> – substitute text<br><span class='tag'>upper()/lower()</span> – change case<br><span class='tag'>find()</span> – locate substring index" },
+  { cat: "Python Basics", q: "What is the difference between = and == in Python?", a: "<span class='tag'>=</span> is the <strong>assignment operator</strong> — it assigns a value to a variable (<span class='tag'>x = 5</span>). <span class='tag'>==</span> is the <strong>comparison operator</strong> — it checks if two values are equal and returns True or False (<span class='tag'>x == 5</span>)." },
+  { cat: "Python Basics", q: "What is try/except/finally in Python?", a: "<strong>Exception handling</strong> prevents crashes from runtime errors. <span class='tag'>try</span> wraps code that might fail, <span class='tag'>except</span> catches specific exceptions, and <span class='tag'>finally</span> runs cleanup code regardless of whether an exception occurred. Always catch <strong>specific exceptions</strong> rather than bare except." },
+  { cat: "Python Basics", q: "What are Python's conditional statements?", a: "Python uses <span class='tag'>if</span>, <span class='tag'>elif</span>, and <span class='tag'>else</span> for conditional branching. Conditions use <strong>indentation</strong> (not braces) to define blocks. Python supports <strong>truthy/falsy</strong> values — empty strings, 0, None, and empty collections evaluate to False." },
+
+  // ===== DATA STRUCTURES =====
+  { cat: "Data Structures", q: "What are Python lists and their key methods?", a: "Lists are <strong>ordered, mutable</strong> collections using square brackets. Key methods:<br><span class='tag'>append()</span> – add to end<br><span class='tag'>remove()</span> – delete by value<br><span class='tag'>sort()</span> – order elements<br><span class='tag'>slice [start:end]</span> – extract subset<br>Lists support mixed data types." },
+  { cat: "Data Structures", q: "What is a list comprehension?", a: "A concise way to create lists: <span class='tag'>[expr for item in iterable if condition]</span>. Example: <span class='tag'>[x**2 for x in range(10) if x % 2 == 0]</span> creates a list of squares of even numbers. It is more <strong>Pythonic and efficient</strong> than a for loop with append." },
+  { cat: "Data Structures", q: "What is the difference between tuples and lists?", a: "<table class='algo-table'><tr><th>Feature</th><th>List</th><th>Tuple</th></tr><tr><td>Syntax</td><td>[1, 2, 3]</td><td>(1, 2, 3)</td></tr><tr><td>Mutable</td><td>Yes</td><td>No</td></tr><tr><td>Performance</td><td>Slower</td><td>Faster</td></tr><tr><td>Dict key</td><td>No</td><td>Yes</td></tr></table>" },
+  { cat: "Data Structures", q: "What are Python dictionaries and their key methods?", a: "Dictionaries store <strong>key-value pairs</strong> in curly braces. Key methods:<br><span class='tag'>keys()</span> – all keys<br><span class='tag'>values()</span> – all values<br><span class='tag'>items()</span> – key-value tuples<br><span class='tag'>get(key, default)</span> – safe access<br><span class='tag'>update()</span> – merge dictionaries" },
+  { cat: "Data Structures", q: "What are Python sets?", a: "<strong>Sets</strong> are <strong>unordered collections of unique elements</strong> using curly braces. They support mathematical operations like <strong>union (|), intersection (&), difference (-)</strong>. Sets automatically remove duplicates and are useful for membership testing with O(1) lookup." },
+  { cat: "Data Structures", q: "How do for and while loops work in Python?", a: "<span class='tag'>for</span> loops iterate over sequences (lists, strings, ranges): <span class='tag'>for item in collection</span>. <span class='tag'>while</span> loops repeat while a condition is True. Use <strong>break</strong> to exit early and <strong>continue</strong> to skip to the next iteration." },
+
+  // ===== FUNCTIONS & MODULES =====
+  { cat: "Functions & Modules", q: "How do you define functions in Python?", a: "Use <span class='tag'>def function_name(params):</span> followed by an indented body. Functions can have <strong>default parameter values</strong>, return values with <span class='tag'>return</span>, and include docstrings for documentation. Functions are first-class objects in Python." },
+  { cat: "Functions & Modules", q: "What are *args and **kwargs?", a: "<span class='tag'>*args</span> collects extra <strong>positional arguments</strong> into a tuple. <span class='tag'>**kwargs</span> collects extra <strong>keyword arguments</strong> into a dictionary. They allow functions to accept a <strong>variable number of arguments</strong> for flexible interfaces." },
+  { cat: "Functions & Modules", q: "What are lambda functions?", a: "<strong>Lambda functions</strong> are anonymous, single-expression functions: <span class='tag'>lambda x: x * 2</span>. They are used for short operations, often with <span class='tag'>map()</span>, <span class='tag'>filter()</span>, and <span class='tag'>sorted()</span>. They cannot contain statements or multiple expressions." },
+  { cat: "Functions & Modules", q: "What are map() and filter()?", a: "<span class='tag'>map(func, iterable)</span> applies a function to <strong>every element</strong> and returns the results. <span class='tag'>filter(func, iterable)</span> returns only elements where the function returns <strong>True</strong>. Both return iterators and are often used with lambda functions." },
+  { cat: "Functions & Modules", q: "How do Python modules and imports work?", a: "<span class='tag'>import module</span> imports an entire module. <span class='tag'>from module import func</span> imports specific items. Modules are <strong>.py files</strong> that organize reusable code. The <strong>standard library</strong> provides built-in modules; third-party modules are installed with pip." },
+  { cat: "Functions & Modules", q: "What are pip and virtual environments?", a: "<span class='tag'>pip</span> is Python's package installer (<span class='tag'>pip install package</span>). <strong>Virtual environments</strong> (<span class='tag'>python -m venv env</span>) create isolated Python environments with their own packages, preventing <strong>dependency conflicts</strong> between projects." },
+
+  // ===== FILE & OS OPERATIONS =====
+  { cat: "File & OS Operations", q: "How do you read and write files in Python?", a: "Use <span class='tag'>open(filename, mode)</span> with the <span class='tag'>with</span> statement for automatic cleanup. Modes: <strong>'r'</strong> read, <strong>'w'</strong> write (overwrites), <strong>'a'</strong> append. Methods: <span class='tag'>read(), readline(), readlines(), write()</span>. The <span class='tag'>with</span> block ensures the file is closed properly." },
+  { cat: "File & OS Operations", q: "What is the os module used for?", a: "The <span class='tag'>os</span> module provides <strong>operating system interaction</strong>: <span class='tag'>os.path.exists()</span>, <span class='tag'>os.listdir()</span>, <span class='tag'>os.makedirs()</span>, <span class='tag'>os.walk()</span> for directory traversal, and <span class='tag'>os.environ</span> for environment variables. It enables cross-platform file and directory management." },
+  { cat: "File & OS Operations", q: "What is the pathlib module?", a: "<span class='tag'>pathlib</span> provides an <strong>object-oriented interface</strong> for filesystem paths. <span class='tag'>Path('file.txt').read_text()</span> reads a file. It supports <span class='tag'>/</span> operator for joining paths, <span class='tag'>.exists()</span>, <span class='tag'>.glob()</span>, and is the <strong>modern alternative to os.path</strong>." },
+  { cat: "File & OS Operations", q: "What is the shutil module?", a: "<span class='tag'>shutil</span> provides <strong>high-level file operations</strong>: <span class='tag'>shutil.copy()</span> copies files, <span class='tag'>shutil.move()</span> moves files, <span class='tag'>shutil.rmtree()</span> removes directory trees. It is essential for <strong>backup scripts and file management automation</strong>." },
+  { cat: "File & OS Operations", q: "What is the subprocess module?", a: "<span class='tag'>subprocess</span> runs <strong>external system commands</strong> from Python. <span class='tag'>subprocess.run(['ls', '-la'])</span> executes a command and captures output. It replaces older methods like <span class='tag'>os.system()</span> and provides better <strong>security and control</strong> over child processes." },
+  { cat: "File & OS Operations", q: "How do you work with JSON and CSV in Python?", a: "<span class='tag'>json.load()/json.dump()</span> read/write JSON files; <span class='tag'>json.loads()/json.dumps()</span> handle JSON strings. <span class='tag'>csv.reader()/csv.writer()</span> handle CSV files. Both modules are in the <strong>standard library</strong> and are essential for data processing automation." },
+
+  // ===== REGEX & TEXT PROCESSING =====
+  { cat: "Regex & Text Processing", q: "What is the re module in Python?", a: "The <span class='tag'>re</span> module provides <strong>regular expression</strong> support for pattern matching in strings. Key functions: <span class='tag'>re.search()</span> finds first match, <span class='tag'>re.match()</span> checks start of string, <span class='tag'>re.findall()</span> returns all matches, <span class='tag'>re.sub()</span> replaces matches." },
+  { cat: "Regex & Text Processing", q: "What are common regex patterns?", a: "<span class='tag'>\d</span> – digit<br><span class='tag'>\w</span> – word character<br><span class='tag'>\s</span> – whitespace<br><span class='tag'>.</span> – any character<br><span class='tag'>*</span> – zero or more<br><span class='tag'>+</span> – one or more<br><span class='tag'>?</span> – zero or one<br><span class='tag'>[ ]</span> – character class<br><span class='tag'>^/$</span> – start/end anchors" },
+  { cat: "Regex & Text Processing", q: "What are regex groups?", a: "<strong>Groups</strong> are defined with parentheses <span class='tag'>(pattern)</span> and capture matched text. <span class='tag'>match.group(1)</span> returns the first captured group. <strong>Named groups</strong> use <span class='tag'>(?P&lt;name&gt;pattern)</span>. Groups enable extracting specific parts from complex patterns." },
+  { cat: "Regex & Text Processing", q: "How is text processing used in IT automation?", a: "Text processing automates tasks like <strong>parsing log files</strong>, extracting IP addresses, validating email formats, cleaning data, and transforming configuration files. Python's <strong>string methods and regex</strong> are the primary tools for these operations." },
+
+  // ===== APIS & NETWORKING =====
+  { cat: "APIs & Networking", q: "What is the requests library?", a: "The <span class='tag'>requests</span> library simplifies <strong>HTTP requests</strong>. <span class='tag'>requests.get(url)</span> fetches data, <span class='tag'>requests.post(url, json=data)</span> sends data. The response object provides <span class='tag'>.status_code</span>, <span class='tag'>.json()</span>, and <span class='tag'>.text</span> attributes for processing API responses." },
+  { cat: "APIs & Networking", q: "How do you parse JSON from an API response?", a: "Call <span class='tag'>response.json()</span> on a requests response object to convert the JSON body into a <strong>Python dictionary</strong>. You can then access data with standard dictionary operations like <span class='tag'>data['key']</span> or <span class='tag'>data.get('key', default)</span>." },
+  { cat: "APIs & Networking", q: "What is SSH automation with Paramiko?", a: "<span class='tag'>Paramiko</span> is a Python library for <strong>SSH connections</strong>. It enables automated remote command execution, file transfers (SFTP), and device management. It is used for <strong>network device configuration, server management</strong>, and infrastructure automation." },
+  { cat: "APIs & Networking", q: "What are HTTP methods used in APIs?", a: "<strong>GET</strong> – retrieve data<br><strong>POST</strong> – create new data<br><strong>PUT</strong> – update/replace data<br><strong>PATCH</strong> – partial update<br><strong>DELETE</strong> – remove data<br>Status codes: <span class='tag'>200</span> OK, <span class='tag'>201</span> Created, <span class='tag'>400</span> Bad Request, <span class='tag'>401</span> Unauthorized, <span class='tag'>404</span> Not Found, <span class='tag'>500</span> Server Error" },
+
+  // ===== AUTOMATION & SCRIPTING =====
+  { cat: "Automation & Scripting", q: "What is argparse used for?", a: "<span class='tag'>argparse</span> creates <strong>command-line interfaces</strong> for Python scripts. It defines expected arguments, provides help text, validates input, and handles optional/required parameters. It makes scripts <strong>reusable and user-friendly</strong> from the terminal." },
+  { cat: "Automation & Scripting", q: "What is the logging module?", a: "<span class='tag'>logging</span> provides a flexible <strong>event logging system</strong> with severity levels: <strong>DEBUG, INFO, WARNING, ERROR, CRITICAL</strong>. It replaces print statements for production code and supports output to files, console, and remote servers." },
+  { cat: "Automation & Scripting", q: "How do you schedule automated tasks?", a: "On Linux, use <strong>cron</strong> to schedule Python scripts at intervals (<span class='tag'>crontab -e</span>). On Windows, use <strong>Task Scheduler</strong>. Within Python, the <span class='tag'>schedule</span> library provides in-process scheduling. Always include <strong>logging and error handling</strong> in scheduled scripts." },
+  { cat: "Automation & Scripting", q: "What makes a Python script reusable?", a: "Reusable scripts use <strong>functions</strong> (not raw procedural code), <span class='tag'>argparse</span> for CLI arguments, <strong>configuration files</strong> instead of hardcoded values, proper <strong>error handling</strong>, logging, and the <span class='tag'>if __name__ == '__main__'</span> guard for importability." },
+  { cat: "Automation & Scripting", q: "What are the basics of unit testing in Python?", a: "<span class='tag'>unittest</span> is the built-in framework using test classes and methods prefixed with <span class='tag'>test_</span>. <span class='tag'>pytest</span> is a popular alternative with simpler syntax using plain functions and <span class='tag'>assert</span>. Both support <strong>test discovery, fixtures, and assertions</strong>." },
+  { cat: "Automation & Scripting", q: "What is the datetime module used for?", a: "<span class='tag'>datetime</span> handles <strong>dates, times, and time deltas</strong>. <span class='tag'>datetime.now()</span> gets current time, <span class='tag'>timedelta</span> calculates differences. It is used in automation for <strong>log timestamps, scheduling, file aging</strong>, and date-based processing logic." },
+  { cat: "Python Basics", q: "What are Python's comparison and logical operators?", a: "<strong>Comparison</strong>: <span class='tag'>==, !=, <, >, <=, >=</span> return True or False.<br><strong>Logical</strong>: <span class='tag'>and</span> (both true), <span class='tag'>or</span> (either true), <span class='tag'>not</span> (inverts). Python uses <strong>short-circuit evaluation</strong> — it stops evaluating as soon as the result is determined." },
+  { cat: "File & OS Operations", q: "What is the sys module used for?", a: "<span class='tag'>sys</span> provides access to <strong>Python interpreter variables</strong>: <span class='tag'>sys.argv</span> for command-line arguments, <span class='tag'>sys.exit()</span> to terminate, <span class='tag'>sys.path</span> for module search paths, and <span class='tag'>sys.stdin/stdout/stderr</span> for standard I/O streams." },
+];
+
+
+let deck = [];
+let current = 0;
+let correctCount = 0;
+let wrongCards = [];
+let isFlipped = false;
+let activeCategory = "All";
+
+function getCategories() {
+  const cats = ["All", ...new Set(ALL_CARDS.map(c => c.cat))];
+  return cats;
+}
+
+function buildTabs() {
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = '';
+  getCategories().forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (cat === activeCategory ? ' active' : '');
+    const count = cat === 'All' ? ALL_CARDS.length : ALL_CARDS.filter(c => c.cat === cat).length;
+    btn.textContent = `${cat} (${count})`;
+    btn.onclick = () => {
+      activeCategory = cat;
+      buildTabs();
+      if (currentMode === 'browse') {
+        renderList();
+      } else {
+        resetDeck();
+      }
+    };
+    tabsEl.appendChild(btn);
+  });
+}
+
+function resetDeck() {
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  deck = [...source];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+function shuffleDeck() {
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  current = 0;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('cardInner').classList.toggle('flipped', isFlipped);
+  if (isFlipped) {
+    document.getElementById('judgeBtns').classList.add('visible');
+  } else {
+    document.getElementById('judgeBtns').classList.remove('visible');
+  }
+}
+
+function markCard(correct) {
+  if (correct) {
+    correctCount++;
+  } else {
+    wrongCards.push(deck[current]);
+  }
+  current++;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+
+  if (current >= deck.length) {
+    showFinished();
+  } else {
+    // animate
+    const area = document.getElementById('cardArea');
+    area.classList.add('animating');
+    setTimeout(() => area.classList.remove('animating'), 300);
+    updateCard();
+    updateStats();
+  }
+}
+
+function updateCard() {
+  if (current >= deck.length) return;
+  const card = deck[current];
+  document.getElementById('questionText').textContent = card.q;
+  document.getElementById('answerText').innerHTML = card.a;
+  document.getElementById('frontCategory').textContent = card.cat;
+  document.getElementById('backCategory').textContent = card.cat + ' — Answer';
+  const num = `${current + 1} / ${deck.length}`;
+  document.getElementById('cardNum').textContent = num;
+  document.getElementById('cardNumBack').textContent = num;
+  updateStats();
+}
+
+function updateStats() {
+  const remaining = deck.length - current;
+  document.getElementById('stat-remaining').textContent = remaining;
+  document.getElementById('stat-correct').textContent = correctCount;
+  document.getElementById('stat-wrong').textContent = wrongCards.length;
+  document.getElementById('stat-total').textContent = deck.length;
+  const pct = deck.length > 0 ? ((current / deck.length) * 100).toFixed(0) : 0;
+  document.getElementById('progress').style.width = pct + '%';
+}
+
+function showFinished() {
+  document.getElementById('cardArea').style.display = 'none';
+  const finished = document.getElementById('finishedScreen');
+  finished.classList.add('show');
+  const total = correctCount + wrongCards.length;
+  const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+  document.getElementById('scorePct').textContent = pct + '%';
+  document.getElementById('reviewBtn').style.display = wrongCards.length > 0 ? '' : 'none';
+  updateStats();
+}
+
+function restartWithWrong() {
+  if (wrongCards.length === 0) { resetDeck(); return; }
+  deck = [...wrongCards];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+// Keyboard support
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); flipCard(); }
+  if (e.code === 'ArrowRight' && isFlipped) markCard(true);
+  if (e.code === 'ArrowLeft' && isFlipped) markCard(false);
+  if (e.code === 'KeyS') shuffleDeck();
+});
+
+// ===== MODE MANAGEMENT =====
+let currentMode = 'flashcard';
+let allExpanded = false;
+
+function setMode(mode) {
+  currentMode = mode;
+  const flashcardEls = [
+    document.getElementById('cardArea'),
+    document.querySelector('.stats-bar'),
+    document.querySelector('.progress-wrap'),
+    document.querySelector('.controls'),
+    document.getElementById('judgeBtns'),
+    document.getElementById('finishedScreen'),
+  ];
+  const listView = document.getElementById('listView');
+  const btnFlash = document.getElementById('modeFlashcard');
+  const btnBrowse = document.getElementById('modeBrowse');
+
+  if (mode === 'flashcard') {
+    flashcardEls.forEach(el => { if (el) el.style.display = ''; });
+    listView.classList.remove('visible');
+    btnFlash.classList.add('active');
+    btnBrowse.classList.remove('active');
+    // Re-hide finished if it wasn't showing
+    if (current < deck.length) document.getElementById('finishedScreen').classList.remove('show');
+  } else {
+    // Browse mode
+    flashcardEls.forEach(el => { if (el) el.style.display = 'none'; });
+    listView.classList.add('visible');
+    btnFlash.classList.remove('active');
+    btnBrowse.classList.add('active');
+    renderList();
+  }
+}
+
+function renderList() {
+  const query = (document.getElementById('listSearch').value || '').toLowerCase().trim();
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  const filtered = query
+    ? source.filter(c => c.q.toLowerCase().includes(query) || c.a.toLowerCase().replace(/<[^>]+>/g, '').includes(query))
+    : source;
+
+  document.getElementById('listCount').textContent = `${filtered.length} term${filtered.length !== 1 ? 's' : ''}`;
+
+  const container = document.getElementById('listItems');
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="no-results">No matching cards found.</div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map((card, i) => {
+    const globalIdx = ALL_CARDS.indexOf(card) + 1;
+    return `
+    <div class="list-item" id="li-${i}">
+      <div class="list-item-header" onclick="toggleListItem(${i})">
+        <span class="list-item-num">${globalIdx}</span>
+        <span class="list-item-q">${escapeHtml(card.q)}</span>
+        <span class="list-item-cat">${card.cat}</span>
+        <svg class="list-item-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="list-item-answer">${card.a}</div>
+    </div>`;
+  }).join('');
+
+  // Restore expanded state if allExpanded
+  if (allExpanded) {
+    container.querySelectorAll('.list-item').forEach(el => el.classList.add('open'));
+  }
+}
+
+function toggleListItem(idx) {
+  const el = document.getElementById(`li-${idx}`);
+  if (el) el.classList.toggle('open');
+}
+
+function toggleExpandAll() {
+  allExpanded = !allExpanded;
+  const btn = document.getElementById('expandAllBtn');
+  btn.textContent = allExpanded ? 'Collapse All' : 'Expand All';
+  document.querySelectorAll('.list-item').forEach(el => {
+    if (allExpanded) el.classList.add('open');
+    else el.classList.remove('open');
+  });
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Init
+buildTabs();
+resetDeck();
+</script>
+</body>
+</html>

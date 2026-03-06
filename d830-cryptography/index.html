@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WGU D830 – Cryptography Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --card-front: #161b22;
+    --card-back: #141e1a;
+    --accent: #2dcc8f;
+    --accent2: #58a6ff;
+    --accent3: #f78166;
+    --warn: #e3b341;
+    --text: #f0f6fc;
+    --muted: #9aabb8;
+    --border: rgba(255,255,255,0.1);
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* BG grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(0,229,160,0.12);
+    border: 1px solid rgba(0,229,160,0.3);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: clamp(24px, 5vw, 40px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #e8f0f7, #00e5a0 60%, #4f9eff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Category tabs */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+    justify-content: center;
+  }
+
+  .tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .tab:hover { border-color: var(--accent2); color: var(--accent2); }
+  .tab.active { background: rgba(79,158,255,0.15); border-color: var(--accent2); color: var(--accent2); }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    flex: 1;
+    min-width: 120px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 3px;
+    font-weight: 500;
+  }
+
+  .stat.correct .stat-num { color: var(--accent); }
+  .stat.wrong .stat-num { color: var(--accent3); }
+  .stat.remaining .stat-num { color: var(--accent2); }
+  .stat.total .stat-num { color: var(--warn); }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    height: 4px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  /* Card area */
+  .card-area {
+    perspective: 1200px;
+    margin-bottom: 24px;
+    cursor: pointer;
+  }
+
+  .card-inner {
+    position: relative;
+    width: 100%;
+    min-height: 300px;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-inner.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 16px;
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 300px;
+  }
+
+  .card-front {
+    background: linear-gradient(135deg, #1a2336, #111e30);
+    border: 1px solid rgba(79,158,255,0.25);
+    box-shadow: 0 0 40px rgba(79,158,255,0.06), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+
+  .card-back {
+    background: linear-gradient(135deg, #162219, #0e1c14);
+    border: 1px solid rgba(0,229,160,0.2);
+    box-shadow: 0 0 40px rgba(0,229,160,0.05), inset 0 1px 0 rgba(255,255,255,0.05);
+    transform: rotateY(180deg);
+  }
+
+  .card-category {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .card-front .card-category { background: rgba(79,158,255,0.12); color: var(--accent2); border: 1px solid rgba(79,158,255,0.2); }
+  .card-back .card-category { background: rgba(0,229,160,0.12); color: var(--accent); border: 1px solid rgba(0,229,160,0.2); }
+
+  .card-question {
+    font-size: clamp(17px, 3vw, 23px);
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+    margin-bottom: 16px;
+    letter-spacing: -0.1px;
+  }
+
+  .card-hint {
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+
+  .card-answer {
+    font-size: clamp(15px, 2.5vw, 19px);
+    line-height: 1.75;
+    color: #e8f5f0;
+    font-weight: 400;
+  }
+
+  .card-answer strong {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .card-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  /* Num indicator */
+  .card-num {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: 1px solid;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-flip {
+    background: rgba(79,158,255,0.1);
+    border-color: rgba(79,158,255,0.4);
+    color: var(--accent2);
+  }
+  .btn-flip:hover { background: rgba(79,158,255,0.2); transform: translateY(-1px); }
+
+  .btn-correct {
+    background: rgba(0,229,160,0.1);
+    border-color: rgba(0,229,160,0.4);
+    color: var(--accent);
+  }
+  .btn-correct:hover { background: rgba(0,229,160,0.2); transform: translateY(-1px); }
+
+  .btn-wrong {
+    background: rgba(255,107,107,0.1);
+    border-color: rgba(255,107,107,0.4);
+    color: var(--accent3);
+  }
+  .btn-wrong:hover { background: rgba(255,107,107,0.2); transform: translateY(-1px); }
+
+  .btn-shuffle {
+    background: rgba(245,197,66,0.1);
+    border-color: rgba(245,197,66,0.4);
+    color: var(--warn);
+  }
+  .btn-shuffle:hover { background: rgba(245,197,66,0.2); transform: translateY(-1px); }
+
+  .btn-reset {
+    background: rgba(255,255,255,0.04);
+    border-color: var(--border);
+    color: var(--muted);
+  }
+  .btn-reset:hover { border-color: var(--muted); color: var(--text); }
+
+  /* Judgment buttons only shown after flip */
+  .judge-btns { display: none; gap: 10px; justify-content: center; }
+  .judge-btns.visible { display: flex; }
+
+  /* Algorithm table */
+  .algo-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
+  .algo-table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 6px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .algo-table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+
+  .algo-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  /* Finished screen */
+  .finished {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .finished.show { display: block; }
+
+  .score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    box-shadow: 0 0 30px rgba(0,229,160,0.2);
+  }
+
+  .score-pct {
+    font-size: 32px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+  }
+
+  .score-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Card slide animation */
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .card-area.animating .card-inner { animation: slideIn 0.3s ease; }
+
+  /* ===== MODE TOGGLE ===== */
+  .mode-toggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 0 auto 28px;
+    width: fit-content;
+    background: var(--surface);
+  }
+
+  .mode-btn {
+    padding: 9px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .mode-btn svg { width: 14px; height: 14px; }
+  .mode-btn:hover { color: var(--text); }
+  .mode-btn.active { background: rgba(79,158,255,0.15); color: var(--accent2); }
+  .mode-btn + .mode-btn { border-left: 1px solid var(--border); }
+
+  /* ===== LIST / BROWSE MODE ===== */
+  .list-view { display: none; }
+  .list-view.visible { display: block; }
+
+  .list-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+  }
+
+  .list-search input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  .list-search input::placeholder { color: var(--muted); }
+
+  .list-search svg { color: var(--muted); flex-shrink: 0; }
+
+  .list-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .list-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .list-expand-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.08);
+    border: 1px solid rgba(79,158,255,0.2);
+    border-radius: 5px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .list-expand-btn:hover { background: rgba(79,158,255,0.16); }
+
+  .list-items { display: flex; flex-direction: column; gap: 8px; }
+
+  .list-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .list-item:hover { border-color: rgba(79,158,255,0.25); }
+  .list-item.open { border-color: rgba(0,229,160,0.25); }
+
+  .list-item-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .list-item-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 28px;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .list-item-q {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text);
+  }
+
+  .list-item-cat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent2);
+    background: rgba(79,158,255,0.1);
+    border: 1px solid rgba(79,158,255,0.15);
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+
+  .list-item-chevron {
+    color: var(--muted);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .list-item.open .list-item-chevron { transform: rotate(180deg); color: var(--accent); }
+
+  .list-item-answer {
+    display: none;
+    padding: 0 18px 16px 60px;
+    font-size: 15px;
+    line-height: 1.78;
+    color: #e8f5f0;
+    border-top: 1px solid rgba(0,229,160,0.1);
+    background: rgba(0,229,160,0.03);
+    padding-top: 14px;
+  }
+
+  .list-item.open .list-item-answer { display: block; }
+
+  .list-item-answer strong { color: var(--accent); }
+  .list-item-answer .tag {
+    display: inline-block;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin: 2px;
+  }
+
+  .list-item-answer table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+  .list-item-answer table th {
+    background: rgba(79,158,255,0.1);
+    color: var(--accent2);
+    padding: 5px 10px;
+    text-align: left;
+    border: 1px solid rgba(79,158,255,0.15);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .list-item-answer table td {
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #c8e6d8;
+  }
+  .list-item-answer table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  .no-results {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  /* ===== HIDE FLASHCARD-ONLY ELEMENTS IN LIST MODE ===== */
+  .flashcard-only { transition: opacity 0.2s; }
+  .flashcard-only.hidden { display: none; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .card-face { padding: 24px 20px; }
+    .btn { padding: 10px 16px; font-size: 11px; }
+    .list-item-answer { padding-left: 18px; }
+    .list-item-cat { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="badge">WGU D830 · ITAS 2142</div>
+    <h1>Introduction to Cryptography</h1>
+    <p class="subtitle">// flashcard study system · 2025–2026</p>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs" id="tabs"></div>
+
+  <!-- Mode Toggle -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modeFlashcard" onclick="setMode('flashcard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="12" y1="4" x2="12" y2="20"/></svg>Flashcards
+    </button>
+    <button class="mode-btn" id="modeBrowse" onclick="setMode('browse')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>Browse All
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat remaining"><div class="stat-num" id="stat-remaining">0</div><div class="stat-label">Remaining</div></div>
+    <div class="stat correct"><div class="stat-num" id="stat-correct">0</div><div class="stat-label">Correct</div></div>
+    <div class="stat wrong"><div class="stat-num" id="stat-wrong">0</div><div class="stat-label">Review</div></div>
+    <div class="stat total"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total</div></div>
+  </div>
+
+  <div class="progress-wrap"><div class="progress-fill" id="progress"></div></div>
+
+  <!-- Card -->
+  <div class="card-area" id="cardArea" onclick="flipCard()">
+    <div class="card-inner" id="cardInner">
+      <div class="card-face card-front">
+        <div class="card-num" id="cardNum">1 / 0</div>
+        <span class="card-category" id="frontCategory">Loading...</span>
+        <div class="card-question" id="questionText">Loading flashcards...</div>
+        <div class="card-hint">[ tap to reveal answer ]</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="card-num" id="cardNumBack">1 / 0</div>
+        <span class="card-category" id="backCategory">Answer</span>
+        <div class="card-answer" id="answerText"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn btn-flip" onclick="flipCard()">⟳ Flip</button>
+    <button class="btn btn-shuffle" onclick="shuffleDeck()">⇄ Shuffle</button>
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Reset</button>
+  </div>
+
+  <div class="judge-btns" id="judgeBtns">
+    <button class="btn btn-correct" onclick="markCard(true)">✓ Got It</button>
+    <button class="btn btn-wrong" onclick="markCard(false)">✗ Review Again</button>
+  </div>
+
+  <!-- List / Browse View -->
+  <div class="list-view" id="listView">
+    <div class="list-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="listSearch" placeholder="Search questions or answers..." oninput="renderList()">
+    </div>
+    <div class="list-controls-row">
+      <span class="list-count" id="listCount">0 terms</span>
+      <button class="list-expand-btn" id="expandAllBtn" onclick="toggleExpandAll()">Expand All</button>
+    </div>
+    <div class="list-items" id="listItems"></div>
+  </div>
+
+  <!-- Finished Screen -->
+  <div class="finished" id="finishedScreen">
+    <div class="score-circle">
+      <div class="score-pct" id="scorePct">0%</div>
+      <div class="score-label">Score</div>
+    </div>
+    <h2 style="font-size:24px;margin-bottom:8px;">Deck Complete!</h2>
+    <p style="color:var(--muted);margin-bottom:24px;font-family:'JetBrains Mono',monospace;font-size:13px;">Cards marked for review will be cycled back.</p>
+    <button class="btn btn-shuffle" onclick="restartWithWrong()" id="reviewBtn">↺ Review Missed</button>
+    &nbsp;
+    <button class="btn btn-reset" onclick="resetDeck()">↺ Full Restart</button>
+  </div>
+</div>
+
+<script>
+const ALL_CARDS = [
+  // ===== FUNDAMENTALS =====
+  { cat: "Fundamentals", q: "What is the difference between plaintext and ciphertext?", a: "<strong>Plaintext</strong> is the original, unencrypted data. <strong>Ciphertext</strong> is the result after encryption — unreadable without the proper key." },
+  { cat: "Fundamentals", q: "What is cryptography?", a: "The study of <strong>secure communication mechanisms</strong> that transform information into unreadable code requiring a key to recover the original message." },
+  { cat: "Fundamentals", q: "What are the three goals of the CIA triad relevant to cryptography?", a: "<strong>Confidentiality</strong> – data is private<br><strong>Integrity</strong> – data is unaltered<br><strong>Availability</strong> – data is accessible to authorized users" },
+  { cat: "Fundamentals", q: "What is a key in cryptography?", a: "A piece of data used by a cryptographic algorithm to <strong>encrypt or decrypt</strong> information. Key length (in bits) directly impacts security strength." },
+  { cat: "Fundamentals", q: "What is a one-time pad and why is it considered unbreakable?", a: "An encryption method where a <strong>random key is used only once</strong> and is the same length as the plaintext. It is unbreakable because each use provides no pattern for cryptanalysis." },
+  { cat: "Fundamentals", q: "What is frequency analysis?", a: "A cipher-cracking methodology that involves <strong>identifying patterns and variations</strong> in the probability of codes/characters — effective against simple substitution ciphers." },
+  { cat: "Fundamentals", q: "What is salting in cryptography?", a: "Adding an <strong>initialization vector (IV) or random data</strong> to a hash/cipher operation so identical inputs produce different outputs, defeating rainbow table attacks." },
+  { cat: "Fundamentals", q: "What is the modulus (%) operator used for in cryptography?", a: "Used in modular arithmetic. Example: <span class='tag'>12 % 5 = 2</span>. Fundamental to RSA, Diffie-Hellman, and most public-key algorithms." },
+  { cat: "Fundamentals", q: "What is a pseudo-random number generator (PRNG)?", a: "A deterministic algorithm that generates numbers that <strong>appear random but repeat after a period</strong>. Fast, but not truly random — contrast with TRNG." },
+  { cat: "Fundamentals", q: "What is a True Random Number Generator (TRNG)?", a: "Generates numbers from a <strong>truly unpredictable physical process</strong> (mouse movement, keystroke timing). Slow, non-deterministic, and aperiodic — used for key generation." },
+
+  // ===== SYMMETRIC ENCRYPTION =====
+  { cat: "Symmetric", q: "What defines symmetric encryption?", a: "Uses the <strong>same key</strong> for both encryption and decryption. The secret key must be securely shared between parties." },
+  { cat: "Symmetric", q: "What are the two types of symmetric ciphers?", a: "<strong>Block ciphers</strong> – encrypt fixed-size chunks of data<br><strong>Stream ciphers</strong> – encrypt one bit/byte at a time, faster and suited for real-time applications" },
+  { cat: "Symmetric", q: "What is DES and why is it considered weak?", a: "<strong>Data Encryption Standard</strong>: Block size <span class='tag'>64-bit</span>, Key size <span class='tag'>56-bit</span>, 16 rounds, Feistel network. Only 2^56 possible keys — <strong>brute-forceable</strong> with modern hardware." },
+  { cat: "Symmetric", q: "What is 3DES (Triple DES)?", a: "Runs DES <strong>three times</strong> on each data block. Effective key size is <span class='tag'>112-bit</span>, block size <span class='tag'>64-bit</span>. Stronger than DES but slower; largely replaced by AES." },
+  { cat: "Symmetric", q: "What are AES key/block sizes and round counts?", a: `<table class='algo-table'><tr><th>Key Size</th><th>Rounds</th></tr><tr><td>128-bit</td><td>10</td></tr><tr><td>192-bit</td><td>12</td></tr><tr><td>256-bit</td><td>14</td></tr></table><br>Block size is always <strong>128-bit</strong>. Current gold standard.` },
+  { cat: "Symmetric", q: "What algorithm is the basis of AES?", a: "AES is based on the <strong>Rijndael</strong> algorithm, selected by NIST in 2001 to replace DES." },
+  { cat: "Symmetric", q: "Describe Blowfish cipher properties.", a: "Block size: <span class='tag'>64-bit</span>, Key size: <span class='tag'>32–448 bits</span>, 16 rounds, Feistel network. Fast and free to use." },
+  { cat: "Symmetric", q: "Describe Twofish cipher properties.", a: "Block size: <span class='tag'>128-bit</span>, Key size: <span class='tag'>1–256 bits</span>, 16 rounds, Feistel cipher. Designed by Bruce Schneier as an AES candidate." },
+  { cat: "Symmetric", q: "Describe Serpent cipher properties.", a: "Block size: <span class='tag'>128-bit</span>, Key size: <span class='tag'>128, 192, or 256 bits</span>, <strong>32 rounds</strong>, Substitution-Permutation Network. Most secure of AES finalists." },
+  { cat: "Symmetric", q: "What is RC4 and where is it used?", a: "<strong>RC4</strong> is a <strong>stream cipher</strong> used in SSL and WEP. Key size with WEP is <strong>40 bits</strong>. Considered broken — do not use in modern systems." },
+  { cat: "Symmetric", q: "What is RC5?", a: "A symmetric block cipher with <strong>variable block size (32, 64, or 128 bits)</strong> and variable key size up to <strong>2048 bits</strong>. Suitable for lightweight implementations." },
+  { cat: "Symmetric", q: "What is PRESENT? (Lightweight cipher)", a: "A lightweight symmetric block cipher with key size <span class='tag'>80 or 128 bits</span>, <strong>32 rounds</strong>, and <strong>64-bit block size</strong>. Used in embedded/IoT systems." },
+  { cat: "Symmetric", q: "What algorithm is designated Type 2 by the NSA?", a: "<strong>Skipjack</strong> — a symmetric block cipher with 64-bit block, 80-bit key, 32 rounds using an unbalanced Feistel network. Classified algorithm used in Clipper chip." },
+  { cat: "Symmetric", q: "What is IDEA?", a: "International Data Encryption Algorithm. Block size <span class='tag'>64-bit</span>, key size <span class='tag'>128-bit</span>, 8.5 rounds, Lai-Massey structure. Used in PGP." },
+  { cat: "Symmetric", q: "What tool encrypts individual files using AES?", a: "<strong>AESCrypt</strong> — encrypts individual files. Compare to BitLocker/FileVault which encrypt full disks." },
+  { cat: "Symmetric", q: "What tools encrypt full disks?", a: "<strong>BitLocker</strong> (Windows) and <strong>FileVault</strong> (macOS) — full disk encryption tools." },
+
+  // ===== BLOCK CIPHER MODES =====
+  { cat: "Cipher Modes", q: "Which block cipher mode always produces the same ciphertext for the same plaintext?", a: "<strong>ECB (Electronic Code Book)</strong> — each block is encrypted independently with the same key. Vulnerable to copy-and-paste / replay attacks. Do NOT use for sensitive data." },
+  { cat: "Cipher Modes", q: "Which mechanism mitigates a copy-and-paste attack when using AES?", a: "<strong>CBC (Cipher Block Chaining)</strong> — uses an IV to encrypt the first block, then XORs each subsequent plaintext block with the previous ciphertext block before encryption." },
+  { cat: "Cipher Modes", q: "How does CBC (Cipher Block Chaining) work?", a: "Uses an <strong>initialization vector (IV)</strong> to encrypt the first block. Each subsequent block: <em>Plaintext XOR previous ciphertext → encrypt</em>. Errors propagate." },
+  { cat: "Cipher Modes", q: "How does PCBC (Propagating CBC) work?", a: "Each block of plaintext is XORed with the <strong>XOR of the previous plaintext AND previous ciphertext</strong> block before being encrypted." },
+  { cat: "Cipher Modes", q: "Which block cipher modes allow it to operate like a stream cipher?", a: "<strong>CFB (Cipher Feedback)</strong>, <strong>OFB (Output Feedback)</strong>, and <strong>CTR (Counter)</strong> — all allow partial block encryption and real-time streaming." },
+  { cat: "Cipher Modes", q: "What is CTR (Counter) mode?", a: "Encrypts a sequential counter value and XORs the output with plaintext. <strong>Parallelizable</strong> — fast and secure. Does not require padding." },
+  { cat: "Cipher Modes", q: "What is OFB (Output Feedback) mode?", a: "The output of the cipher (not ciphertext) is fed back as the next IV. Bit errors in transmission <strong>do not propagate</strong>. Operates like a stream cipher." },
+  { cat: "Cipher Modes", q: "What do S-boxes do in block ciphers?", a: "<strong>S-boxes (substitution boxes)</strong> perform non-linear substitution as part of the encryption process — provide confusion and resist linear/differential cryptanalysis." },
+  { cat: "Cipher Modes", q: "What is padding in block ciphers?", a: "Extra data added to plaintext to fill an incomplete block to the cipher's required <strong>block size</strong>. Common schemes: PKCS#7, zero padding." },
+
+  // ===== ASYMMETRIC / PUBLIC KEY =====
+  { cat: "Asymmetric", q: "What defines asymmetric (public key) encryption?", a: "Uses a <strong>key pair</strong>: one public key and one private key. If one key encrypts, only the other can decrypt. Public key is shared; private key is kept secret." },
+  { cat: "Asymmetric", q: "What is the most widely used asymmetric encryption algorithm?", a: "<strong>RSA (Rivest–Shamir–Adleman)</strong> — based on the difficulty of factoring large prime numbers. Used for key exchange and digital signatures." },
+  { cat: "Asymmetric", q: "Name three common asymmetric algorithms.", a: "<strong>RSA</strong> – key exchange, signatures<br><strong>DSA</strong> – Digital Signature Algorithm<br><strong>El Gamal</strong> – encryption and key exchange" },
+  { cat: "Asymmetric", q: "What is the best practice for encrypting large data with asymmetric keys?", a: "<strong>Hybrid encryption</strong>: Encrypt data with a fast symmetric key, then encrypt that symmetric key using asymmetric (public key) encryption for secure distribution." },
+  { cat: "Asymmetric", q: "Why use asymmetric public key to encrypt a symmetric key sent to one person?", a: "It encrypts a <strong>small amount of data</strong> (the symmetric key) that only the holder of the private key can decrypt — secure key exchange without prior shared secret." },
+  { cat: "Asymmetric", q: "What is Diffie-Hellman key exchange?", a: "A protocol allowing two parties to <strong>establish a shared secret over an insecure channel</strong> without transmitting the secret. Based on modular exponentiation with large primes." },
+  { cat: "Asymmetric", q: "What is ECC (Elliptic Curve Cryptography)?", a: "Uses the mathematics of elliptic curves to provide <strong>equivalent security with smaller key sizes</strong> than RSA. Efficient for mobile and embedded devices." },
+  { cat: "Asymmetric", q: "What is Identity-Based Encryption (IBE)?", a: "Generates an encryption key from a piece of the <strong>recipient's identity</strong> (email, phone number) — simplifies key distribution." },
+
+  // ===== HASHING =====
+  { cat: "Hashing", q: "What is a cryptographic hash function?", a: "A one-way function that produces a <strong>fixed-size digest</strong> from any input. Cannot be reversed. Used for integrity verification and password storage." },
+  { cat: "Hashing", q: "What are the key properties of a secure hash?", a: "<strong>Deterministic</strong> – same input = same output<br><strong>One-way</strong> – cannot reverse<br><strong>Collision-resistant</strong> – two inputs rarely produce same hash<br><strong>Avalanche effect</strong> – small input change = completely different hash" },
+  { cat: "Hashing", q: "Compare MD5, SHA-1, and SHA-256 output sizes.", a: `<table class='algo-table'><tr><th>Algorithm</th><th>Output</th><th>Status</th></tr><tr><td>MD5</td><td>128-bit</td><td>Broken</td></tr><tr><td>SHA-1</td><td>160-bit</td><td>Deprecated</td></tr><tr><td>SHA-256</td><td>256-bit</td><td>Current</td></tr><tr><td>RIPEMD-160</td><td>160-bit</td><td>Legacy</td></tr></table>` },
+  { cat: "Hashing", q: "What is AES considered — a hash or symmetric cipher?", a: "AES is a <strong>symmetric block cipher</strong>, NOT a hash. SHA is the hash family. Common exam trap!" },
+  { cat: "Hashing", q: "What is a dictionary attack?", a: "Takes a list of the <strong>most common words/passwords</strong> and hashes each entry, comparing against the target hash to find the original plaintext." },
+  { cat: "Hashing", q: "What is a rainbow table attack?", a: "A precomputed table of <strong>hash values mapped to plaintext</strong>. Defeated by adding a random salt to each hash before storing." },
+  { cat: "Hashing", q: "What does HMAC stand for and what does it provide?", a: "<strong>Hash-based Message Authentication Code</strong> — combines a hash with a secret key to provide both <strong>integrity AND authentication</strong>." },
+
+  // ===== PKI & CERTIFICATES =====
+  { cat: "PKI", q: "What is PKI (Public Key Infrastructure)?", a: "A framework using <strong>digital certificates and asymmetric encryption</strong> to authenticate identities and enable secure communications. Comprises CAs, certificates, and policies." },
+  { cat: "PKI", q: "What key signs a certificate issued to a business by a CA?", a: "The <strong>private key of the root CA</strong> signs the certificate, proving the CA vouches for the business's identity." },
+  { cat: "PKI", q: "What key should a business send to customers to prove its identity?", a: "The <strong>public key of the company</strong> (contained in its digital certificate), which customers can use to verify signatures made with the company's private key." },
+  { cat: "PKI", q: "What is X.509?", a: "The standard format for <strong>digital certificates</strong>. Version 3 (X.509 v3) is the most common, including extensions for subject, issuer, validity, and key usage." },
+  { cat: "PKI", q: "What is PKCS#12 used for?", a: "Used to <strong>import and export all X.509 items that are part of a chain of trust</strong> — including certificates and private keys in a single encrypted file (.pfx/.p12)." },
+  { cat: "PKI", q: "What is PKCS#7 used for?", a: "Used to <strong>sign and/or encrypt messages</strong> and share certificate chains. File extensions: .p7b, .p7c." },
+  { cat: "PKI", q: "What is a Certificate Authority (CA)?", a: "A <strong>trusted third party</strong> that issues and manages digital certificates. Root CAs are the top of the trust chain; intermediate CAs sit below them." },
+  { cat: "PKI", q: "What is a CRL (Certificate Revocation List)?", a: "A list published by a CA of <strong>certificates that have been revoked</strong> before their expiration date — for compromised or invalid certificates." },
+  { cat: "PKI", q: "What is OCSP?", a: "<strong>Online Certificate Status Protocol</strong> — allows real-time checking of whether a specific certificate has been revoked, unlike downloading an entire CRL." },
+  { cat: "PKI", q: "What are common X.509 certificate file extensions?", a: "<span class='tag'>.cer</span> – common, used with PEM and DER formats<br><span class='tag'>.crt</span> – certificate file<br><span class='tag'>.pem</span> – base64 encoded<br><span class='tag'>.der</span> – binary format" },
+  { cat: "PKI", q: "What is a digital signature?", a: "Signs files by encrypting the <strong>hash of a file with a sender's private key</strong>. Recipients verify with the sender's public key — proves identity AND integrity." },
+
+  // ===== PROTOCOLS & STANDARDS =====
+  { cat: "Protocols", q: "What port must be open for IPsec key exchange (IKE)?", a: "<strong>UDP 500</strong> — used for Internet Key Exchange (IKE) in IPsec VPN connections." },
+  { cat: "Protocols", q: "What is IPsec and what are its two modes?", a: "A suite of protocols securing IP communications. <strong>Transport mode</strong> – encrypts payload only. <strong>Tunnel mode</strong> – encrypts entire IP packet (used in VPNs)." },
+  { cat: "Protocols", q: "What wireless encryption protocol uses RC4 with a 40-bit key?", a: "<strong>WEP (Wired Equivalent Privacy)</strong> — uses RC4 stream cipher with 40-bit key. Considered completely broken." },
+  { cat: "Protocols", q: "What replaced WEP?", a: "<strong>WPA → WPA2 → WPA3</strong>. WPA2 uses AES/CCMP. WPA3 uses SAE (Simultaneous Authentication of Equals) for stronger handshake protection." },
+  { cat: "Protocols", q: "What encryption does WPA2 use?", a: "WPA2 uses <strong>AES (with CCMP)</strong> for encryption. This replaced the TKIP protocol used in WPA." },
+  { cat: "Protocols", q: "What is TLS/SSL?", a: "Transport Layer Security (successor to SSL) provides <strong>encryption, authentication, and integrity</strong> for network communications. Used in HTTPS, email, VPNs." },
+  { cat: "Protocols", q: "What is S/MIME used for?", a: "Secure/Multipurpose Internet Mail Extensions — provides <strong>digital signatures and encryption for email</strong>, using X.509 certificates." },
+  { cat: "Protocols", q: "What is PGP (Pretty Good Privacy)?", a: "An encryption program for <strong>email and file encryption</strong> using asymmetric keys (often RSA) and symmetric encryption (IDEA/AES). Uses a 'web of trust' model." },
+  { cat: "Protocols", q: "What is SSH and what port does it use?", a: "Secure Shell — provides <strong>encrypted remote login and command execution</strong>. Uses <strong>port 22</strong>. Replaces insecure Telnet." },
+  { cat: "Protocols", q: "What is LDAP and what port does it use?", a: "Lightweight Directory Access Protocol — <strong>TCP port 389</strong> (unencrypted). LDAPS uses port 636 (encrypted). Used for directory/user lookup." },
+  { cat: "Protocols", q: "What port does SMTPS use?", a: "<strong>TCP port 465</strong> — encrypted SMTP for sending email securely." },
+
+  // ===== ATTACKS & CRYPTANALYSIS =====
+  { cat: "Attacks", q: "What is a ciphertext-only attack?", a: "The attacker has access to <strong>only the ciphertext</strong>. They attempt to find the plaintext or key from the ciphertext alone." },
+  { cat: "Attacks", q: "What is a known-plaintext attack?", a: "The attacker knows <strong>both encrypted text AND its plaintext</strong> equivalent. The goal is to determine the key used." },
+  { cat: "Attacks", q: "What is a chosen-plaintext attack?", a: "The attacker can <strong>choose plaintext and obtain its ciphertext</strong>. More powerful than known-plaintext — used to find weaknesses in the cipher." },
+  { cat: "Attacks", q: "What is a man-in-the-middle (MITM) attack in cryptography?", a: "An attacker secretly <strong>intercepts and relays communications</strong> between two parties, potentially altering messages. PKI and certificate pinning defend against this." },
+  { cat: "Attacks", q: "What is a replay attack and how is it mitigated?", a: "A valid transmission is <strong>maliciously reused</strong> by an attacker. Mitigated by using <strong>IVs, timestamps, nonces</strong>, or sequence numbers — ECB mode is vulnerable." },
+  { cat: "Attacks", q: "What is a brute-force attack?", a: "Trying <strong>every possible key</strong> until the correct one is found. Key length is the primary defense — longer keys exponentially increase attack time." },
+  { cat: "Attacks", q: "What is a birthday attack?", a: "Exploits the <strong>birthday paradox</strong> — finds two inputs producing the same hash (collision). Effective against shorter hash outputs like MD5 and SHA-1." },
+  { cat: "Attacks", q: "What makes adding blocks to a blockchain computationally expensive?", a: "The <strong>proof-of-work</strong> mechanism requires solving a cryptographic puzzle (finding a hash below a target value), making block creation resource-intensive." },
+
+  // ===== STEGANOGRAPHY =====
+  { cat: "Stego / History", q: "What is steganography?", a: "A data <strong>concealment method for covert communication</strong> that hides data within other files (images, audio) so the existence of the message is itself hidden. Different from encryption." },
+  { cat: "Stego / History", q: "What technique uses LSB (Least Significant Bit) replacement?", a: "<strong>Steganography</strong> — replaces the least significant bit of pixels/audio samples with message bits, invisible to the human eye/ear." },
+  { cat: "Stego / History", q: "What is steganalysis?", a: "The practice of <strong>detecting hidden steganographic content</strong> within files — the counterpart to steganography." },
+  { cat: "Stego / History", q: "What is a Caesar cipher?", a: "A simple substitution cipher that <strong>shifts each letter</strong> by a fixed number of positions in the alphabet. Easy to break with frequency analysis." },
+  { cat: "Stego / History", q: "What is a Vigenère cipher?", a: "A <strong>polyalphabetic substitution cipher</strong> using a repeating keyword to shift letters. Harder to break than Caesar but not modern-secure." },
+  { cat: "Stego / History", q: "What is a mono-alphabetic (substitution) cipher?", a: "A <strong>single fixed mapping</strong> of the alphabet to a cipher alphabet. Every 'A' → same symbol. Vulnerable to frequency analysis." },
+  { cat: "Stego / History", q: "What is a Playfair cipher?", a: "Uses a <strong>5x5 matrix</strong> with a secret phrase. Letters cannot repeat in the grid; <strong>J is excluded</strong> (merged with I). Encrypts pairs of letters (digraphs)." },
+  { cat: "Stego / History", q: "What is a Bifid cipher?", a: "A cipher that <strong>matches letters into numeric values</strong> using a grid/matrix, then combines the coordinates of pairs of letters for encryption." },
+  { cat: "Stego / History", q: "What is whitening in cryptography?", a: "A technique that applies XOR with a key to data <strong>before or after</strong> encryption to reduce statistical patterns and improve security." },
+
+  // ===== LIGHTWEIGHT & SPECIAL TOPICS =====
+  { cat: "Special Topics", q: "How does NIST categorize devices for lightweight cryptography?", a: "NIST categorizes embedded systems, RFID, and sensor networks as <strong>lightweight</strong> devices — requiring efficient, low-resource crypto algorithms like PRESENT, SIMON." },
+  { cat: "Special Topics", q: "What is SIMON? (NSA lightweight cipher)", a: "A lightweight block cipher designed by the <strong>NSA</strong> for hardware-constrained environments. Variable block and key sizes." },
+  { cat: "Special Topics", q: "What is RC2?", a: "A symmetric block cipher with <strong>40-bit key size</strong> and <strong>64-bit block size</strong>. Used in older secure email (S/MIME). Now considered weak." },
+  { cat: "Special Topics", q: "What is the Feistel network structure?", a: "A symmetric structure used in block ciphers (DES, Blowfish, Twofish). Each round splits data in two halves and applies a function, then swaps halves. <strong>Decryption uses the same structure</strong>." },
+  { cat: "Special Topics", q: "What is forward secrecy (Perfect Forward Secrecy)?", a: "Ensures that <strong>session keys are not compromised even if the long-term private key is later exposed</strong>. Achieved via ephemeral Diffie-Hellman key exchange." },
+  { cat: "Special Topics", q: "What is key escrow?", a: "A system where <strong>cryptographic keys are held in escrow by a trusted third party</strong> — allows recovery in case of key loss or for law enforcement access." },
+  { cat: "Special Topics", q: "What is quantum cryptography / QKD?", a: "<strong>Quantum Key Distribution (QKD)</strong> uses quantum mechanics (photon polarization) to securely exchange keys. Any eavesdropping disturbs the quantum state and is detectable." },
+  { cat: "Special Topics", q: "What is homomorphic encryption?", a: "Allows computations to be performed on <strong>encrypted data without decrypting it first</strong>. Results, when decrypted, match operations performed on the plaintext." },
+
+  // ===== GOALS OF CRYPTOGRAPHY =====
+  { cat: "Goals & Concepts", q: "What are the 5 goals of cryptography (CIA + A + NR)?", a: `<table class='algo-table'><tr><th>Goal</th><th>Meaning</th></tr><tr><td>Confidentiality</td><td>Keeps data secret</td></tr><tr><td>Integrity</td><td>Prevents undetected changes</td></tr><tr><td>Availability</td><td>Keeps data accessible</td></tr><tr><td>Authentication</td><td>Verifies identity</td></tr><tr><td>Non-repudiation</td><td>Prevents denial of actions</td></tr></table>` },
+  { cat: "Goals & Concepts", q: "What is non-repudiation and how is it achieved?", a: "Ensures a sender <strong>cannot deny having sent a message</strong>. Achieved through <strong>digital signatures</strong> — the private key uniquely ties the action to the signer." },
+  { cat: "Goals & Concepts", q: "What is authentication in cryptography?", a: "Verifying the <strong>identity of a sender or entity</strong>. Achieved via digital certificates, Kerberos, challenge-response protocols, and public/private key pairs." },
+  { cat: "Goals & Concepts", q: "What is Kerckhoffs's Principle?", a: "Security must depend on the <strong>secrecy of the key, not the algorithm</strong>. The algorithm can be public; only the key must remain secret." },
+  { cat: "Goals & Concepts", q: "What is keyspace?", a: "The set of <strong>all possible key values</strong> for a given algorithm. A larger keyspace exponentially increases resistance to brute-force attacks." },
+  { cat: "Goals & Concepts", q: "What is entropy in cryptography?", a: "A measure of <strong>randomness or unpredictability</strong> in a key or data. Higher entropy = stronger keys. Low entropy makes keys easier to guess." },
+  { cat: "Goals & Concepts", q: "What is the difference between confusion and diffusion?", a: "<strong>Confusion</strong>: Changes in key produce large changes in ciphertext — hides the relationship between key and ciphertext.<br><strong>Diffusion</strong>: Changes in plaintext produce large changes in ciphertext — hides statistical structure of plaintext." },
+  { cat: "Goals & Concepts", q: "What is key stretching?", a: "A technique that <strong>strengthens weak/short passwords</strong> by making the hashing process computationally expensive. Examples: <strong>PBKDF2, bcrypt, scrypt, Argon2</strong>." },
+  { cat: "Goals & Concepts", q: "What is the difference between encoding and encryption?", a: "<strong>Encoding</strong>: Transforms data for transmission/storage — reversible without a key (e.g., Base64, ASCII).<br><strong>Encryption</strong>: Protects data — only reversible with the correct key (e.g., AES, RSA)." },
+  { cat: "Goals & Concepts", q: "What is malleability in cryptography?", a: "A property where <strong>ciphertext can be modified to produce a predictable change in plaintext</strong> after decryption. Example: bit-flipping attacks on stream ciphers. Addressed by authenticated encryption (GCM)." },
+
+  // ===== CLASSICAL CIPHERS (EXPANDED) =====
+  { cat: "Classical Ciphers", q: "What is the Atbash cipher?", a: "A <strong>reverse alphabet substitution</strong> cipher — A↔Z, B↔Y, etc. Fixed substitution with no key variable. One of the earliest known ciphers." },
+  { cat: "Classical Ciphers", q: "What is the Hill cipher?", a: "A <strong>matrix-based polyalphabetic substitution</strong> cipher using linear algebra. Requires an invertible key matrix for decryption. Vulnerable to known-plaintext attacks." },
+  { cat: "Classical Ciphers", q: "What is the Enigma machine?", a: "A <strong>mechanical polyalphabetic cipher</strong> used by Germany in WWII. Used rotors and a plugboard to create an extremely large keyspace. Broken by Allied codebreakers at Bletchley Park." },
+  { cat: "Classical Ciphers", q: "What is a transposition cipher? Give examples.", a: "Rearranges (permutes) letters rather than replacing them. Examples:<br><strong>Rail Fence</strong> – zigzag pattern<br><strong>Columnar Transposition</strong> – write in columns, read by key order<br><strong>Scytale</strong> – ancient Greek wrapping stick" },
+  { cat: "Classical Ciphers", q: "What is the key difference between substitution and transposition ciphers?", a: "<strong>Substitution</strong> = replace characters with other characters.<br><strong>Transposition</strong> = rearrange the positions of characters.<br>Modern ciphers use both together." },
+  { cat: "Classical Ciphers", q: "What is a double transposition cipher?", a: "Writes plaintext into a grid then <strong>permutes both rows and columns</strong>. Scrambles text structure — frequency of individual letters is preserved but position info is destroyed." },
+  { cat: "Classical Ciphers", q: "What is the Rail Fence cipher?", a: "A transposition cipher that writes plaintext in a <strong>zigzag pattern across multiple rows</strong>, then reads across each row to form the ciphertext." },
+  { cat: "Classical Ciphers", q: "What is the Scytale cipher?", a: "An <strong>ancient Greek transposition cipher</strong> using a wooden rod — parchment was wound around it and the message written. Unwound, the text appears scrambled." },
+
+  // ===== DATA ENCODING & MATH =====
+  { cat: "Math & Encoding", q: "What are the four number systems used in cryptography?", a: `<table class='algo-table'><tr><th>System</th><th>Base</th><th>Use</th></tr><tr><td>Binary</td><td>2</td><td>Bit operations</td></tr><tr><td>Decimal</td><td>10</td><td>Human-readable</td></tr><tr><td>Hexadecimal</td><td>16</td><td>Keys, hashes, ciphertext</td></tr><tr><td>Octal</td><td>8</td><td>Older computing</td></tr></table>` },
+  { cat: "Math & Encoding", q: "What is Base64 encoding?", a: "Converts <strong>binary data into ASCII text</strong> using 64 printable characters. Used to safely transmit binary data (like certificates or attachments) over text-based systems. NOT encryption." },
+  { cat: "Math & Encoding", q: "What is the GCD (Greatest Common Divisor) and why does it matter in crypto?", a: "The <strong>largest number that divides two integers evenly</strong>. Example: gcd(9, 12) = 3. Numbers with GCD = 1 are <em>relatively prime</em> — a requirement for RSA key generation." },
+  { cat: "Math & Encoding", q: "What is a modular inverse?", a: "A value that <strong>'undoes' multiplication modulo n</strong>. If a × b ≡ 1 (mod n), then b is the modular inverse of a. This is the mathematical core of RSA private key calculation." },
+  { cat: "Math & Encoding", q: "What are prime numbers and why are they used in cryptography?", a: "Numbers <strong>divisible only by 1 and themselves</strong>. RSA and Diffie-Hellman rely on the fact that <strong>factoring large primes is computationally infeasible</strong> — the trapdoor." },
+  { cat: "Math & Encoding", q: "What is hexadecimal and why is it used in cryptography?", a: "Base-16 number system using digits 0–9 and A–F. Used to represent <strong>keys, hashes, and ciphertext compactly</strong>. One hex digit = 4 bits; two hex digits = 1 byte." },
+
+  // ===== PKI EXPANDED =====
+  { cat: "PKI", q: "What is a Registration Authority (RA) in PKI?", a: "An entity that <strong>verifies the identity of certificate applicants</strong> before forwarding the request to the CA for issuance. Offloads identity verification from the CA." },
+  { cat: "PKI", q: "What are the PKI trust models?", a: "<strong>Single CA</strong> – one CA for all (single point of failure)<br><strong>Hierarchical</strong> – Root CA → Intermediate CAs → entities (most common)<br><strong>Bridge</strong> – links multiple independent PKIs together" },
+  { cat: "PKI", q: "What is the certificate lifecycle?", a: "1. <strong>Issuance</strong> – CA issues after RA validation<br>2. <strong>Suspension</strong> – temporarily disabled<br>3. <strong>Revocation</strong> – permanently invalidated before expiry<br>4. <strong>Expiration</strong> – validity period ends naturally" },
+  { cat: "PKI", q: "What is a Key Management System (KMS)?", a: "Automates <strong>key generation, distribution, rotation, and revocation</strong>. Works with TPMs and HSMs for secure storage. Used in cloud environments for centralized key control." },
+  { cat: "PKI", q: "What is a trapdoor one-way function?", a: "A function that is <strong>easy to compute in one direction but computationally hard to reverse</strong> without special information (the trapdoor). Basis of all asymmetric cryptography (RSA, ECC, DH)." },
+  { cat: "PKI", q: "How are asymmetric keys used for encryption vs. signing?", a: `<table class='algo-table'><tr><th>Function</th><th>Key Used</th><th>Purpose</th></tr><tr><td>Encryption</td><td>Public key</td><td>Confidentiality</td></tr><tr><td>Decryption</td><td>Private key</td><td>Access message</td></tr><tr><td>Signing</td><td>Private key</td><td>Integrity + non-repudiation</td></tr><tr><td>Verification</td><td>Public key</td><td>Validates signer</td></tr></table>` },
+
+  // ===== NETWORK PROTOCOLS (EXPANDED) =====
+  { cat: "Protocols", q: "What is SRTP and what port does it use?", a: "<strong>Secure Real-time Transport Protocol</strong> — secures voice and video over IP (VoIP, streaming). Uses <strong>AES-CTR</strong> for encryption and <strong>HMAC-SHA1</strong> for integrity. Port: <strong>UDP 5004</strong>. Only the payload is encrypted, not the RTP header." },
+  { cat: "Protocols", q: "What is HTTPS and what port does it use?", a: "HTTP over <strong>SSL/TLS</strong> — provides encryption, authentication, and integrity for web traffic. Port: <strong>TCP 443</strong>. Uses digital certificates to authenticate servers." },
+  { cat: "Protocols", q: "What is the TLS handshake process?", a: "1. Client requests HTTPS session<br>2. Server sends its <strong>digital certificate</strong><br>3. Client generates session key, encrypts with server's <strong>public key</strong><br>4. Server decrypts with <strong>private key</strong><br>5. Both exchange encrypted 'Finish' messages — secure channel established" },
+  { cat: "Protocols", q: "What are POP3/POPS ports?", a: "<strong>POP3</strong> (unencrypted): <span class='tag'>TCP 110</span><br><strong>POPS / POP3S</strong> (encrypted): <span class='tag'>TCP 995</span><br>POP downloads and typically deletes email from the server. Single-device access." },
+  { cat: "Protocols", q: "What are IMAP/IMAPS ports?", a: "<strong>IMAP</strong> (unencrypted): <span class='tag'>TCP 143</span><br><strong>IMAPS</strong> (encrypted): <span class='tag'>TCP 993</span><br>IMAP keeps email on server, supports multiple devices, folders, and search." },
+  { cat: "Protocols", q: "What is the difference between POP and IMAP?", a: `<table class='algo-table'><tr><th>Feature</th><th>POP</th><th>IMAP</th></tr><tr><td>Storage</td><td>Local (downloads)</td><td>Server-based</td></tr><tr><td>Multi-device</td><td>No</td><td>Yes</td></tr><tr><td>Port</td><td>110 / 995</td><td>143 / 993</td></tr><tr><td>Search/Folders</td><td>No</td><td>Yes</td></tr></table>` },
+  { cat: "Protocols", q: "What is LDAP injection?", a: "An attack that exploits <strong>weak input validation in LDAP queries</strong> to modify or access unauthorized directory data. Mitigated by input sanitization." },
+  { cat: "Protocols", q: "What are the two components of IPsec (ESP and AH)?", a: "<strong>ESP (Encapsulating Security Payload)</strong> – provides encryption AND integrity<br><strong>AH (Authentication Header)</strong> – provides integrity ONLY, no encryption<br>ESP is the more commonly used component." },
+  { cat: "Protocols", q: "What are the two phases of IKE in IPsec?", a: "<strong>Phase 1</strong>: Establishes a secure IKE-SA channel (like SSL session setup)<br><strong>Phase 2</strong>: Establishes the actual IPsec-SA connection for data traffic (like SSL connection)" },
+  { cat: "Protocols", q: "Compare SSL/TLS vs. IPsec.", a: `<table class='algo-table'><tr><th>Feature</th><th>SSL/TLS</th><th>IPsec</th></tr><tr><td>OSI Layer</td><td>Transport/Socket</td><td>Network</td></tr><tr><td>Common Use</td><td>Web encryption</td><td>VPN tunnels</td></tr><tr><td>Config</td><td>App-level</td><td>OS/kernel</td></tr><tr><td>Auth</td><td>Certificates</td><td>PSK or certs</td></tr></table>` },
+  { cat: "Protocols", q: "What protocol provides the full suite of security services in the table: SRTP, LDAPS, HTTPS, POPS, IMAPS, SSH, SSL, IPsec?", a: `<table class='algo-table'><tr><th>Protocol</th><th>Port</th><th>Services</th></tr><tr><td>SRTP</td><td>UDP 5004</td><td>C, I, A</td></tr><tr><td>LDAPS</td><td>TCP 636</td><td>C, I, A</td></tr><tr><td>HTTPS</td><td>TCP 443</td><td>C, I, A</td></tr><tr><td>POPS</td><td>TCP 995</td><td>C, I</td></tr><tr><td>IMAPS</td><td>TCP 993</td><td>C, I</td></tr><tr><td>SSH</td><td>TCP 22</td><td>C, I, A</td></tr><tr><td>IPsec</td><td>—</td><td>C, I, A</td></tr></table><br><em>C=Confidentiality, I=Integrity, A=Authentication</em>` },
+
+  // ===== AUTHENTICATION PROTOCOLS =====
+  { cat: "Auth Protocols", q: "What is a nonce?", a: "A <strong>'number used once'</strong> — a random value included in authentication exchanges to ensure <strong>freshness</strong> and prevent replay attacks." },
+  { cat: "Auth Protocols", q: "What is a challenge-response protocol?", a: "One party sends a <strong>random challenge (nonce)</strong>; the other responds with a value derived from the challenge and a shared secret. Proves knowledge of the secret without revealing it. Prevents replay." },
+  { cat: "Auth Protocols", q: "What is mutual authentication?", a: "<strong>Both parties verify each other's identity</strong> — not just the server authenticating the client. Used in SSH, TLS mutual auth, and IPsec. Prevents impersonation from either side." },
+  { cat: "Auth Protocols", q: "What is a session key?", a: "A <strong>temporary symmetric key</strong> established after authentication for encrypting a single communication session. Discarded after the session ends — limits exposure if compromised." },
+  { cat: "Auth Protocols", q: "What is Kerberos?", a: "A network authentication protocol using <strong>tickets and a trusted Key Distribution Center (KDC)</strong>. Provides mutual authentication without transmitting passwords over the network. Used in Windows Active Directory." },
+  { cat: "Auth Protocols", q: "Compare authentication protocol types by security level.", a: `<table class='algo-table'><tr><th>Protocol</th><th>Weakness</th></tr><tr><td>Simple password</td><td>Plaintext, replayable</td></tr><tr><td>Hashed password</td><td>Still replayable</td></tr><tr><td>Challenge-Response (nonce)</td><td>Resists replay</td></tr><tr><td>Symmetric key auth</td><td>Prevents replay, efficient</td></tr><tr><td>Mutual auth</td><td>Strongest — both sides verified</td></tr></table>` },
+  { cat: "Auth Protocols", q: "What is the IFF (Identify Friend or Foe) protocol?", a: "A military challenge-response protocol: radar sends a challenge → aircraft encrypts it with a shared key → sends back the response. Vulnerable to a <strong>MiG-in-the-middle</strong> attack (relay attack)." },
+
+  // ===== ATTACKS EXPANDED =====
+  { cat: "Attacks", q: "What is a side-channel attack?", a: "Exploits <strong>physical characteristics</strong> of a system rather than the algorithm itself — e.g., power consumption, timing, electromagnetic emissions. Defense: constant-time algorithms, physical shielding." },
+  { cat: "Attacks", q: "What is a chosen-ciphertext attack?", a: "The attacker <strong>submits chosen ciphertexts for decryption</strong> and studies the results to learn information about the key. Example: <strong>padding oracle attacks</strong>. Defense: authenticated encryption (GCM)." },
+  { cat: "Attacks", q: "What is a downgrade attack?", a: "Forces a communication session to use a <strong>weaker/older cryptographic standard</strong>. Example: forcing TLS 1.3 → SSL 3.0. Defense: disable legacy protocols, enforce minimum cipher suite versions." },
+  { cat: "Attacks", q: "What is a pass-the-hash attack?", a: "An attacker uses a <strong>stolen password hash directly to authenticate</strong> (in NTLM) without needing the plaintext password. NTLM reuses the same hash until the password changes. Defense: disable NTLM, use Kerberos, enforce MFA." },
+  { cat: "Attacks", q: "What is a padding oracle attack?", a: "A chosen-ciphertext attack that <strong>exploits error messages about padding</strong> in block cipher decryption to reveal plaintext byte by byte. Defense: use authenticated encryption modes like <strong>AES-GCM</strong>." },
+  { cat: "Attacks", q: "What is a session replay attack?", a: "A variant of replay attack where the attacker <strong>reuses stolen session tokens</strong> to impersonate a user. Prevention: expire session IDs quickly, use timestamps and nonces." },
+  { cat: "Attacks", q: "Online vs. offline password attack — what's the difference?", a: "<strong>Online</strong>: attacker interacts with a live login system. Mitigated by lockouts, CAPTCHA, MFA.<br><strong>Offline</strong>: attacker has stolen password hashes and cracks them locally with no rate limiting. Mitigated by salting + key stretching (bcrypt, PBKDF2)." },
+  { cat: "Attacks", q: "What are examples of key stretching algorithms?", a: "<strong>PBKDF2</strong> – Password-Based Key Derivation Function 2<br><strong>bcrypt</strong> – adaptive hash with work factor<br><strong>scrypt</strong> – memory-hard function<br><strong>Argon2</strong> – winner of the Password Hashing Competition (PHC)" },
+
+  // ===== OBFUSCATION & TOKENIZATION =====
+  { cat: "Obfuscation", q: "What media types can steganography use to hide data?", a: `<table class='algo-table'><tr><th>Media</th><th>Method</th></tr><tr><td>Image</td><td>Alter pixel bits (LSB)</td></tr><tr><td>Audio</td><td>Change frequency/amplitude</td></tr><tr><td>Video</td><td>Insert data in frames</td></tr><tr><td>Text</td><td>Invisible spaces, tabs</td></tr></table><br>Risk: compression (e.g., JPEG) can destroy hidden data.` },
+  { cat: "Obfuscation", q: "What is tokenization?", a: "Replaces <strong>sensitive data with a non-sensitive 'token'</strong>. Example: SSN 123-45-6789 → token T98247. A <strong>token vault</strong> maps tokens back to originals. Unlike encryption, tokenization is NOT mathematically reversible." },
+  { cat: "Obfuscation", q: "What is the difference between tokenization and encryption?", a: "<strong>Encryption</strong>: mathematically reversible with a key.<br><strong>Tokenization</strong>: not mathematically reversible — requires a lookup table (token vault).<br>Tokens are safe to use in databases and analytics." },
+
+  // ===== THREAT ACTORS =====
+  { cat: "Threat Actors", q: "What are the main types of threat actors?", a: `<table class='algo-table'><tr><th>Actor</th><th>Description</th></tr><tr><td>White Hat</td><td>Ethical, authorized testing</td></tr><tr><td>Gray Hat</td><td>Unauthorized but not malicious</td></tr><tr><td>Black Hat</td><td>Malicious, exploits for profit</td></tr><tr><td>Script Kiddie</td><td>Runs pre-made tools, unskilled</td></tr><tr><td>Hacktivist</td><td>Political/social motivation</td></tr><tr><td>State Actor / APT</td><td>Nation-sponsored, long-term</td></tr><tr><td>Criminal Syndicate</td><td>Organized, financial gain</td></tr></table>` },
+  { cat: "Threat Actors", q: "What is an APT (Advanced Persistent Threat)?", a: "A <strong>nation-state or sophisticated actor</strong> that conducts long-term, targeted espionage campaigns. Characterized by persistence, stealth, and advanced techniques. Example: attacks on power grids or elections." },
+  { cat: "Threat Actors", q: "What is an attack vector?", a: "The <strong>method or path used to breach a system</strong>. Examples: phishing emails, drive-by downloads, USB malware, software vulnerabilities, social engineering." },
+];
+
+
+let deck = [];
+let current = 0;
+let correctCount = 0;
+let wrongCards = [];
+let isFlipped = false;
+let activeCategory = "All";
+
+function getCategories() {
+  const cats = ["All", ...new Set(ALL_CARDS.map(c => c.cat))];
+  return cats;
+}
+
+function buildTabs() {
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = '';
+  getCategories().forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (cat === activeCategory ? ' active' : '');
+    const count = cat === 'All' ? ALL_CARDS.length : ALL_CARDS.filter(c => c.cat === cat).length;
+    btn.textContent = `${cat} (${count})`;
+    btn.onclick = () => {
+      activeCategory = cat;
+      buildTabs();
+      if (currentMode === 'browse') {
+        renderList();
+      } else {
+        resetDeck();
+      }
+    };
+    tabsEl.appendChild(btn);
+  });
+}
+
+function resetDeck() {
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  deck = [...source];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+function shuffleDeck() {
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  current = 0;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('cardInner').classList.toggle('flipped', isFlipped);
+  if (isFlipped) {
+    document.getElementById('judgeBtns').classList.add('visible');
+  } else {
+    document.getElementById('judgeBtns').classList.remove('visible');
+  }
+}
+
+function markCard(correct) {
+  if (correct) {
+    correctCount++;
+  } else {
+    wrongCards.push(deck[current]);
+  }
+  current++;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+
+  if (current >= deck.length) {
+    showFinished();
+  } else {
+    // animate
+    const area = document.getElementById('cardArea');
+    area.classList.add('animating');
+    setTimeout(() => area.classList.remove('animating'), 300);
+    updateCard();
+    updateStats();
+  }
+}
+
+function updateCard() {
+  if (current >= deck.length) return;
+  const card = deck[current];
+  document.getElementById('questionText').textContent = card.q;
+  document.getElementById('answerText').innerHTML = card.a;
+  document.getElementById('frontCategory').textContent = card.cat;
+  document.getElementById('backCategory').textContent = card.cat + ' — Answer';
+  const num = `${current + 1} / ${deck.length}`;
+  document.getElementById('cardNum').textContent = num;
+  document.getElementById('cardNumBack').textContent = num;
+  updateStats();
+}
+
+function updateStats() {
+  const remaining = deck.length - current;
+  document.getElementById('stat-remaining').textContent = remaining;
+  document.getElementById('stat-correct').textContent = correctCount;
+  document.getElementById('stat-wrong').textContent = wrongCards.length;
+  document.getElementById('stat-total').textContent = deck.length;
+  const pct = deck.length > 0 ? ((current / deck.length) * 100).toFixed(0) : 0;
+  document.getElementById('progress').style.width = pct + '%';
+}
+
+function showFinished() {
+  document.getElementById('cardArea').style.display = 'none';
+  const finished = document.getElementById('finishedScreen');
+  finished.classList.add('show');
+  const total = correctCount + wrongCards.length;
+  const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+  document.getElementById('scorePct').textContent = pct + '%';
+  document.getElementById('reviewBtn').style.display = wrongCards.length > 0 ? '' : 'none';
+  updateStats();
+}
+
+function restartWithWrong() {
+  if (wrongCards.length === 0) { resetDeck(); return; }
+  deck = [...wrongCards];
+  current = 0;
+  correctCount = 0;
+  wrongCards = [];
+  isFlipped = false;
+  document.getElementById('finishedScreen').classList.remove('show');
+  document.getElementById('cardArea').style.display = '';
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('judgeBtns').classList.remove('visible');
+  updateCard();
+  updateStats();
+}
+
+// Keyboard support
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); flipCard(); }
+  if (e.code === 'ArrowRight' && isFlipped) markCard(true);
+  if (e.code === 'ArrowLeft' && isFlipped) markCard(false);
+  if (e.code === 'KeyS') shuffleDeck();
+});
+
+// ===== MODE MANAGEMENT =====
+let currentMode = 'flashcard';
+let allExpanded = false;
+
+function setMode(mode) {
+  currentMode = mode;
+  const flashcardEls = [
+    document.getElementById('cardArea'),
+    document.querySelector('.stats-bar'),
+    document.querySelector('.progress-wrap'),
+    document.querySelector('.controls'),
+    document.getElementById('judgeBtns'),
+    document.getElementById('finishedScreen'),
+  ];
+  const listView = document.getElementById('listView');
+  const btnFlash = document.getElementById('modeFlashcard');
+  const btnBrowse = document.getElementById('modeBrowse');
+
+  if (mode === 'flashcard') {
+    flashcardEls.forEach(el => { if (el) el.style.display = ''; });
+    listView.classList.remove('visible');
+    btnFlash.classList.add('active');
+    btnBrowse.classList.remove('active');
+    // Re-hide finished if it wasn't showing
+    if (current < deck.length) document.getElementById('finishedScreen').classList.remove('show');
+  } else {
+    // Browse mode
+    flashcardEls.forEach(el => { if (el) el.style.display = 'none'; });
+    listView.classList.add('visible');
+    btnFlash.classList.remove('active');
+    btnBrowse.classList.add('active');
+    renderList();
+  }
+}
+
+function renderList() {
+  const query = (document.getElementById('listSearch').value || '').toLowerCase().trim();
+  const source = activeCategory === 'All' ? ALL_CARDS : ALL_CARDS.filter(c => c.cat === activeCategory);
+  const filtered = query
+    ? source.filter(c => c.q.toLowerCase().includes(query) || c.a.toLowerCase().replace(/<[^>]+>/g, '').includes(query))
+    : source;
+
+  document.getElementById('listCount').textContent = `${filtered.length} term${filtered.length !== 1 ? 's' : ''}`;
+
+  const container = document.getElementById('listItems');
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="no-results">No matching cards found.</div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map((card, i) => {
+    const globalIdx = ALL_CARDS.indexOf(card) + 1;
+    return `
+    <div class="list-item" id="li-${i}">
+      <div class="list-item-header" onclick="toggleListItem(${i})">
+        <span class="list-item-num">${globalIdx}</span>
+        <span class="list-item-q">${escapeHtml(card.q)}</span>
+        <span class="list-item-cat">${card.cat}</span>
+        <svg class="list-item-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="list-item-answer">${card.a}</div>
+    </div>`;
+  }).join('');
+
+  // Restore expanded state if allExpanded
+  if (allExpanded) {
+    container.querySelectorAll('.list-item').forEach(el => el.classList.add('open'));
+  }
+}
+
+function toggleListItem(idx) {
+  const el = document.getElementById(`li-${idx}`);
+  if (el) el.classList.toggle('open');
+}
+
+function toggleExpandAll() {
+  allExpanded = !allExpanded;
+  const btn = document.getElementById('expandAllBtn');
+  btn.textContent = allExpanded ? 'Collapse All' : 'Expand All';
+  document.querySelectorAll('.list-item').forEach(el => {
+    if (allExpanded) el.classList.add('open');
+    else el.classList.remove('open');
+  });
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Init
+buildTabs();
+resetDeck();
+</script>
+</body>
+</html>

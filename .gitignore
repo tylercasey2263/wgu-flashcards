@@ -8,5 +8,9 @@ Thumbs.db
 *.swp
 *.swo
 
+# Claude
+.claude/
+wgu_flashcard_creator.md
+
 # Misc
 *.log
